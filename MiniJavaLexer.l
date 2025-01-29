@@ -21,6 +21,7 @@
 
 public:
     static const char *tokenToString(Token token) {
+    
         switch (token) {
             case Token::EndOfFile: return "EndOfFile";
             case Token::Error: return "Error";
@@ -80,43 +81,43 @@ public:
 0[0-7]+                  { return Token::Oct; }
 [1-9][0-9]*              { return Token::Dec; }
 0[bB][0-1]+              { return Token::Bin; }
-class                  { return Token::KW_CLASS; }
-KW_INT                    { return Token::KW_INT; }
+class                 { return Token::KW_CLASS; }
+int                    { return Token::KW_INT; }
 void                   { return Token::KW_VOID; }
-KW_REF                    { return Token::KW_REF; }
-KW_IF                     { return Token::KW_IF; }
-KW_ELSE                   { return Token::KW_ELSE; }
-KW_WHILE                  { return Token::KW_WHILE; }
-KW_RETURN                 { return Token::KW_RETURN; }
-KW_PRINT                  { return Token::KW_PRINT; }
-KW_READ                   { return Token::KW_READ; }
-OP_ASSIGN                 { return Token::OP_ASSIGN; }
-OP_BOOL_OR                { return Token::OP_BOOL_OR; }
-OP_BOOL_AND               { return Token::OP_BOOL_AND; }
-OP_BOOL_NOT               { return Token::OP_BOOL_NOT; }
-OP_EQUAL                  { return Token::OP_EQUAL; }
-OP_NOT_EQUAL              { return Token::OP_NOT_EQUAL; }
-OP_LESS_THAN              { return Token::OP_LESS_THAN; }
-OP_GREATHER_THAN          { return Token::OP_GREATHER_THAN; }
-OP_LESS_EQUAL             { return Token::OP_LESS_EQUAL; }
-OP_GREATHER_EQUAL         { return Token::OP_GREATHER_EQUAL; }
-OP_ADD                    { return Token::OP_ADD; }
-OP_SUB                    { return Token::OP_SUB; }
-OP_MUL                    { return Token::OP_MUL; }
-OP_DIV                    { return Token::OP_DIV; }
-OP_MOD                    { return Token::OP_MOD; }
-IDENTIFIER                { return Token::IDENTIFIER; }
-INT_CONST                 { return Token::INT_CONST; }
-STRING_LITERAL            { return Token::STRING_LITERAL; }
-CONSTANT                  { return Token::CONSTANT; }
-OPEN_CURLY                { return Token::OPEN_CURLY; }
-CLOSE_CURLY               { return Token::CLOSE_CURLY; }
-OPEN_PAR                  { return Token::OPEN_PAR; }
-CLOSE_PAR                 { return Token::CLOSE_PAR; }
-OPEN_BRACKET              { return Token::OPEN_BRACKET; }
-CLOSE_BRACKET             { return Token::CLOSE_BRACKET; }
-COMMA                     { return Token::COMMA; }
-SEMICOLON                 { return Token::SEMICOLON; }
+ref                   { return Token::KW_REF; }
+if                    { return Token::KW_IF; }
+else                   { return Token::KW_ELSE; }
+while                  { return Token::KW_WHILE; }
+return                 { return Token::KW_RETURN; }
+print                  { return Token::KW_PRINT; }
+read                   { return Token::KW_READ; }
+=                   { return Token::OP_ASSIGN; }
+\|\|         { return Token::OP_BOOL_OR; }                 { return Token::OP_BOOL_OR; }
+\&\&                  { return Token::OP_BOOL_AND; }
+!                   { return Token::OP_BOOL_NOT; }
+==                  { return Token::OP_EQUAL; }
+!=                  { return Token::OP_NOT_EQUAL; }
+<                   { return Token::OP_LESS_THAN; }
+>                   { return Token::OP_GREATHER_THAN; }
+<=                  { return Token::OP_LESS_EQUAL; }
+>=                  { return Token::OP_GREATHER_EQUAL; }
+\+                   { return Token::OP_ADD; }
+\-                   { return Token::OP_SUB; }
+\*                   { return Token::OP_MUL; }
+\/                   { return Token::OP_DIV; }
+\%                   { return Token::OP_MOD; }
+[a-zA-Z_][a-zA-Z0-9_]*             { return Token::IDENTIFIER; }
+[0-9]+             { return Token::INT_CONST; }
+"\"(\\.|[^\"\\])*\""           { return Token::STRING_LITERAL; }
+[0-9]+                  { return Token::CONSTANT; }
+\{        { return Token::OPEN_CURLY; }
+\}            { return Token::CLOSE_CURLY; }
+\(              { return Token::OPEN_PAR; }
+\)            { return Token::CLOSE_PAR; }
+\[              { return Token::OPEN_BRACKET; }
+\]            { return Token::CLOSE_BRACKET; }
+,                     { return Token::COMMA; }
+;                { return Token::SEMICOLON; }
 <<EOF>>                   { return Token::EndOfFile; }
 .                         { return Token::Error; }
 

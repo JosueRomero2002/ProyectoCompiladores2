@@ -20,15 +20,17 @@ int main(int argc, char *argv[])
     MiniJavaLexer lexer(in);
     Token token = lexer.nextToken();
 
-    while (lexer.nextToken() != Token::EndOfFile)
+    std::cout << "Token: " << lexer.tokenToString(token) << std::endl;
+
+    while (token != Token::EndOfFile)
     {
+        token = lexer.nextToken();
+
+        std::cout << "Tokens: " << lexer.tokenToString(token) << std::endl;
         if (token == Token::Error)
         {
             std::cerr << "Error: Token no reconocido" << std::endl;
-            return 1;
         }
-
-        std::cout << "Token: " << lexer.tokenToString(token) << std::endl;
     }
 
     return 0;

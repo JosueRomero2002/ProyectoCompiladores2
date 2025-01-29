@@ -59,6 +59,7 @@ class MiniJavaLexer : public reflex::AbstractLexer<reflex::Matcher> {
 
 public:
     static const char *tokenToString(Token token) {
+
         switch (token) {
             case Token::EndOfFile: return "EndOfFile";
             case Token::Error: return "Error";

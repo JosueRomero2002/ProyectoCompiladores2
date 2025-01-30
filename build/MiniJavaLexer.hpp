@@ -23,7 +23,7 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#line 13 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+#line 12 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 
     #include "tokens.hpp"
 
@@ -51,15 +51,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 class MiniJavaLexer : public reflex::AbstractLexer<reflex::Matcher> {
-#line 17 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
-
-
-
-
+#line 16 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 
 public:
     static const char *tokenToString(Token token) {
-
         switch (token) {
             case Token::EndOfFile: return "EndOfFile";
             case Token::Error: return "Error";
@@ -84,9 +79,9 @@ public:
             case Token::OP_EQUAL: return "OP_EQUAL";
             case Token::OP_NOT_EQUAL: return "OP_NOT_EQUAL";
             case Token::OP_LESS_THAN: return "OP_LESS_THAN";
-            case Token::OP_GREATHER_THAN: return "OP_GREATHER_THAN";
+            case Token::OP_GREATER_THAN: return "OP_GREATER_THAN";
             case Token::OP_LESS_EQUAL: return "OP_LESS_EQUAL";
-            case Token::OP_GREATHER_EQUAL: return "OP_GREATHER_EQUAL";
+            case Token::OP_GREATER_EQUAL: return "OP_GREATER_EQUAL";
             case Token::OP_ADD: return "OP_ADD";
             case Token::OP_SUB: return "OP_SUB";
             case Token::OP_MUL: return "OP_MUL";
@@ -104,6 +99,7 @@ public:
             case Token::CLOSE_BRACKET: return "CLOSE_BRACKET";
             case Token::COMMA: return "COMMA";
             case Token::SEMICOLON: return "SEMICOLON";
+            case Token::COMMENT: return "COMMENT";
             default: return "Unknown";
         }
     }
@@ -120,6 +116,7 @@ public:
   {
   }
   static const int INITIAL = 0;
+  static const int COMMENT = 1;
   // the lexer function defined by SECTION 2
   virtual Token nextToken(void);
   // lexer functions accepting new input to scan

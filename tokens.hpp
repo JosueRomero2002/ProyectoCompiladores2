@@ -27,9 +27,9 @@ enum Token
     OP_EQUAL,
     OP_NOT_EQUAL,
     OP_LESS_THAN,
-    OP_GREATHER_THAN,
+    OP_GREATER_THAN,
     OP_LESS_EQUAL,
-    OP_GREATHER_EQUAL,
+    OP_GREATER_EQUAL,
     OP_ADD,
     OP_SUB,
     OP_MUL,
@@ -46,7 +46,8 @@ enum Token
     OPEN_BRACKET,
     CLOSE_BRACKET,
     COMMA,
-    SEMICOLON
+    SEMICOLON,
+    COMMENT
 };
 
 const char *tokenToString(Token token);

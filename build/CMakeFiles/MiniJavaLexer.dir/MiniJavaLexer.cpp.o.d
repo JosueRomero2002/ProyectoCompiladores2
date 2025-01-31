@@ -52,8 +52,9 @@ CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o: \
  /usr/include/c++/11/bits/enable_special_members.h \
  /usr/include/c++/11/bits/node_handle.h \
  /usr/include/c++/11/bits/unordered_map.h \
- /usr/include/c++/11/bits/erase_if.h /usr/include/c++/11/cstdlib \
- /usr/include/stdlib.h \
+ /usr/include/c++/11/bits/erase_if.h \
+ /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/tokens.hpp \
+ /usr/include/c++/11/cstdlib /usr/include/stdlib.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h \
  /usr/include/x86_64-linux-gnu/bits/waitflags.h \
@@ -163,7 +164,6 @@ CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o: \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
  /usr/include/c++/11/bits/vector.tcc \
- /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/tokens.hpp \
  /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/MiniJavaLexer.hpp \
  /usr/local/include/reflex/matcher.h \
  /usr/local/include/reflex/absmatcher.h \

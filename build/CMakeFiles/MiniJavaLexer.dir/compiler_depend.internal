@@ -63,6 +63,7 @@ CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o
  /usr/include/c++/11/bits/node_handle.h
  /usr/include/c++/11/bits/unordered_map.h
  /usr/include/c++/11/bits/erase_if.h
+ /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/tokens.hpp
  /usr/include/c++/11/cstdlib
  /usr/include/stdlib.h
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
@@ -202,7 +203,6 @@ CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o
  /usr/include/c++/11/bits/stl_vector.h
  /usr/include/c++/11/bits/stl_bvector.h
  /usr/include/c++/11/bits/vector.tcc
- /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/tokens.hpp
  /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaLexer.hpp
  /usr/local/include/reflex/matcher.h
  /usr/local/include/reflex/absmatcher.h
@@ -451,12 +451,12 @@ CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o
  /usr/include/c++/11/bits/node_handle.h
  /usr/include/c++/11/bits/unordered_map.h
  /usr/include/c++/11/bits/erase_if.h
+ /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/tokens.hpp
  /usr/include/c++/11/vector
  /usr/include/c++/11/bits/stl_uninitialized.h
  /usr/include/c++/11/bits/stl_vector.h
  /usr/include/c++/11/bits/stl_bvector.h
  /usr/include/c++/11/bits/vector.tcc
- /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/tokens.hpp
  /usr/local/include/reflex/matcher.h
  /usr/local/include/reflex/absmatcher.h
  /usr/local/include/reflex/convert.h
@@ -706,12 +706,12 @@ CMakeFiles/MiniJavaLexer.dir/main.cpp.o
  /usr/include/c++/11/bits/node_handle.h
  /usr/include/c++/11/bits/unordered_map.h
  /usr/include/c++/11/bits/erase_if.h
+ /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/tokens.hpp
  /usr/include/c++/11/vector
  /usr/include/c++/11/bits/stl_uninitialized.h
  /usr/include/c++/11/bits/stl_vector.h
  /usr/include/c++/11/bits/stl_bvector.h
  /usr/include/c++/11/bits/vector.tcc
- /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/tokens.hpp
  /usr/local/include/reflex/matcher.h
  /usr/local/include/reflex/absmatcher.h
  /usr/local/include/reflex/convert.h
@@ -761,6 +761,7 @@ CMakeFiles/MiniJavaLexer.dir/main.cpp.o
  /usr/local/include/reflex/abslexer.h
  /usr/include/c++/11/sstream
  /usr/include/c++/11/bits/sstream.tcc
+ /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp
  /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/tokens.hpp
  /usr/include/c++/11/fstream
  /usr/include/c++/11/bits/codecvt.h

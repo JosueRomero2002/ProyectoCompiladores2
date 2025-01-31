@@ -49,8 +49,9 @@
 
    #include <unordered_map>
    class MiniJavaLexer;
+  #include "tokens.hpp" 
 
-#line 54 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 55 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 # include <cstdlib> // std::abort
@@ -186,7 +187,7 @@
 
 #line 9 "MiniJavaParser.y"
 namespace Expr {
-#line 190 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 191 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 
@@ -382,13 +383,13 @@ namespace Expr {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // "number"
+      // INT_CONST
       // expr
       // term
       // factor
       char dummy1[sizeof (int)];
 
-      // "identifier"
+      // IDENTIFIER
       char dummy2[sizeof (std::string)];
     };
 
@@ -432,17 +433,17 @@ namespace Expr {
         YYEMPTY = -2,
     YYEOF = 0,                     // "end of file"
     YYerror = 256,                 // error
-    YYUNDEF = 257,                 // "invalid token"
-    OP_ADD = 258,                  // "+"
-    OP_SUB = 259,                  // "-"
-    OP_MUL = 260,                  // "*"
-    OP_DIV = 261,                  // "/"
-    TK_OPEN_PAR = 262,             // TK_OPEN_PAR
-    TK_CLOSE_PAR = 263,            // TK_CLOSE_PAR
-    TK_SEMICOLON = 264,            // TK_SEMICOLON
-    TK_NUMBER = 265,               // "number"
-    TK_IDENTIFIER = 266,           // "identifier"
-    TK_ERROR = 267                 // "unknown token"
+    YYUNDEF = 1002,                // "invalid token"
+    OP_ADD = 1003,                 // OP_ADD
+    OP_SUB = 1004,                 // OP_SUB
+    OP_MUL = 1005,                 // OP_MUL
+    OP_DIV = 1006,                 // OP_DIV
+    OPEN_PAR = 1007,               // OPEN_PAR
+    CLOSE_PAR = 1008,              // CLOSE_PAR
+    SEMICOLON = 1009,              // SEMICOLON
+    INT_CONST = 1010,              // INT_CONST
+    IDENTIFIER = 1001,             // IDENTIFIER
+    ERROR = 1011                   // ERROR
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -464,16 +465,16 @@ namespace Expr {
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
         S_YYUNDEF = 2,                           // "invalid token"
-        S_OP_ADD = 3,                            // "+"
-        S_OP_SUB = 4,                            // "-"
-        S_OP_MUL = 5,                            // "*"
-        S_OP_DIV = 6,                            // "/"
-        S_TK_OPEN_PAR = 7,                       // TK_OPEN_PAR
-        S_TK_CLOSE_PAR = 8,                      // TK_CLOSE_PAR
-        S_TK_SEMICOLON = 9,                      // TK_SEMICOLON
-        S_TK_NUMBER = 10,                        // "number"
-        S_TK_IDENTIFIER = 11,                    // "identifier"
-        S_TK_ERROR = 12,                         // "unknown token"
+        S_OP_ADD = 3,                            // OP_ADD
+        S_OP_SUB = 4,                            // OP_SUB
+        S_OP_MUL = 5,                            // OP_MUL
+        S_OP_DIV = 6,                            // OP_DIV
+        S_OPEN_PAR = 7,                          // OPEN_PAR
+        S_CLOSE_PAR = 8,                         // CLOSE_PAR
+        S_SEMICOLON = 9,                         // SEMICOLON
+        S_INT_CONST = 10,                        // INT_CONST
+        S_IDENTIFIER = 11,                       // IDENTIFIER
+        S_ERROR = 12,                            // ERROR
         S_YYACCEPT = 13,                         // $accept
         S_input = 14,                            // input
         S_opt_semicolon = 15,                    // opt_semicolon
@@ -516,14 +517,14 @@ namespace Expr {
       {
         switch (this->kind ())
     {
-      case symbol_kind::S_TK_NUMBER: // "number"
+      case symbol_kind::S_INT_CONST: // INT_CONST
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.move< int > (std::move (that.value));
         break;
 
-      case symbol_kind::S_TK_IDENTIFIER: // "identifier"
+      case symbol_kind::S_IDENTIFIER: // IDENTIFIER
         value.move< std::string > (std::move (that.value));
         break;
 
@@ -596,14 +597,14 @@ namespace Expr {
         // Value type destructor.
 switch (yykind)
     {
-      case symbol_kind::S_TK_NUMBER: // "number"
+      case symbol_kind::S_INT_CONST: // INT_CONST
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.template destroy< int > ();
         break;
 
-      case symbol_kind::S_TK_IDENTIFIER: // "identifier"
+      case symbol_kind::S_IDENTIFIER: // IDENTIFIER
         value.template destroy< std::string > ();
         break;
 
@@ -871,91 +872,91 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_OPEN_PAR ()
+      make_OPEN_PAR ()
       {
-        return symbol_type (token::TK_OPEN_PAR);
+        return symbol_type (token::OPEN_PAR);
       }
 #else
       static
       symbol_type
-      make_TK_OPEN_PAR ()
+      make_OPEN_PAR ()
       {
-        return symbol_type (token::TK_OPEN_PAR);
+        return symbol_type (token::OPEN_PAR);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_CLOSE_PAR ()
+      make_CLOSE_PAR ()
       {
-        return symbol_type (token::TK_CLOSE_PAR);
+        return symbol_type (token::CLOSE_PAR);
       }
 #else
       static
       symbol_type
-      make_TK_CLOSE_PAR ()
+      make_CLOSE_PAR ()
       {
-        return symbol_type (token::TK_CLOSE_PAR);
+        return symbol_type (token::CLOSE_PAR);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_SEMICOLON ()
+      make_SEMICOLON ()
       {
-        return symbol_type (token::TK_SEMICOLON);
+        return symbol_type (token::SEMICOLON);
       }
 #else
       static
       symbol_type
-      make_TK_SEMICOLON ()
+      make_SEMICOLON ()
       {
-        return symbol_type (token::TK_SEMICOLON);
+        return symbol_type (token::SEMICOLON);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_NUMBER (int v)
+      make_INT_CONST (int v)
       {
-        return symbol_type (token::TK_NUMBER, std::move (v));
+        return symbol_type (token::INT_CONST, std::move (v));
       }
 #else
       static
       symbol_type
-      make_TK_NUMBER (const int& v)
+      make_INT_CONST (const int& v)
       {
-        return symbol_type (token::TK_NUMBER, v);
+        return symbol_type (token::INT_CONST, v);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_IDENTIFIER (std::string v)
+      make_IDENTIFIER (std::string v)
       {
-        return symbol_type (token::TK_IDENTIFIER, std::move (v));
+        return symbol_type (token::IDENTIFIER, std::move (v));
       }
 #else
       static
       symbol_type
-      make_TK_IDENTIFIER (const std::string& v)
+      make_IDENTIFIER (const std::string& v)
       {
-        return symbol_type (token::TK_IDENTIFIER, v);
+        return symbol_type (token::IDENTIFIER, v);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_TK_ERROR ()
+      make_ERROR ()
       {
-        return symbol_type (token::TK_ERROR);
+        return symbol_type (token::ERROR);
       }
 #else
       static
       symbol_type
-      make_TK_ERROR ()
+      make_ERROR ()
       {
-        return symbol_type (token::TK_ERROR);
+        return symbol_type (token::ERROR);
       }
 #endif
 
@@ -1301,7 +1302,7 @@ switch (yykind)
 
 #line 9 "MiniJavaParser.y"
 } // Expr
-#line 1305 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 1306 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 

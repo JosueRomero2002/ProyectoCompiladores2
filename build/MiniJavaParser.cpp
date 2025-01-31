@@ -37,15 +37,17 @@
 
 
 // First part of user prologue.
-#line 16 "MiniJavaParser.y"
+#line 17 "MiniJavaParser.y"
 
 #include <iostream>
 #include <stdexcept>
 #include "MiniJavaLexer.hpp"
 #include "error.h"
-
+#include "tokens.hpp"
 
 #define yylex(arg) lexer.nextToken(arg)
+
+void yyerror(const char* msg);
 
 namespace Expr {
     void Parser::error (const std::string& msg)
@@ -55,7 +57,12 @@ namespace Expr {
 }
 
 
-#line 59 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+void yyerror(const char* msg) {
+    std::cerr << "Syntax error: " << msg << std::endl;
+}
+
+
+#line 66 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
 
 
 #include "MiniJavaParser.hpp"
@@ -134,7 +141,7 @@ namespace Expr {
 
 #line 9 "MiniJavaParser.y"
 namespace Expr {
-#line 138 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 145 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
 
   /// Build a parser object.
   Parser::Parser (MiniJavaLexer& lexer_yyarg, std::unordered_map<std::string, int>& vars_yyarg)
@@ -166,14 +173,14 @@ namespace Expr {
   {
     switch (this->kind ())
     {
-      case symbol_kind::S_TK_NUMBER: // "number"
+      case symbol_kind::S_INT_CONST: // INT_CONST
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.copy< int > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_TK_IDENTIFIER: // "identifier"
+      case symbol_kind::S_IDENTIFIER: // IDENTIFIER
         value.copy< std::string > (YY_MOVE (that.value));
         break;
 
@@ -208,14 +215,14 @@ namespace Expr {
     super_type::move (s);
     switch (this->kind ())
     {
-      case symbol_kind::S_TK_NUMBER: // "number"
+      case symbol_kind::S_INT_CONST: // INT_CONST
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.move< int > (YY_MOVE (s.value));
         break;
 
-      case symbol_kind::S_TK_IDENTIFIER: // "identifier"
+      case symbol_kind::S_IDENTIFIER: // IDENTIFIER
         value.move< std::string > (YY_MOVE (s.value));
         break;
 
@@ -319,14 +326,14 @@ namespace Expr {
   {
     switch (that.kind ())
     {
-      case symbol_kind::S_TK_NUMBER: // "number"
+      case symbol_kind::S_INT_CONST: // INT_CONST
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.YY_MOVE_OR_COPY< int > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_TK_IDENTIFIER: // "identifier"
+      case symbol_kind::S_IDENTIFIER: // IDENTIFIER
         value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
         break;
 
@@ -345,14 +352,14 @@ namespace Expr {
   {
     switch (that.kind ())
     {
-      case symbol_kind::S_TK_NUMBER: // "number"
+      case symbol_kind::S_INT_CONST: // INT_CONST
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.move< int > (YY_MOVE (that.value));
         break;
 
-      case symbol_kind::S_TK_IDENTIFIER: // "identifier"
+      case symbol_kind::S_IDENTIFIER: // IDENTIFIER
         value.move< std::string > (YY_MOVE (that.value));
         break;
 
@@ -371,14 +378,14 @@ namespace Expr {
     state = that.state;
     switch (that.kind ())
     {
-      case symbol_kind::S_TK_NUMBER: // "number"
+      case symbol_kind::S_INT_CONST: // INT_CONST
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.copy< int > (that.value);
         break;
 
-      case symbol_kind::S_TK_IDENTIFIER: // "identifier"
+      case symbol_kind::S_IDENTIFIER: // IDENTIFIER
         value.copy< std::string > (that.value);
         break;
 
@@ -395,14 +402,14 @@ namespace Expr {
     state = that.state;
     switch (that.kind ())
     {
-      case symbol_kind::S_TK_NUMBER: // "number"
+      case symbol_kind::S_INT_CONST: // INT_CONST
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.move< int > (that.value);
         break;
 
-      case symbol_kind::S_TK_IDENTIFIER: // "identifier"
+      case symbol_kind::S_IDENTIFIER: // IDENTIFIER
         value.move< std::string > (that.value);
         break;
 
@@ -659,14 +666,14 @@ namespace Expr {
          when using variants.  */
       switch (yyr1_[yyn])
     {
-      case symbol_kind::S_TK_NUMBER: // "number"
+      case symbol_kind::S_INT_CONST: // INT_CONST
       case symbol_kind::S_expr: // expr
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         yylhs.value.emplace< int > ();
         break;
 
-      case symbol_kind::S_TK_IDENTIFIER: // "identifier"
+      case symbol_kind::S_IDENTIFIER: // IDENTIFIER
         yylhs.value.emplace< std::string > ();
         break;
 
@@ -685,82 +692,82 @@ namespace Expr {
           switch (yyn)
             {
   case 7: // statement: expr
-#line 57 "MiniJavaParser.y"
+#line 61 "MiniJavaParser.y"
                 { std::cout << "Resultado: " << yystack_[0].value.as < int > () << '\n'; }
-#line 691 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 698 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 8: // expr: expr "+" term
-#line 59 "MiniJavaParser.y"
+  case 8: // expr: expr OP_ADD term
+#line 63 "MiniJavaParser.y"
                        { yylhs.value.as < int > () = yystack_[2].value.as < int > () + yystack_[0].value.as < int > (); }
-#line 697 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 704 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 9: // expr: expr "-" term
-#line 60 "MiniJavaParser.y"
+  case 9: // expr: expr OP_SUB term
+#line 64 "MiniJavaParser.y"
                        { yylhs.value.as < int > () = yystack_[2].value.as < int > () - yystack_[0].value.as < int > (); }
-#line 703 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 710 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
   case 10: // expr: term
-#line 61 "MiniJavaParser.y"
+#line 65 "MiniJavaParser.y"
            { yylhs.value.as < int > () = yystack_[0].value.as < int > (); }
-#line 709 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 716 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 11: // term: term "*" factor
-#line 63 "MiniJavaParser.y"
+  case 11: // term: term OP_MUL factor
+#line 67 "MiniJavaParser.y"
                          { yylhs.value.as < int > () = yystack_[2].value.as < int > () * yystack_[0].value.as < int > (); }
-#line 715 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 722 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 12: // term: term "/" factor
-#line 64 "MiniJavaParser.y"
+  case 12: // term: term OP_DIV factor
+#line 68 "MiniJavaParser.y"
                          { 
         if (yystack_[0].value.as < int > () == 0) {
-            error("Division by zero");
-       
+            yyerror("Division by zero");
+            YYABORT;
         } else {
             yylhs.value.as < int > () = yystack_[2].value.as < int > () / yystack_[0].value.as < int > ();
         }
     }
-#line 728 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 735 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
   case 13: // term: factor
-#line 72 "MiniJavaParser.y"
-             { yylhs.value.as < int > () = yystack_[0].value.as < int > (); }
-#line 734 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 14: // factor: "number"
-#line 74 "MiniJavaParser.y"
-                  { yylhs.value.as < int > () = yystack_[0].value.as < int > (); }
-#line 740 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 15: // factor: TK_OPEN_PAR expr TK_CLOSE_PAR
-#line 75 "MiniJavaParser.y"
-                                      { yylhs.value.as < int > () = yystack_[1].value.as < int > (); }
-#line 746 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 16: // factor: "identifier"
 #line 76 "MiniJavaParser.y"
-                      { 
+             { yylhs.value.as < int > () = yystack_[0].value.as < int > (); }
+#line 741 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 14: // factor: INT_CONST
+#line 78 "MiniJavaParser.y"
+                  { yylhs.value.as < int > () = yystack_[0].value.as < int > (); }
+#line 747 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 15: // factor: OPEN_PAR expr CLOSE_PAR
+#line 79 "MiniJavaParser.y"
+                                { yylhs.value.as < int > () = yystack_[1].value.as < int > (); }
+#line 753 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 16: // factor: IDENTIFIER
+#line 80 "MiniJavaParser.y"
+                   { 
          auto it = vars.find(yystack_[0].value.as < std::string > ());
          if(it == vars.end()){
-            error("Unknown Variable "+yystack_[0].value.as < std::string > ());
-         
+            yyerror(("Unknown Variable " + yystack_[0].value.as < std::string > ()).c_str());
+            YYABORT;
          } else {
             yylhs.value.as < int > () = it->second;
          }
       }
-#line 760 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 767 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
 
-#line 764 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 771 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
 
             default:
               break;
@@ -1183,10 +1190,10 @@ namespace Expr {
   const char*
   const Parser::yytname_[] =
   {
-  "\"end of file\"", "error", "\"invalid token\"", "\"+\"", "\"-\"",
-  "\"*\"", "\"/\"", "TK_OPEN_PAR", "TK_CLOSE_PAR", "TK_SEMICOLON",
-  "\"number\"", "\"identifier\"", "\"unknown token\"", "$accept", "input",
-  "opt_semicolon", "statement_list", "statement", "expr", "term", "factor", YY_NULLPTR
+  "\"end of file\"", "error", "\"invalid token\"", "OP_ADD", "OP_SUB",
+  "OP_MUL", "OP_DIV", "OPEN_PAR", "CLOSE_PAR", "SEMICOLON", "INT_CONST",
+  "IDENTIFIER", "ERROR", "$accept", "input", "opt_semicolon",
+  "statement_list", "statement", "expr", "term", "factor", YY_NULLPTR
   };
 #endif
 
@@ -1195,8 +1202,8 @@ namespace Expr {
   const signed char
   Parser::yyrline_[] =
   {
-       0,    49,    49,    51,    52,    54,    55,    57,    59,    60,
-      61,    63,    64,    72,    74,    75,    76
+       0,    53,    53,    55,    56,    58,    59,    61,    63,    64,
+      65,    67,    68,    76,    78,    79,    80
   };
 
   void
@@ -1260,11 +1267,86 @@ namespace Expr {
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12
+       2,     2,     2,     2,     2,     2,     1,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,    11,     2,     3,     4,     5,     6,     7,     8,     9,
+      10,    12
     };
     // Last valid token kind.
-    const int code_max = 267;
+    const int code_max = 1011;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1276,7 +1358,7 @@ namespace Expr {
 
 #line 9 "MiniJavaParser.y"
 } // Expr
-#line 1280 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1362 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
 
-#line 87 "MiniJavaParser.y"
+#line 91 "MiniJavaParser.y"
 

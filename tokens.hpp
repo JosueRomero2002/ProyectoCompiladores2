@@ -35,7 +35,7 @@ enum Token
     OP_MUL,
     OP_DIV,
     OP_MOD,
-    IDENTIFIER,
+    IDENTIFIER = 1001,
     INT_CONST,
     STRING_LITERAL,
     CONSTANT,

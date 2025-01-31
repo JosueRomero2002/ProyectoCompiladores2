@@ -11,6 +11,7 @@
 %code requires {
    #include <unordered_map>
    class MiniJavaLexer;
+  #include "tokens.hpp" 
 }
 
 %{
@@ -18,9 +19,11 @@
 #include <stdexcept>
 #include "MiniJavaLexer.hpp"
 #include "error.h"
-
+#include "tokens.hpp"
 
 #define yylex(arg) lexer.nextToken(arg)
+
+void yyerror(const char* msg);
 
 namespace Expr {
     void Parser::error (const std::string& msg)
@@ -29,18 +32,19 @@ namespace Expr {
     }
 }
 
+
+void yyerror(const char* msg) {
+    std::cerr << "Syntax error: " << msg << std::endl;
+}
+
 %}
 
-%token OP_ADD "+"
-%token OP_SUB "-"
-%token OP_MUL "*"
-%token OP_DIV "/"
-%token TK_OPEN_PAR TK_CLOSE_PAR TK_SEMICOLON
-%token<int> TK_NUMBER "number"
 
-%token<std::string> TK_IDENTIFIER "identifier"
-%token TK_ERROR "unknown token"
-
+%token OP_ADD OP_SUB OP_MUL OP_DIV
+%token OPEN_PAR CLOSE_PAR SEMICOLON
+%token<int> INT_CONST
+%token<std::string> IDENTIFIER 1001
+%token ERROR
 
 %type <int> expr term factor
 
@@ -48,10 +52,10 @@ namespace Expr {
 
 input: statement_list opt_semicolon;
 
-opt_semicolon: TK_SEMICOLON
+opt_semicolon: SEMICOLON
              | %empty;
 
-statement_list: statement_list TK_SEMICOLON statement
+statement_list: statement_list SEMICOLON statement
               | statement;
 
 statement: expr { std::cout << "Resultado: " << $1 << '\n'; };
@@ -63,21 +67,21 @@ expr: expr OP_ADD term { $$ = $1 + $3; }
 term: term OP_MUL factor { $$ = $1 * $3; }
     | term OP_DIV factor { 
         if ($3 == 0) {
-            error("Division by zero");
-       
+            yyerror("Division by zero");
+            YYABORT;
         } else {
             $$ = $1 / $3;
         }
     }
     | factor { $$ = $1; };
 
-factor: TK_NUMBER { $$ = $1; }
-      | TK_OPEN_PAR expr TK_CLOSE_PAR { $$ = $2; };
-      | TK_IDENTIFIER { 
+factor: INT_CONST { $$ = $1; }
+      | OPEN_PAR expr CLOSE_PAR { $$ = $2; }
+      | IDENTIFIER { 
          auto it = vars.find($1);
          if(it == vars.end()){
-            error("Unknown Variable "+$1);
-         
+            yyerror(("Unknown Variable " + $1).c_str());
+            YYABORT;
          } else {
             $$ = it->second;
          }

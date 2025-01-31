@@ -15,7 +15,7 @@
 #define REFLEX_OPTION_lex                 nextToken
 #define REFLEX_OPTION_lexer               MiniJavaLexer
 #define REFLEX_OPTION_outfile             "MiniJavaLexer.cpp"
-#define REFLEX_OPTION_token_type          Token
+#define REFLEX_OPTION_params              Expr::Parser::value_type *yylval
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -23,8 +23,9 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#line 12 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+#line 13 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 
+    #include "MiniJavaParser.hpp"
     #include "tokens.hpp"
 
 
@@ -51,7 +52,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 class MiniJavaLexer : public reflex::AbstractLexer<reflex::Matcher> {
-#line 16 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+#line 18 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 
 public:
     static const char *tokenToString(Token token) {
@@ -118,19 +119,19 @@ public:
   static const int INITIAL = 0;
   static const int COMMENT = 1;
   // the lexer function defined by SECTION 2
-  virtual Token nextToken(void);
+  virtual int nextToken(Expr::Parser::value_type *yylval);
   // lexer functions accepting new input to scan
-  Token nextToken(const reflex::Input& input)
+  int nextToken(const reflex::Input& input, Expr::Parser::value_type *yylval)
   {
     in(input);
-    return nextToken();
+    return nextToken(yylval);
   }
-  Token nextToken(const reflex::Input& input, std::ostream *os)
+  int nextToken(const reflex::Input& input, std::ostream *os, Expr::Parser::value_type *yylval)
   {
     in(input);
     if (os)
       out(*os);
-    return nextToken();
+    return nextToken(yylval);
   }
 };
 

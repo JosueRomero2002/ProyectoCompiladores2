@@ -79,10 +79,17 @@ MiniJavaLexer.cpp: tokens.hpp
 MiniJavaLexer.hpp: tokens.hpp
 	@$(CMAKE_COMMAND) -E touch_nocreate MiniJavaLexer.hpp
 
+MiniJavaParser.cpp: ../MiniJavaParser.y
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir="/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "[BISON][MiniJavaParser] Building parser with bison 3.8.2"
+	cd "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2" && /usr/bin/bison "--defines=/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp" -o "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp" MiniJavaParser.y
+
+MiniJavaParser.hpp: MiniJavaParser.cpp
+	@$(CMAKE_COMMAND) -E touch_nocreate MiniJavaParser.hpp
+
 CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o: CMakeFiles/MiniJavaLexer.dir/flags.make
 CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o: MiniJavaLexer.cpp
 CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o: CMakeFiles/MiniJavaLexer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o -MF CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o.d -o CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o -c "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaLexer.cpp"
 
 CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.i: cmake_force
@@ -93,10 +100,24 @@ CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaLexer.cpp" -o CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.s
 
+CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o: CMakeFiles/MiniJavaLexer.dir/flags.make
+CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o: MiniJavaParser.cpp
+CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o: CMakeFiles/MiniJavaLexer.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o -MF CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o.d -o CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o -c "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+
+CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp" > CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.i
+
+CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp" -o CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.s
+
 CMakeFiles/MiniJavaLexer.dir/main.cpp.o: CMakeFiles/MiniJavaLexer.dir/flags.make
 CMakeFiles/MiniJavaLexer.dir/main.cpp.o: ../main.cpp
 CMakeFiles/MiniJavaLexer.dir/main.cpp.o: CMakeFiles/MiniJavaLexer.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/MiniJavaLexer.dir/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/MiniJavaLexer.dir/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/MiniJavaLexer.dir/main.cpp.o -MF CMakeFiles/MiniJavaLexer.dir/main.cpp.o.d -o CMakeFiles/MiniJavaLexer.dir/main.cpp.o -c "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/main.cpp"
 
 CMakeFiles/MiniJavaLexer.dir/main.cpp.i: cmake_force
@@ -110,17 +131,19 @@ CMakeFiles/MiniJavaLexer.dir/main.cpp.s: cmake_force
 # Object files for target MiniJavaLexer
 MiniJavaLexer_OBJECTS = \
 "CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o" \
+"CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o" \
 "CMakeFiles/MiniJavaLexer.dir/main.cpp.o"
 
 # External object files for target MiniJavaLexer
 MiniJavaLexer_EXTERNAL_OBJECTS =
 
 MiniJavaLexer: CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o
+MiniJavaLexer: CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o
 MiniJavaLexer: CMakeFiles/MiniJavaLexer.dir/main.cpp.o
 MiniJavaLexer: CMakeFiles/MiniJavaLexer.dir/build.make
 MiniJavaLexer: /usr/local/lib/libreflex_static_lib.a
 MiniJavaLexer: CMakeFiles/MiniJavaLexer.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable MiniJavaLexer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable MiniJavaLexer"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/MiniJavaLexer.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -133,6 +156,8 @@ CMakeFiles/MiniJavaLexer.dir/clean:
 
 CMakeFiles/MiniJavaLexer.dir/depend: MiniJavaLexer.cpp
 CMakeFiles/MiniJavaLexer.dir/depend: MiniJavaLexer.hpp
+CMakeFiles/MiniJavaLexer.dir/depend: MiniJavaParser.cpp
+CMakeFiles/MiniJavaLexer.dir/depend: MiniJavaParser.hpp
 CMakeFiles/MiniJavaLexer.dir/depend: tokens.hpp
 	cd "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2" "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2" "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build" "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build" "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/CMakeFiles/MiniJavaLexer.dir/DependInfo.cmake" --color=$(COLOR)
 .PHONY : CMakeFiles/MiniJavaLexer.dir/depend

@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Reflex REQUIRED)
+find_package(BISON REQUIRED)
 
 add_custom_command(
     OUTPUT tokens.hpp MiniJavaLexer.cpp MiniJavaLexer.hpp 
@@ -13,7 +14,17 @@ add_custom_command(
     COMMENT "Generating lexer source file with Reflex"
 )
 
-add_executable(${PROJECT_NAME} tokens.hpp MiniJavaLexer.cpp MiniJavaLexer.hpp  main.cpp)
+
+BISON_TARGET(MiniJavaParser MiniJavaParser.y ${CMAKE_BINARY_DIR}/MiniJavaParser.cpp
+            DEFINES_FILE ${CMAKE_BINARY_DIR}/MiniJavaParser.hpp
+)
+
+add_executable(${PROJECT_NAME} tokens.hpp 
+                               MiniJavaLexer.cpp 
+                               MiniJavaLexer.hpp 
+                               MiniJavaParser.cpp
+                               MiniJavaParser.hpp 
+                               main.cpp)
 
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Reflex::ReflexLibStatic)

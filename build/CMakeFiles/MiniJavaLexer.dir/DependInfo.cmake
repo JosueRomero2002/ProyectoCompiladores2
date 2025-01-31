@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaLexer.cpp" "CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o" "gcc" "CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.o.d"
+  "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp" "CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o" "gcc" "CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o.d"
   "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/main.cpp" "CMakeFiles/MiniJavaLexer.dir/main.cpp.o" "gcc" "CMakeFiles/MiniJavaLexer.dir/main.cpp.o.d"
   )
 
@@ -16,6 +17,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
 set(CMAKE_MULTIPLE_OUTPUT_PAIRS
   "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaLexer.cpp" "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/tokens.hpp"
   "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaLexer.hpp" "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/tokens.hpp"
+  "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp" "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
   )
 
 

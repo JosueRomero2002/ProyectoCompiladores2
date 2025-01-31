@@ -1,2 +1,3 @@
 # Hashes of file build rules.
+07ae7a9d390cc1dc5ce7ae0d629da68e MiniJavaParser.cpp
 37ba86cf93374fe73dc52b5f0247988f tokens.hpp

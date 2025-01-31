@@ -1,6 +1,7 @@
 %option lexer="MiniJavaLexer"
 %option lex="nextToken"
-%option token-type="Token"
+%option params = "Expr::Parser::value_type *yylval"
+
 %x COMMENT
 
 %{
@@ -10,6 +11,7 @@
 %}
 
 %top{
+    #include "MiniJavaParser.hpp"
     #include "tokens.hpp"
 }
 

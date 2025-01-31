@@ -153,6 +153,30 @@ MiniJavaLexer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MiniJavaLexer.dir/build.make CMakeFiles/MiniJavaLexer.dir/MiniJavaLexer.cpp.s
 .PHONY : MiniJavaLexer.cpp.s
 
+MiniJavaParser.o: MiniJavaParser.cpp.o
+.PHONY : MiniJavaParser.o
+
+# target to build an object file
+MiniJavaParser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MiniJavaLexer.dir/build.make CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.o
+.PHONY : MiniJavaParser.cpp.o
+
+MiniJavaParser.i: MiniJavaParser.cpp.i
+.PHONY : MiniJavaParser.i
+
+# target to preprocess a source file
+MiniJavaParser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MiniJavaLexer.dir/build.make CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.i
+.PHONY : MiniJavaParser.cpp.i
+
+MiniJavaParser.s: MiniJavaParser.cpp.s
+.PHONY : MiniJavaParser.s
+
+# target to generate assembly for a file
+MiniJavaParser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MiniJavaLexer.dir/build.make CMakeFiles/MiniJavaLexer.dir/MiniJavaParser.cpp.s
+.PHONY : MiniJavaParser.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -189,6 +213,9 @@ help:
 	@echo "... MiniJavaLexer.o"
 	@echo "... MiniJavaLexer.i"
 	@echo "... MiniJavaLexer.s"
+	@echo "... MiniJavaParser.o"
+	@echo "... MiniJavaParser.i"
+	@echo "... MiniJavaParser.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

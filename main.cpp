@@ -1,14 +1,13 @@
 #include <iostream>
 #include "MiniJavaLexer.hpp"
+#include "MiniJavaParser.hpp"
 #include "tokens.hpp"
 #include <fstream>
+#include <unordered_map>
 
 int main(int argc, char *argv[])
-
 {
-
     std::ifstream in;
-
     in.open(argv[1]);
 
     if (argc != 2)
@@ -17,15 +16,25 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    std::unordered_map<std::string, int> vars;
+    vars.insert({"a", 1});
+
     MiniJavaLexer lexer(in);
-    Token token = lexer.nextToken();
+    Expr::Parser::value_type yylval;
+    Token token = static_cast<Token>(lexer.nextToken(&yylval));
 
     std::cout << "Token: " << lexer.tokenToString(token) << std::endl;
 
+    Expr::Parser parser(lexer, vars);
+    if (parser.parse() != 0)
+    {
+        std::cerr << "Error: Fallo en el análisis sintáctico" << std::endl;
+        return 1;
+    }
+
     while (token != Token::EndOfFile)
     {
-        token = lexer.nextToken();
-
+        token = static_cast<Token>(lexer.nextToken(&yylval));
         std::cout << "Tokens: " << lexer.tokenToString(token) << std::endl;
         if (token == Token::Error)
         {

@@ -11,7 +11,7 @@
 %code requires {
    #include <unordered_map>
    class MiniJavaLexer;
-  #include "tokens.hpp" 
+
 }
 
 %{
@@ -19,7 +19,9 @@
 #include <stdexcept>
 #include "MiniJavaLexer.hpp"
 #include "error.h"
-#include "tokens.hpp"
+#include "tokens.hpp" 
+int yylex();
+void yyerror(const char *s);
 
 #define yylex(arg) lexer.nextToken(arg)
 
@@ -40,15 +42,24 @@ void yyerror(const char* msg) {
 %}
 
 
-%token OP_ADD OP_SUB OP_MUL OP_DIV
-%token OPEN_PAR CLOSE_PAR SEMICOLON
-%token<int> INT_CONST
-%token<std::string> IDENTIFIER 1001
-%token ERROR
+%token OP_ADD 261
+%token OP_SUB 262
+%token OP_MUL 263
+%token OP_DIV 264
+%token OPEN_PAR 259
+%token CLOSE_PAR 260
+%token SEMICOLON 265
+%token<int> INT_CONST 258
+%token<std::string> IDENTIFIER
+%token ERROR 256
+
+%left OP_ADD OP_SUB
+%left OP_MUL OP_DIV
 
 %type <int> expr term factor
 
 %%
+
 
 input: statement_list opt_semicolon;
 

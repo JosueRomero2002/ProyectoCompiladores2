@@ -23,7 +23,7 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#line 13 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+#line 15 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 
     #include "MiniJavaParser.hpp"
     #include "tokens.hpp"
@@ -52,9 +52,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 class MiniJavaLexer : public reflex::AbstractLexer<reflex::Matcher> {
-#line 18 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+#line 22 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+
+
 
 public:
+
+
     static const char *tokenToString(Token token) {
         switch (token) {
             case Token::EndOfFile: return "EndOfFile";

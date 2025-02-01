@@ -7,6 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Reflex REQUIRED)
 find_package(BISON REQUIRED)
 
+
+BISON_TARGET(MiniJavaParser MiniJavaParser.y ${CMAKE_BINARY_DIR}/MiniJavaParser.cpp
+            DEFINES_FILE ${CMAKE_BINARY_DIR}/MiniJavaParser.hpp
+)
+
 add_custom_command(
     OUTPUT tokens.hpp MiniJavaLexer.cpp MiniJavaLexer.hpp 
     COMMAND Reflex::Reflex -o MiniJavaLexer.cpp --header-file=MiniJavaLexer.hpp ${CMAKE_SOURCE_DIR}/MiniJavaLexer.l

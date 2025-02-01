@@ -8,6 +8,8 @@
 #include <iostream>
 #include "MiniJavaLexer.hpp"
 #include "tokens.hpp"
+#include "MiniJavaParser.hpp"
+
 %}
 
 %top{
@@ -15,8 +17,14 @@
     #include "tokens.hpp"
 }
 
+
+
 %class{
+    
+    
 public:
+
+
     static const char *tokenToString(Token token) {
         switch (token) {
             case Token::EndOfFile: return "EndOfFile";
@@ -105,8 +113,11 @@ read                       { return Token::KW_READ; }
 \/                         { return Token::OP_DIV; }
 \%                         { return Token::OP_MOD; }
 
-[a-zA-Z_][a-zA-Z0-9_]*     { return Token::IDENTIFIER; }
-[0-9]+                     { return Token::INT_CONST; }
+// Identificadores
+[a-zA-Z_][a-zA-Z0-9_]*  { yylval->emplace<std::string>(text()); std::cout<<text()<<std::endl;return IDENTIFIER; }
+
+// Números enteros
+[0-9]+   {  return INT_CONST; }
 \"(\\.|[^\"\\])*\"         { return Token::STRING_LITERAL; }
 
 \{                         { return Token::OPEN_CURLY; }
@@ -130,3 +141,7 @@ read                       { return Token::KW_READ; }
 .                          { return Token::Error; }
 
 %%
+
+int yywrap() {
+    return 1;
+}

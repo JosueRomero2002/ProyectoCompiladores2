@@ -49,7 +49,7 @@
 
    #include <unordered_map>
    class MiniJavaLexer;
-  #include "tokens.hpp" 
+
 
 #line 55 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
@@ -432,18 +432,18 @@ namespace Expr {
       {
         YYEMPTY = -2,
     YYEOF = 0,                     // "end of file"
-    YYerror = 256,                 // error
-    YYUNDEF = 1002,                // "invalid token"
-    OP_ADD = 1003,                 // OP_ADD
-    OP_SUB = 1004,                 // OP_SUB
-    OP_MUL = 1005,                 // OP_MUL
-    OP_DIV = 1006,                 // OP_DIV
-    OPEN_PAR = 1007,               // OPEN_PAR
-    CLOSE_PAR = 1008,              // CLOSE_PAR
-    SEMICOLON = 1009,              // SEMICOLON
-    INT_CONST = 1010,              // INT_CONST
-    IDENTIFIER = 1001,             // IDENTIFIER
-    ERROR = 1011                   // ERROR
+    YYerror = 266,                 // error
+    YYUNDEF = 267,                 // "invalid token"
+    OP_ADD = 261,                  // OP_ADD
+    OP_SUB = 262,                  // OP_SUB
+    OP_MUL = 263,                  // OP_MUL
+    OP_DIV = 264,                  // OP_DIV
+    OPEN_PAR = 259,                // OPEN_PAR
+    CLOSE_PAR = 260,               // CLOSE_PAR
+    SEMICOLON = 265,               // SEMICOLON
+    INT_CONST = 258,               // INT_CONST
+    IDENTIFIER = 268,              // IDENTIFIER
+    ERROR = 256                    // ERROR
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;

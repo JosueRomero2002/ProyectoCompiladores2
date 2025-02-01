@@ -17,9 +17,6 @@
 //path to the bison executable
 BISON_EXECUTABLE:FILEPATH=/usr/bin/bison
 
-//The directory containing a CMake configuration file for Bison.
-Bison_DIR:PATH=Bison_DIR-NOTFOUND
-
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line
 
@@ -226,9 +223,6 @@ MiniJavaLexer_SOURCE_DIR:STATIC=/mnt/c/Users/josue/OneDrive/Documentos/VCode Pro
 
 //The directory containing a CMake configuration file for Reflex.
 Reflex_DIR:PATH=/usr/local/lib/cmake/reflex
-
-//The directory containing a CMake configuration file for bison.
-bison_DIR:PATH=bison_DIR-NOTFOUND
 
 
 ########################

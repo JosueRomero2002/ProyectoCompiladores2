@@ -25,10 +25,11 @@ int main(int argc, char *argv[])
 
     std::cout << "Token: " << lexer.tokenToString(token) << std::endl;
 
-    Expr::Parser parser(lexer, vars);
+      Expr::Parser parser(lexer, vars);
     if (parser.parse() != 0)
     {
         std::cerr << "Error: Fallo en el análisis sintáctico" << std::endl;
+
         return 1;
     }
 

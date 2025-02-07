@@ -162,9 +162,7 @@ CMakeFiles/MiniJavaLexer.dir/main.cpp.o: \
  /usr/include/c++/11/bits/stl_uninitialized.h \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
- /usr/include/c++/11/bits/vector.tcc \
- /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/tokens.hpp \
- /usr/local/include/reflex/matcher.h \
+ /usr/include/c++/11/bits/vector.tcc /usr/local/include/reflex/matcher.h \
  /usr/local/include/reflex/absmatcher.h \
  /usr/local/include/reflex/convert.h /usr/local/include/reflex/error.h \
  /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \

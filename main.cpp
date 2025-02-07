@@ -17,31 +17,40 @@ int main(int argc, char *argv[])
     }
 
     std::unordered_map<std::string, int> vars;
-    vars.insert({"a", 1});
+    vars.insert({{"a", 1}});
 
     MiniJavaLexer lexer(in);
     Expr::Parser::value_type yylval;
-    Token token = static_cast<Token>(lexer.nextToken(&yylval));
+    // Token token = static_cast<Token>(lexer.nextToken(&yylval));
 
-    std::cout << "Token: " << lexer.tokenToString(token) << std::endl;
+    Expr::Parser parser(lexer, vars);
+    // if (parser.parse() != 0)
+    // {
+    //     std::cerr << "Error: Fallo en el análisis sintáctico" << std::endl;
 
-      Expr::Parser parser(lexer, vars);
-    if (parser.parse() != 0)
+    //     return 1;
+    // }
+
+    try
     {
-        std::cerr << "Error: Fallo en el análisis sintáctico" << std::endl;
-
+        parser.parse();
+        std::cout << "Success\n";
+    }
+    catch (const std::runtime_error &err)
+    {
+        std::cerr << err.what() << '\n';
         return 1;
     }
 
-    while (token != Token::EndOfFile)
-    {
-        token = static_cast<Token>(lexer.nextToken(&yylval));
-        std::cout << "Tokens: " << lexer.tokenToString(token) << std::endl;
-        if (token == Token::Error)
-        {
-            std::cerr << "Error: Token no reconocido" << std::endl;
-        }
-    }
+    // while (token != Token::EndOfFile)
+    // {
+    //     token = static_cast<Token>(lexer.nextToken(&yylval));
+
+    //     if (token == Token::Error)
+    //     {
+    //         std::cerr << "Error: Token no reconocido" << std::endl;
+    //     }
+    // }
 
     return 0;
 }

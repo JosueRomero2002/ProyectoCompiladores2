@@ -23,10 +23,9 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#line 15 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+#line 13 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 
     #include "MiniJavaParser.hpp"
-    #include "tokens.hpp"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,62 +51,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 class MiniJavaLexer : public reflex::AbstractLexer<reflex::Matcher> {
-#line 22 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+#line 17 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 
-
-
-public:
-
-
-    static const char *tokenToString(Token token) {
-        switch (token) {
-            case Token::EndOfFile: return "EndOfFile";
-            case Token::Error: return "Error";
-            case Token::Hex: return "Hex";
-            case Token::Oct: return "Oct";
-            case Token::Dec: return "Dec";
-            case Token::Bin: return "Bin";
-            case Token::KW_CLASS: return "KW_CLASS";
-            case Token::KW_INT: return "KW_INT";
-            case Token::KW_VOID: return "KW_VOID";
-            case Token::KW_REF: return "KW_REF";
-            case Token::KW_IF: return "KW_IF";
-            case Token::KW_ELSE: return "KW_ELSE";
-            case Token::KW_WHILE: return "KW_WHILE";
-            case Token::KW_RETURN: return "KW_RETURN";
-            case Token::KW_PRINT: return "KW_PRINT";
-            case Token::KW_READ: return "KW_READ";
-            case Token::OP_ASSIGN: return "OP_ASSIGN";
-            case Token::OP_BOOL_OR: return "OP_BOOL_OR";
-            case Token::OP_BOOL_AND: return "OP_BOOL_AND";
-            case Token::OP_BOOL_NOT: return "OP_BOOL_NOT";
-            case Token::OP_EQUAL: return "OP_EQUAL";
-            case Token::OP_NOT_EQUAL: return "OP_NOT_EQUAL";
-            case Token::OP_LESS_THAN: return "OP_LESS_THAN";
-            case Token::OP_GREATER_THAN: return "OP_GREATER_THAN";
-            case Token::OP_LESS_EQUAL: return "OP_LESS_EQUAL";
-            case Token::OP_GREATER_EQUAL: return "OP_GREATER_EQUAL";
-            case Token::OP_ADD: return "OP_ADD";
-            case Token::OP_SUB: return "OP_SUB";
-            case Token::OP_MUL: return "OP_MUL";
-            case Token::OP_DIV: return "OP_DIV";
-            case Token::OP_MOD: return "OP_MOD";
-            case Token::IDENTIFIER: return "IDENTIFIER";
-            case Token::INT_CONST: return "INT_CONST";
-            case Token::STRING_LITERAL: return "STRING_LITERAL";
-            case Token::CONSTANT: return "CONSTANT";
-            case Token::OPEN_CURLY: return "OPEN_CURLY";
-            case Token::CLOSE_CURLY: return "CLOSE_CURLY";
-            case Token::OPEN_PAR: return "OPEN_PAR";
-            case Token::CLOSE_PAR: return "CLOSE_PAR";
-            case Token::OPEN_BRACKET: return "OPEN_BRACKET";
-            case Token::CLOSE_BRACKET: return "CLOSE_BRACKET";
-            case Token::COMMA: return "COMMA";
-            case Token::SEMICOLON: return "SEMICOLON";
-            case Token::COMMENT: return "COMMENT";
-            default: return "Unknown";
-        }
-    }
+using Token = Expr::Parser::token;
 
  public:
   typedef reflex::AbstractLexer<reflex::Matcher> AbstractBaseLexer;

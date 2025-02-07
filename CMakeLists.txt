@@ -20,6 +20,7 @@ add_custom_command(
 )
 
 
+
 BISON_TARGET(MiniJavaParser MiniJavaParser.y ${CMAKE_BINARY_DIR}/MiniJavaParser.cpp
             DEFINES_FILE ${CMAKE_BINARY_DIR}/MiniJavaParser.hpp
 )

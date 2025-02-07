@@ -1,4 +1,3 @@
-
 #ifndef TOKENS_HPP
 #define TOKENS_HPP
 
@@ -35,7 +34,7 @@ enum Token
     OP_MUL,
     OP_DIV,
     OP_MOD,
-    IDENTIFIER = 1001,
+    IDENTIFIER,
     INT_CONST,
     STRING_LITERAL,
     CONSTANT,

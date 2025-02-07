@@ -383,9 +383,6 @@ namespace Expr {
     union union_type
     {
       // INT_CONST
-      // expr
-      // term
-      // factor
       char dummy1[sizeof (int)];
 
       // IDENTIFIER
@@ -547,12 +544,7 @@ namespace Expr {
         S_CONSTANT = 46,                         // CONSTANT
         S_ERROR = 47,                            // ERROR
         S_YYACCEPT = 48,                         // $accept
-        S_input = 49,                            // input
-        S_statement = 50,                        // statement
-        S_statement_list = 51,                   // statement_list
-        S_expr = 52,                             // expr
-        S_term = 53,                             // term
-        S_factor = 54                            // factor
+        S_input = 49                             // input
       };
     };
 
@@ -588,9 +580,6 @@ namespace Expr {
         switch (this->kind ())
     {
       case symbol_kind::S_INT_CONST: // INT_CONST
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
         value.move< int > (std::move (that.value));
         break;
 
@@ -670,9 +659,6 @@ namespace Expr {
 switch (yykind)
     {
       case symbol_kind::S_INT_CONST: // INT_CONST
-      case symbol_kind::S_expr: // expr
-      case symbol_kind::S_term: // term
-      case symbol_kind::S_factor: // factor
         value.template destroy< int > ();
         break;
 
@@ -1886,9 +1872,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 18,     ///< Last index in yytable_.
-      yynnts_ = 7,  ///< Number of nonterminal symbols.
-      yyfinal_ = 11 ///< Termination state number.
+      yylast_ = 1,     ///< Last index in yytable_.
+      yynnts_ = 2,  ///< Number of nonterminal symbols.
+      yyfinal_ = 3 ///< Termination state number.
     };
 
 
@@ -1901,7 +1887,7 @@ switch (yykind)
 
 #line 11 "MiniJavaParser.y"
 } // Expr
-#line 1905 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 1891 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 

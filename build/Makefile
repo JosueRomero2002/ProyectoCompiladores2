@@ -129,6 +129,30 @@ MiniJavaLexer/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/MiniJavaLexer.dir/build.make CMakeFiles/MiniJavaLexer.dir/build
 .PHONY : MiniJavaLexer/fast
 
+ExprAst.o: ExprAst.cpp.o
+.PHONY : ExprAst.o
+
+# target to build an object file
+ExprAst.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MiniJavaLexer.dir/build.make CMakeFiles/MiniJavaLexer.dir/ExprAst.cpp.o
+.PHONY : ExprAst.cpp.o
+
+ExprAst.i: ExprAst.cpp.i
+.PHONY : ExprAst.i
+
+# target to preprocess a source file
+ExprAst.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MiniJavaLexer.dir/build.make CMakeFiles/MiniJavaLexer.dir/ExprAst.cpp.i
+.PHONY : ExprAst.cpp.i
+
+ExprAst.s: ExprAst.cpp.s
+.PHONY : ExprAst.s
+
+# target to generate assembly for a file
+ExprAst.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/MiniJavaLexer.dir/build.make CMakeFiles/MiniJavaLexer.dir/ExprAst.cpp.s
+.PHONY : ExprAst.cpp.s
+
 MiniJavaLexer.o: MiniJavaLexer.cpp.o
 .PHONY : MiniJavaLexer.o
 
@@ -210,6 +234,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... MiniJavaLexer"
+	@echo "... ExprAst.o"
+	@echo "... ExprAst.i"
+	@echo "... ExprAst.s"
 	@echo "... MiniJavaLexer.o"
 	@echo "... MiniJavaLexer.i"
 	@echo "... MiniJavaLexer.s"

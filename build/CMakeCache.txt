@@ -224,6 +224,9 @@ MiniJavaLexer_SOURCE_DIR:STATIC=/mnt/c/Users/josue/OneDrive/Documentos/VCode Pro
 //The directory containing a CMake configuration file for Reflex.
 Reflex_DIR:PATH=/usr/local/lib/cmake/reflex
 
+//Path to a program.
+TREECC_EXECUTABLE:FILEPATH=/usr/local/bin/treecc
+
 
 ########################
 # INTERNAL cache entries
@@ -376,4 +379,6 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding BISON
 FIND_PACKAGE_MESSAGE_DETAILS_BISON:INTERNAL=[/usr/bin/bison][v3.8.2()]
+//ADVANCED property for variable: TREECC_EXECUTABLE
+TREECC_EXECUTABLE-ADVANCED:INTERNAL=1
 

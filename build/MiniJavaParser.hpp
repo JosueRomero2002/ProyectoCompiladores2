@@ -45,12 +45,13 @@
 #ifndef YY_YY_MNT_C_USERS_JOSUE_ONEDRIVE_DOCUMENTOS_VCODE_PROYECTOS_PROYECTOCOMPILADORES2_BUILD_MINIJAVAPARSER_HPP_INCLUDED
 # define YY_YY_MNT_C_USERS_JOSUE_ONEDRIVE_DOCUMENTOS_VCODE_PROYECTOS_PROYECTOCOMPILADORES2_BUILD_MINIJAVAPARSER_HPP_INCLUDED
 // "%code requires" blocks.
-#line 13 "MiniJavaParser.y"
+#line 12 "MiniJavaParser.y"
 
     #include <unordered_map>
+    #include "ExprAst.hpp"
     class MiniJavaLexer;
 
-#line 54 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 55 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 # include <cstdlib> // std::abort
@@ -184,9 +185,9 @@
 # define YYDEBUG 1
 #endif
 
-#line 11 "MiniJavaParser.y"
+#line 10 "MiniJavaParser.y"
 namespace Expr {
-#line 190 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 191 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 
@@ -382,13 +383,20 @@ namespace Expr {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
+      // statement
+      // statement_list
+      // expr
+      // term
+      // factor
+      char dummy1[sizeof (Ast::Node *)];
+
       // INT_CONST
-      char dummy1[sizeof (int)];
+      char dummy2[sizeof (int)];
 
       // IDENTIFIER
       // STRING_LITERAL
       // CONSTANT
-      char dummy2[sizeof (std::string)];
+      char dummy3[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -544,7 +552,12 @@ namespace Expr {
         S_CONSTANT = 46,                         // CONSTANT
         S_ERROR = 47,                            // ERROR
         S_YYACCEPT = 48,                         // $accept
-        S_input = 49                             // input
+        S_input = 49,                            // input
+        S_statement = 50,                        // statement
+        S_statement_list = 51,                   // statement_list
+        S_expr = 52,                             // expr
+        S_term = 53,                             // term
+        S_factor = 54                            // factor
       };
     };
 
@@ -579,6 +592,14 @@ namespace Expr {
       {
         switch (this->kind ())
     {
+      case symbol_kind::S_statement: // statement
+      case symbol_kind::S_statement_list: // statement_list
+      case symbol_kind::S_expr: // expr
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.move< Ast::Node * > (std::move (that.value));
+        break;
+
       case symbol_kind::S_INT_CONST: // INT_CONST
         value.move< int > (std::move (that.value));
         break;
@@ -607,6 +628,18 @@ namespace Expr {
 #else
       basic_symbol (typename Base::kind_type t)
         : Base (t)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, Ast::Node *&& v)
+        : Base (t)
+        , value (std::move (v))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const Ast::Node *& v)
+        : Base (t)
+        , value (v)
       {}
 #endif
 
@@ -658,6 +691,14 @@ namespace Expr {
         // Value type destructor.
 switch (yykind)
     {
+      case symbol_kind::S_statement: // statement
+      case symbol_kind::S_statement_list: // statement_list
+      case symbol_kind::S_expr: // expr
+      case symbol_kind::S_term: // term
+      case symbol_kind::S_factor: // factor
+        value.template destroy< Ast::Node * > ();
+        break;
+
       case symbol_kind::S_INT_CONST: // INT_CONST
         value.template destroy< int > ();
         break;
@@ -780,7 +821,7 @@ switch (yykind)
     };
 
     /// Build a parser object.
-    Parser (MiniJavaLexer& lexer_yyarg, std::unordered_map<std::string, int>& vars_yyarg);
+    Parser (MiniJavaLexer& lexer_yyarg, Ast::Node *&root_yyarg);
     virtual ~Parser ();
 
 #if 201103L <= YY_CPLUSPLUS
@@ -1645,7 +1686,7 @@ switch (yykind)
 
 #if YYDEBUG
     // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-    static const signed char yyrline_[];
+    static const unsigned char yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r) const;
     /// Print the state stack on the debug stream.
@@ -1872,22 +1913,22 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 1,     ///< Last index in yytable_.
-      yynnts_ = 2,  ///< Number of nonterminal symbols.
-      yyfinal_ = 3 ///< Termination state number.
+      yylast_ = 25,     ///< Last index in yytable_.
+      yynnts_ = 7,  ///< Number of nonterminal symbols.
+      yyfinal_ = 4 ///< Termination state number.
     };
 
 
     // User arguments.
     MiniJavaLexer& lexer;
-    std::unordered_map<std::string, int>& vars;
+    Ast::Node *&root;
 
   };
 
 
-#line 11 "MiniJavaParser.y"
+#line 10 "MiniJavaParser.y"
 } // Expr
-#line 1891 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 1932 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 

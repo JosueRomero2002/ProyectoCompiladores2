@@ -1,4 +1,4 @@
-<program> ::= KW_CLASS IDENTIFIER OPEN_CURLY <variable_decl_list> <method_decl_list> CLOSE_CURLY
+<program> ::= KW_CLASS IDENTIFIER OPEN_CURLY <variable_decl_list>  <method_decl_list> CLOSE_CURLY
 
 <variable_decl_list> ::= <variable_decl> <variable_decl_list> | ε
 <variable_decl> ::= <type> IDENTIFIER <ident_list> SEMICOLON
@@ -28,6 +28,9 @@
          | <read_stmt>
 
 <assign_stmt> ::= IDENTIFIER <array_access> OP_ASSIGN <expression> SEMICOLON
+
+<call_stmt> ::= IDENTIFIER OPEN_PAR <call_param_list> CLOSE_PAR SEMICOLON
+
 <array_access> ::= OPEN_BRACKET <expression> CLOSE_BRACKET | ε
 
 <return_stmt> ::= KW_RETURN <expression> SEMICOLON
@@ -39,7 +42,6 @@
 
 <while_stmt> ::= KW_WHILE OPEN_PAR <expression> CLOSE_PAR <block>
 
-<call_stmt> ::= IDENTIFIER OPEN_PAR <call_param_list> CLOSE_PAR SEMICOLON
 <call_param_list> ::= <expression> <call_param_rest> | ε
 <call_param_rest> ::= COMMA <expression> <call_param_rest> | ε
 

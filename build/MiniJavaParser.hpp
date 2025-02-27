@@ -383,19 +383,51 @@ namespace Expr {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // statement
-      // statement_list
-      // expr
+      // program
+      // variable_decl_list
+      // variable_decl
+      // ident_list
+      // type
+      // array_optional
+      // method_decl_list
+      // method_decl
+      // method_type
+      // opt_param_decl_list
+      // param_list
+      // param_decl
+      // ref_optional
+      // stmt_list
+      // array_access
+      // array_access_opt
+      // assign_stmt
+      // call_stmt
+      // stmt
+      // return_stmt
+      // if_stmt
+      // else_optional
+      // block
+      // while_stmt
+      // call_param_list
+      // call_param_rest
+      // print_stmt
+      // print_param
+      // read_stmt
+      // expression
+      // boolean_expression
+      // boolean_term
+      // boolean_factor
+      // arithmetic_expression
+      // relational_expression
       // term
       // factor
       char dummy1[sizeof (Ast::Node *)];
 
       // INT_CONST
+      // CONSTANT
       char dummy2[sizeof (int)];
 
       // IDENTIFIER
       // STRING_LITERAL
-      // CONSTANT
       char dummy3[sizeof (std::string)];
     };
 
@@ -481,10 +513,11 @@ namespace Expr {
     SEMICOLON = 296,               // SEMICOLON
     COMMENT = 297,                 // COMMENT
     INT_CONST = 298,               // INT_CONST
-    IDENTIFIER = 299,              // IDENTIFIER
-    STRING_LITERAL = 300,          // STRING_LITERAL
-    CONSTANT = 301,                // CONSTANT
-    ERROR = 302                    // ERROR
+    CONSTANT = 299,                // CONSTANT
+    IDENTIFIER = 300,              // IDENTIFIER
+    STRING_LITERAL = 301,          // STRING_LITERAL
+    ERROR = 302,                   // ERROR
+    LOWER_THAN_OPEN_PAR = 303      // LOWER_THAN_OPEN_PAR
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -501,7 +534,7 @@ namespace Expr {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 48, ///< Number of tokens.
+        YYNTOKENS = 49, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // "end of file"
         S_YYerror = 1,                           // error
@@ -547,17 +580,52 @@ namespace Expr {
         S_SEMICOLON = 41,                        // SEMICOLON
         S_COMMENT = 42,                          // COMMENT
         S_INT_CONST = 43,                        // INT_CONST
-        S_IDENTIFIER = 44,                       // IDENTIFIER
-        S_STRING_LITERAL = 45,                   // STRING_LITERAL
-        S_CONSTANT = 46,                         // CONSTANT
+        S_CONSTANT = 44,                         // CONSTANT
+        S_IDENTIFIER = 45,                       // IDENTIFIER
+        S_STRING_LITERAL = 46,                   // STRING_LITERAL
         S_ERROR = 47,                            // ERROR
-        S_YYACCEPT = 48,                         // $accept
-        S_input = 49,                            // input
-        S_statement = 50,                        // statement
-        S_statement_list = 51,                   // statement_list
-        S_expr = 52,                             // expr
-        S_term = 53,                             // term
-        S_factor = 54                            // factor
+        S_LOWER_THAN_OPEN_PAR = 48,              // LOWER_THAN_OPEN_PAR
+        S_YYACCEPT = 49,                         // $accept
+        S_input = 50,                            // input
+        S_program = 51,                          // program
+        S_variable_decl_list = 52,               // variable_decl_list
+        S_variable_decl_SimpleBody = 53,         // variable_decl_SimpleBody
+        S_variable_decl = 54,                    // variable_decl
+        S_ident_list = 55,                       // ident_list
+        S_type = 56,                             // type
+        S_array_optional = 57,                   // array_optional
+        S_method_decl_list = 58,                 // method_decl_list
+        S_method_decl = 59,                      // method_decl
+        S_method_type = 60,                      // method_type
+        S_opt_param_decl_list = 61,              // opt_param_decl_list
+        S_param_list = 62,                       // param_list
+        S_param_decl = 63,                       // param_decl
+        S_ref_optional = 64,                     // ref_optional
+        S_stmt_list = 65,                        // stmt_list
+        S_array_access = 66,                     // array_access
+        S_array_access_opt = 67,                 // array_access_opt
+        S_assign_stmt = 68,                      // assign_stmt
+        S_call_stmt = 69,                        // call_stmt
+        S_stmt = 70,                             // stmt
+        S_return_stmt = 71,                      // return_stmt
+        S_if_stmt = 72,                          // if_stmt
+        S_else_optional = 73,                    // else_optional
+        S_block = 74,                            // block
+        S_while_stmt = 75,                       // while_stmt
+        S_call_param_list = 76,                  // call_param_list
+        S_call_param_rest = 77,                  // call_param_rest
+        S_print_stmt = 78,                       // print_stmt
+        S_print_param = 79,                      // print_param
+        S_read_stmt = 80,                        // read_stmt
+        S_expression = 81,                       // expression
+        S_boolean_expression = 82,               // boolean_expression
+        S_boolean_term = 83,                     // boolean_term
+        S_boolean_factor = 84,                   // boolean_factor
+        S_arithmetic_expression = 85,            // arithmetic_expression
+        S_relational_expression = 86,            // relational_expression
+        S_term = 87,                             // term
+        S_unaryOptional = 88,                    // unaryOptional
+        S_factor = 89                            // factor
       };
     };
 
@@ -592,21 +660,53 @@ namespace Expr {
       {
         switch (this->kind ())
     {
-      case symbol_kind::S_statement: // statement
-      case symbol_kind::S_statement_list: // statement_list
-      case symbol_kind::S_expr: // expr
+      case symbol_kind::S_program: // program
+      case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl: // variable_decl
+      case symbol_kind::S_ident_list: // ident_list
+      case symbol_kind::S_type: // type
+      case symbol_kind::S_array_optional: // array_optional
+      case symbol_kind::S_method_decl_list: // method_decl_list
+      case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_type: // method_type
+      case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
+      case symbol_kind::S_param_list: // param_list
+      case symbol_kind::S_param_decl: // param_decl
+      case symbol_kind::S_ref_optional: // ref_optional
+      case symbol_kind::S_stmt_list: // stmt_list
+      case symbol_kind::S_array_access: // array_access
+      case symbol_kind::S_array_access_opt: // array_access_opt
+      case symbol_kind::S_assign_stmt: // assign_stmt
+      case symbol_kind::S_call_stmt: // call_stmt
+      case symbol_kind::S_stmt: // stmt
+      case symbol_kind::S_return_stmt: // return_stmt
+      case symbol_kind::S_if_stmt: // if_stmt
+      case symbol_kind::S_else_optional: // else_optional
+      case symbol_kind::S_block: // block
+      case symbol_kind::S_while_stmt: // while_stmt
+      case symbol_kind::S_call_param_list: // call_param_list
+      case symbol_kind::S_call_param_rest: // call_param_rest
+      case symbol_kind::S_print_stmt: // print_stmt
+      case symbol_kind::S_print_param: // print_param
+      case symbol_kind::S_read_stmt: // read_stmt
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_boolean_expression: // boolean_expression
+      case symbol_kind::S_boolean_term: // boolean_term
+      case symbol_kind::S_boolean_factor: // boolean_factor
+      case symbol_kind::S_arithmetic_expression: // arithmetic_expression
+      case symbol_kind::S_relational_expression: // relational_expression
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.move< Ast::Node * > (std::move (that.value));
         break;
 
       case symbol_kind::S_INT_CONST: // INT_CONST
+      case symbol_kind::S_CONSTANT: // CONSTANT
         value.move< int > (std::move (that.value));
         break;
 
       case symbol_kind::S_IDENTIFIER: // IDENTIFIER
       case symbol_kind::S_STRING_LITERAL: // STRING_LITERAL
-      case symbol_kind::S_CONSTANT: // CONSTANT
         value.move< std::string > (std::move (that.value));
         break;
 
@@ -691,21 +791,53 @@ namespace Expr {
         // Value type destructor.
 switch (yykind)
     {
-      case symbol_kind::S_statement: // statement
-      case symbol_kind::S_statement_list: // statement_list
-      case symbol_kind::S_expr: // expr
+      case symbol_kind::S_program: // program
+      case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl: // variable_decl
+      case symbol_kind::S_ident_list: // ident_list
+      case symbol_kind::S_type: // type
+      case symbol_kind::S_array_optional: // array_optional
+      case symbol_kind::S_method_decl_list: // method_decl_list
+      case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_type: // method_type
+      case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
+      case symbol_kind::S_param_list: // param_list
+      case symbol_kind::S_param_decl: // param_decl
+      case symbol_kind::S_ref_optional: // ref_optional
+      case symbol_kind::S_stmt_list: // stmt_list
+      case symbol_kind::S_array_access: // array_access
+      case symbol_kind::S_array_access_opt: // array_access_opt
+      case symbol_kind::S_assign_stmt: // assign_stmt
+      case symbol_kind::S_call_stmt: // call_stmt
+      case symbol_kind::S_stmt: // stmt
+      case symbol_kind::S_return_stmt: // return_stmt
+      case symbol_kind::S_if_stmt: // if_stmt
+      case symbol_kind::S_else_optional: // else_optional
+      case symbol_kind::S_block: // block
+      case symbol_kind::S_while_stmt: // while_stmt
+      case symbol_kind::S_call_param_list: // call_param_list
+      case symbol_kind::S_call_param_rest: // call_param_rest
+      case symbol_kind::S_print_stmt: // print_stmt
+      case symbol_kind::S_print_param: // print_param
+      case symbol_kind::S_read_stmt: // read_stmt
+      case symbol_kind::S_expression: // expression
+      case symbol_kind::S_boolean_expression: // boolean_expression
+      case symbol_kind::S_boolean_term: // boolean_term
+      case symbol_kind::S_boolean_factor: // boolean_factor
+      case symbol_kind::S_arithmetic_expression: // arithmetic_expression
+      case symbol_kind::S_relational_expression: // relational_expression
       case symbol_kind::S_term: // term
       case symbol_kind::S_factor: // factor
         value.template destroy< Ast::Node * > ();
         break;
 
       case symbol_kind::S_INT_CONST: // INT_CONST
+      case symbol_kind::S_CONSTANT: // CONSTANT
         value.template destroy< int > ();
         break;
 
       case symbol_kind::S_IDENTIFIER: // IDENTIFIER
       case symbol_kind::S_STRING_LITERAL: // STRING_LITERAL
-      case symbol_kind::S_CONSTANT: // CONSTANT
         value.template destroy< std::string > ();
         break;
 
@@ -1528,6 +1660,21 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
+      make_CONSTANT (int v)
+      {
+        return symbol_type (token::CONSTANT, std::move (v));
+      }
+#else
+      static
+      symbol_type
+      make_CONSTANT (const int& v)
+      {
+        return symbol_type (token::CONSTANT, v);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
       make_IDENTIFIER (std::string v)
       {
         return symbol_type (token::IDENTIFIER, std::move (v));
@@ -1558,31 +1705,31 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_CONSTANT (std::string v)
+      make_ERROR ()
       {
-        return symbol_type (token::CONSTANT, std::move (v));
+        return symbol_type (token::ERROR);
       }
 #else
       static
       symbol_type
-      make_CONSTANT (const std::string& v)
+      make_ERROR ()
       {
-        return symbol_type (token::CONSTANT, v);
+        return symbol_type (token::ERROR);
       }
 #endif
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_ERROR ()
+      make_LOWER_THAN_OPEN_PAR ()
       {
-        return symbol_type (token::ERROR);
+        return symbol_type (token::LOWER_THAN_OPEN_PAR);
       }
 #else
       static
       symbol_type
-      make_ERROR ()
+      make_LOWER_THAN_OPEN_PAR ()
       {
-        return symbol_type (token::ERROR);
+        return symbol_type (token::LOWER_THAN_OPEN_PAR);
       }
 #endif
 
@@ -1613,7 +1760,7 @@ switch (yykind)
 
 
     /// Stored state numbers (used for stacks).
-    typedef signed char state_type;
+    typedef unsigned char state_type;
 
     /// The arguments of the error message.
     int yy_syntax_error_arguments_ (const context& yyctx,
@@ -1664,14 +1811,14 @@ switch (yykind)
     static const signed char yypgoto_[];
 
     // YYDEFGOTO[NTERM-NUM].
-    static const signed char yydefgoto_[];
+    static const unsigned char yydefgoto_[];
 
     // YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
     // positive, shift that token.  If negative, reduce the rule whose
     // number is the opposite.  If YYTABLE_NINF, syntax error.
-    static const signed char yytable_[];
+    static const short yytable_[];
 
-    static const signed char yycheck_[];
+    static const short yycheck_[];
 
     // YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
     // state STATE-NUM.
@@ -1686,7 +1833,7 @@ switch (yykind)
 
 #if YYDEBUG
     // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-    static const unsigned char yyrline_[];
+    static const short yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r) const;
     /// Print the state stack on the debug stream.
@@ -1913,9 +2060,9 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 25,     ///< Last index in yytable_.
-      yynnts_ = 7,  ///< Number of nonterminal symbols.
-      yyfinal_ = 4 ///< Termination state number.
+      yylast_ = 158,     ///< Last index in yytable_.
+      yynnts_ = 41,  ///< Number of nonterminal symbols.
+      yyfinal_ = 5 ///< Termination state number.
     };
 
 
@@ -1928,7 +2075,7 @@ switch (yykind)
 
 #line 10 "MiniJavaParser.y"
 } // Expr
-#line 1932 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 2079 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 

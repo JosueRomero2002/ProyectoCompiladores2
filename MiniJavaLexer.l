@@ -1,7 +1,7 @@
 %option lexer="MiniJavaLexer"
 %option lex="nextToken"
 %option params = "Expr::Parser::value_type *yylval"
-
+%option yylineno
 %x COMMENT
 
 %{
@@ -60,15 +60,17 @@ using Token = Expr::Parser::token;
 "]"                       { return Token::CLOSE_BRACKET; }
 ","                       { return Token::COMMA; }
 ";"                       { return Token::SEMICOLON; }
+
+
 [a-zA-Z_][a-zA-Z0-9_]*    { 
     yylval->emplace<std::string>(text()); 
-    std::cout << "Identificador: " << text() << std::endl; 
+    std::cout << "Lexer - Identificador: " << text() << std::endl; 
     return Token::IDENTIFIER; 
 }
 
 [0-9]+                    { 
     yylval->emplace<int>(std::stoi(text())); 
-    std::cout << "Número: " << text() << std::endl; 
+    std::cout << "Lexer - Número: " << text() << std::endl; 
     return Token::INT_CONST; 
 }
 

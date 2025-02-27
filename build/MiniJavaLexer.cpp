@@ -13,6 +13,7 @@
 #define REFLEX_OPTION_lexer               MiniJavaLexer
 #define REFLEX_OPTION_outfile             "MiniJavaLexer.cpp"
 #define REFLEX_OPTION_params              Expr::Parser::value_type *yylval
+#define REFLEX_OPTION_yylineno            true
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
@@ -221,27 +222,29 @@ int MiniJavaLexer::nextToken(Expr::Parser::value_type *yylval)
           case 34: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:62: ";" :
 #line 62 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 { return Token::SEMICOLON; }
+
+
             break;
-          case 35: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:63: [a-zA-Z_][a-zA-Z0-9_]* :
-#line 63 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 35: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:65: [a-zA-Z_][a-zA-Z0-9_]* :
+#line 65 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 {
     yylval->emplace<std::string>(text());
-    std::cout << "Identificador: " << text() << std::endl;
+    std::cout << "Lexer - Identificador: " << text() << std::endl;
     return Token::IDENTIFIER;
 }
 
             break;
-          case 36: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:69: [0-9]+ :
-#line 69 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 36: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:71: [0-9]+ :
+#line 71 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 {
     yylval->emplace<int>(std::stoi(text()));
-    std::cout << "Número: " << text() << std::endl;
+    std::cout << "Lexer - Número: " << text() << std::endl;
     return Token::INT_CONST;
 }
 
             break;
-          case 37: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:75: "\""(\\.|[^\\"])*"\"" :
-#line 75 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 37: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:77: "\""(\\.|[^\\"])*"\"" :
+#line 77 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 {
     yylval->emplace<std::string>(text());
     return Token::STRING_LITERAL;
@@ -249,16 +252,16 @@ int MiniJavaLexer::nextToken(Expr::Parser::value_type *yylval)
 
 
             break;
-          case 38: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:81: "/*" :
-#line 81 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 38: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:83: "/*" :
+#line 83 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 { this->start(COMMENT); }
             break;
-          case 39: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:84: "*/" :
-#line 84 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 39: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:86: "*/" :
+#line 86 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 { this->start(INITIAL); }
             break;
-          case 40: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:85: . :
-#line 85 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 40: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:87: . :
+#line 87 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 { return Token::ERROR; }
 
             break;
@@ -278,12 +281,12 @@ int MiniJavaLexer::nextToken(Expr::Parser::value_type *yylval)
               out().put(matcher().input());
             }
             break;
-          case 1: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:82: [^*]+ :
-#line 82 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 1: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:84: [^*]+ :
+#line 84 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 {  }
             break;
-          case 2: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:83: "*"+[^*/] :
-#line 83 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 2: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:85: "*"+[^*/] :
+#line 85 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 {  }
             break;
         }

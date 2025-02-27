@@ -17,22 +17,9 @@ class PrimeChecker {
 
     int main() {
         int num;
-        int result;
-        num = 7;
+        int result    num = 7;
         result = isPrime(num);
         print(result);
         return 0;
     }
 }
-
-/*
- * awdawdaaaaaaaaaaaaaa
- * 
- * 
- * awd
- * awd
- * awd
- * 
- */
-
-// awdawd

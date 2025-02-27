@@ -1,10 +1,10 @@
 #include <iostream>
-#include "MiniJavaLexer.hpp"
-#include "MiniJavaParser.hpp"
-#include "tokens.hpp"
 #include <fstream>
 #include <unordered_map>
+
 #include "ExprAst.hpp"
+#include "MiniJavaLexer.hpp"
+#include "MiniJavaParser.hpp"
 
 int main(int argc, char *argv[])
 {

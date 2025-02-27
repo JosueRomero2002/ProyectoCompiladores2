@@ -145,10 +145,11 @@ CMakeFiles/MiniJavaLexer.dir/main.cpp.o: \
  /usr/include/c++/11/bits/locale_facets.tcc \
  /usr/include/c++/11/bits/basic_ios.tcc \
  /usr/include/c++/11/bits/ostream.tcc /usr/include/c++/11/istream \
- /usr/include/c++/11/bits/istream.tcc \
- /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/MiniJavaLexer.hpp \
- /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp \
- /usr/include/c++/11/unordered_map \
+ /usr/include/c++/11/bits/istream.tcc /usr/include/c++/11/fstream \
+ /usr/include/c++/11/bits/codecvt.h \
+ /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
+ /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
+ /usr/include/c++/11/bits/fstream.tcc /usr/include/c++/11/unordered_map \
  /usr/include/c++/11/ext/aligned_buffer.h \
  /usr/include/c++/11/bits/hashtable.h \
  /usr/include/c++/11/bits/hashtable_policy.h /usr/include/c++/11/tuple \
@@ -161,6 +162,9 @@ CMakeFiles/MiniJavaLexer.dir/main.cpp.o: \
  /usr/include/c++/11/bits/erase_if.h \
  /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/ExprAst.hpp \
  /usr/include/c++/11/sstream /usr/include/c++/11/bits/sstream.tcc \
+ /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/MiniJavaLexer.hpp \
+ /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp \
+ /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/ExprAst.hpp \
  /usr/include/c++/11/vector /usr/include/c++/11/bits/stl_uninitialized.h \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
@@ -195,10 +199,4 @@ CMakeFiles/MiniJavaLexer.dir/main.cpp.o: \
  /usr/include/c++/11/bits/stl_deque.h /usr/include/c++/11/bits/deque.tcc \
  /usr/include/c++/11/bits/stl_stack.h \
  /usr/local/include/reflex/abslexer.h \
- /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp \
- /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/tokens.hpp \
- /usr/include/c++/11/fstream /usr/include/c++/11/bits/codecvt.h \
- /usr/include/x86_64-linux-gnu/c++/11/bits/basic_file.h \
- /usr/include/x86_64-linux-gnu/c++/11/bits/c++io.h \
- /usr/include/c++/11/bits/fstream.tcc \
- /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/ExprAst.hpp
+ /mnt/c/Users/josue/OneDrive/Documentos/VCode\ Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp

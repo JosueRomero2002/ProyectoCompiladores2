@@ -1,19 +1,6 @@
-void int class MatrixOperations {
-    int[9]matrix;
+class MatrixOperations {
 
-    void initializeMatrix() {
-        int i, j;
-        i = 0;
-        while (i < 3) {
-            j = 0;
-            while (j < 3) {
-                matrix[i * 3 + j] = i * j;
-                j = j + 1;
-            }
-            i = i + 1;
-        }
-
-    }
+    int matrix;
 
     int getSum() {
         int total;
@@ -31,10 +18,24 @@ void int class MatrixOperations {
         return total;
     }
 
+    void initializeMatrix() {
+        int i, j;
+        i = 0;
+        while (i < 3) {
+            j = 0;
+            while (j < 3) {
+                matrix[i * 3 + j] = i * j;
+                j = j + 1;
+            }
+            i = i + 1;
+        }
+
+    }
+
     int main() {
         int result;
         initializeMatrix();
-        
+
         result = getSum();
         print("resultado");
         print(result);

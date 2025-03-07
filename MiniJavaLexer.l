@@ -75,7 +75,12 @@ using Token = Expr::Parser::token;
 }
 
 "\""(\\.|[^\\"])*"\""  {
-    yylval->emplace<std::string>(text());
+    std::string str = text();
+    str = str.substr(1, str.size() - 2); 
+    yylval->emplace<std::string>(str);
+
+
+   
     return Token::STRING_LITERAL;
 }
 

@@ -2,6 +2,7 @@ class RefExample {
     void incrementBy(ref int x, int y) {
         x = x + y;
     }
+..
 
     void applyIncrements() {
         int[5] values;
@@ -10,7 +11,7 @@ class RefExample {
         int fa2;
     
         print(values[0]);
-        base = 0xf;
+      //  base = 0xf;
        
         fa2 = 5;
        

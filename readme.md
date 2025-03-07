@@ -4,6 +4,21 @@ cmake --build build
 
 ./build/MiniJavaLexer test.txt
 
+=====================================
+./build/MiniJavaLexer tests/example_1.java
+./build/MiniJavaLexer tests/example_2.java
+./build/MiniJavaLexer tests/example_3.java
+./build/MiniJavaLexer tests/example_4.java
+./build/MiniJavaLexer tests/example_5.java
+
+./build/MiniJavaLexer tests/example_6.java
+./build/MiniJavaLexer tests/example_7.java
+./build/MiniJavaLexer tests/example_8.java
+./build/MiniJavaLexer tests/example_9.java
+./build/MiniJavaLexer tests/example_10.java
+
+=====================================
+
 {DIGIT}+ {
 yylval->emplace<int>(std::stol(text(),nullptr, 10));
 return token::TK_NUMBER

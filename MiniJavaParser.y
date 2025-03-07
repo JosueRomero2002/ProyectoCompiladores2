@@ -24,21 +24,20 @@
 
 // Declaramos la función de análisis léxico.
 int yylex();
-void yyerror(const char *s);
 
-#define yylex(arg) lexer.nextToken(arg)
-
-void yyerror(const char* msg);
+#define yylex(arg) lexer.nextToken(arg) 
 
 namespace Expr {
     void Parser::error (const std::string& msg)
     {
-        std::cerr << "Error de sintaxis: " << msg << '\n';
+       std::cerr << "Error: " << msg << " on line " << lexer.lineno() << '\n';
     }
 }
 
+
+
 void yyerror(const char* msg) {
-    std::cerr << "Syntax error: " << msg << std::endl;
+     std::cerr << "Error: " << msg << " on line " << '\n';
 }
 
 
@@ -69,7 +68,7 @@ void yyerror(const char* msg) {
 %type <Ast::Node *> expression array_access_opt arithmetic_expression
 
 
-
+%type <Ast::Node *> method_body variable_decl_Body
 %type <Ast::Node *> boolean_term boolean_expression boolean_factor relational_expression
 
 
@@ -92,42 +91,54 @@ input: program { root = $1; std::cout << "[Parser] - Parseo exitoso" << std::end
 
 program:
       KW_CLASS IDENTIFIER OPEN_CURLY variable_decl_list method_decl_list CLOSE_CURLY {
-            $$ = new Ast::Program($2, $4, $5);
-            std::cout << "[Parser] - Programa creado con declaraciones separadas" << std::endl;
+             std::cout << "[Parser] - Programa creado con declaraciones separadas" << std::endl;
+             $$ = new Ast::Program($2, $4, $5);
       }
 ;
 
 variable_decl_list:
+      KW_INT IDENTIFIER method_body method_decl_list { //Es Metodo entonces se detiene
 
-    KW_INT IDENTIFIER variable_decl {
-     //   std::cout << "[Parser] - Variable Lista declarada" << std::endl;    $$ = new Ast::VariableDeclList($1, $2);
-      }
-      | KW_INT OPEN_BRACKET INT_CONST CLOSE_BRACKET IDENTIFIER variable_decl_SimpleBody{
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
 
+         $$ = new Ast::MethodDeclList(    new Ast::MethodDecl(new Ast::MethodType("INT"), $2, $3) , $4);
       }
-     
+      |
+      KW_INT IDENTIFIER method_body { //Es Metodo entonces se detiene
+
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+
+         $$ = new Ast::MethodDeclList(  new Ast::MethodDecl(new Ast::MethodType("INT"), $2, $3) , nullptr);     
+      }
+      |
+      
+      variable_decl variable_decl_list { 
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+        $$ = new Ast::VariableDeclList($1, $2);
+      }
+     | variable_decl { 
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+      $$ = new Ast::VariableDeclList($1, nullptr);
+      }
+
       | %empty {}
 ;
 
 
-variable_decl_SimpleBody:
-  ident_list SEMICOLON variable_decl_list { 
-     //   $$ = new Ast::VariableDecl($1, $2, $3);
-      }
- 
-     
+variable_decl_Body:
+  ident_list SEMICOLON { 
+
+      $$ = new Ast::VariableDecl_Body($1); std::cout << "[Parser] - variable_decl_Body" << std::endl;
+      }    
 ;
 
 variable_decl:
-     OPEN_PAR opt_param_decl_list CLOSE_PAR OPEN_CURLY variable_decl_list stmt_list CLOSE_CURLY { 
-       // $$ = new Ast::MethodDecl($1, $2, $4, $7, $8);
+       KW_INT IDENTIFIER variable_decl_Body {
+            $$ = new Ast::VariableDecl(new Ast::Type("INT", nullptr), $2, $3); std::cout << "[Parser] - variable_decl" << std::endl;
+       }
+      | KW_INT array_optional IDENTIFIER variable_decl_Body {
+            $$ = new Ast::VariableDecl(new Ast::Type("INT", $2), $3, $4); std::cout << "[Parser] - variable_decl" << std::endl;
       }
-      |
-      ident_list SEMICOLON variable_decl_list { 
-     //   $$ = new Ast::VariableDecl($1, $2, $3);
-      }
- 
-     
 ;
 
 ident_list:
@@ -146,76 +157,95 @@ type:
 
 array_optional:
       OPEN_BRACKET INT_CONST CLOSE_BRACKET { 
-            $$ = new Ast::ArrayOptional($2); std::cout << "[Parser] - array_optional" << std::endl;
+            std::cout << "[Parser] - array_optional" << std::endl;
+            $$ = new Ast::ArrayOptional($2); 
       }
       | %empty {}
 ;
 
 method_decl_list:
       method_decl method_decl_list {
-          std::cout << "[Parser] - method_decl_list" << std::endl;  $$ = new Ast::MethodDeclList($1, $2); std::cout << "[Parser] - method_decl_list" << std::endl;
+          std::cout << "[Parser] - method_decl_list" << std::endl;  
+          $$ = new Ast::MethodDeclList($1, $2); 
+       
       }
         | %empty {}
 ;
 
 method_decl:
-      method_type IDENTIFIER OPEN_PAR opt_param_decl_list CLOSE_PAR OPEN_CURLY variable_decl_list stmt_list CLOSE_CURLY {
-        std::cout << "[Parser] - method_decl" << std::endl;    $$ = new Ast::MethodDecl($1, $2, $4, $7, $8); std::cout << "[Parser] - method_decl" << std::endl;
+      method_type IDENTIFIER method_body{
+        std::cout << "[Parser] - method_decl" << std::endl;    
+        $$ = new Ast::MethodDecl($1, $2, $3);
+      }
+;
+
+method_body: 
+      OPEN_PAR opt_param_decl_list CLOSE_PAR OPEN_CURLY variable_decl_list stmt_list CLOSE_CURLY {
+      std::cout << "[Parser] - method_body" << std::endl;
+      $$ = new Ast::MethodDecl_Body($2, $5, $6); 
       }
 ;
 
 method_type:
       KW_INT { 
-            $$ = new Ast::MethodType("INT"); std::cout << "[Parser] - INT method_type" << std::endl;
+            std::cout << "[Parser] - INT method_type" << std::endl;
+            $$ = new Ast::MethodType("INT");
       }
     | KW_VOID { 
-            $$ = new Ast::MethodType("VOID"); std::cout << "[Parser] - VOID method_type" << std::endl;
+       std::cout << "[Parser] - VOID method_type" << std::endl;
+            $$ = new Ast::MethodType("VOID"); 
       }
 ;
 
 opt_param_decl_list:
       param_decl param_list { 
-         std::cout << "[Parser] - opt_param_decl_list" << std::endl;   $$ = new Ast::OptParamDeclList($1, $2); std::cout << "[Parser] - opt_param_decl_list" << std::endl;
+         std::cout << "[Parser] - opt_param_decl_list" << std::endl;   
+         $$ = new Ast::OptParamDeclList($1, $2); 
       }
      | %empty {}
 ;
 
 param_list:
       COMMA param_decl param_list { 
-            $$ = new Ast::ParamList($2, $3); std::cout << "[Parser] - param_list" << std::endl;
+             std::cout << "[Parser] - param_list" << std::endl;
+            $$ = new Ast::ParamList($2, $3);
       }
        | %empty {}
 ;
 
 param_decl:
       ref_optional type IDENTIFIER { 
-            $$ = new Ast::ParamDecl($1, $2, $3); std::cout << "[Parser] - param_decl" << std::endl;
+             std::cout << "[Parser] - param_decl" << std::endl;
+            $$ = new Ast::ParamDecl($1, $2, $3);
       }
 ;
 
 ref_optional:
       KW_REF { 
-            $$ = new Ast::RefOptional(true); std::cout << "[Parser] - ref_optional" << std::endl;
+            std::cout << "[Parser] - ref_optional" << std::endl;
+            $$ = new Ast::RefOptional(true); 
       }
       | %empty {}
 ;
 
 stmt_list:
       stmt stmt_list { 
-        std::cout << "[Parser] - stmt_list" << std::endl;    $$ = new Ast::StmtList($1, $2); 
+        std::cout << "[Parser] - stmt_list" << std::endl;   
+         $$ = new Ast::StmtList($1, $2); 
       }
         | %empty {}
 ;
 array_access:
       OPEN_BRACKET expression CLOSE_BRACKET {
+             std::cout << "[Parser] - array_access" << std::endl;
             $$ = new Ast::ArrayAccess($2);
-            std::cout << "[Parser] - array_access" << std::endl;
+           
       }
 ;
 
 array_access_opt:
       array_access { $$ = $1; }
-    | %empty { $$ = nullptr; }
+    | %empty {  }
 ;
 
 
@@ -232,7 +262,7 @@ call_stmt:
     }
 ;
 stmt:
-call_stmt {
+      call_stmt {
           std::cout << "[Parser] - stmt" << std::endl;
           $$ = $1;
       }
@@ -272,32 +302,37 @@ call_stmt {
 
 return_stmt:
       KW_RETURN expression SEMICOLON {
-            $$ = new Ast::ReturnStmt($2); std::cout << "[Parser] - return_stmt" << std::endl;
+            std::cout << "[Parser] - return_stmt" << std::endl;
+            $$ = new Ast::ReturnStmt($2); 
       }
 ;
 
 if_stmt:
       KW_IF OPEN_PAR expression CLOSE_PAR block else_optional {
-            $$ = new Ast::IfStmt($3, $5, $6); std::cout << "[Parser] - if_stmt" << std::endl;
+            std::cout << "[Parser] - if_stmt" << std::endl;
+            $$ = new Ast::IfStmt($3, $5, $6); 
       }
 ;
 
 else_optional:
       KW_ELSE block {
-            $$ = new Ast::ElseOptional($2); std::cout << "[Parser] - else_optional" << std::endl;
+           std::cout << "[Parser] - else_optional" << std::endl;
+            $$ = new Ast::ElseOptional($2);
       }
       | %empty {}
 ;
 
 block:
       OPEN_CURLY stmt_list CLOSE_CURLY {
-            $$ = new Ast::Block($2); std::cout << "[Parser] - block" << std::endl;
+             std::cout << "[Parser] - block" << std::endl;
+            $$ = new Ast::Block($2);
       }
 ;
 
 while_stmt:
       KW_WHILE OPEN_PAR expression CLOSE_PAR block {
-            $$ = new Ast::WhileStmt($3, $5); std::cout << "[Parser] - while_stmt" << std::endl;
+         std::cout << "[Parser] - while_stmt" << std::endl;
+            $$ = new Ast::WhileStmt($3, $5);
       }
 ;
 
@@ -305,14 +340,16 @@ while_stmt:
 
 call_param_list:
       expression call_param_rest {
-            $$ = new Ast::CallParamList($1, $2); std::cout << "[Parser] - call_param_list" << std::endl;
+        std::cout << "[Parser] - call_param_list" << std::endl;
+            $$ = new Ast::CallParamList($1, $2);
       }
       | %empty {}
 ;
 
 call_param_rest:
       COMMA expression call_param_rest {
-            $$ = new Ast::CallParamRest($2, $3); std::cout << "[Parser] - call_param_rest" << std::endl;
+            std::cout << "[Parser] - call_param_rest" << std::endl;
+            $$ = new Ast::CallParamRest($2, $3);
       }
        | %empty {}
 ;
@@ -320,70 +357,86 @@ call_param_rest:
 print_stmt:
       KW_PRINT OPEN_PAR print_param CLOSE_PAR SEMICOLON {
     //   std::cout << "[Parser] - print_stmt" << std::endl;     $$ = new Ast::PrintStmt($3); std::cout << "[Parser] - print_stmt" << std::endl;
+    std::cout << "[Parser] - print_stmt" << std::endl;
+     $$ = new Ast::PrintStmt($3); 
       }
 ;
 
 print_param:
       expression {
-    //  std::cout << "[Parser] - print_param" << std::endl;      $$ = new Ast::PrintParam(  $1, nullptr); std::cout << "[Parser] - print_param" << std::endl;
+      std::cout << "[Parser] - print_param EXPR" << std::endl;
+      $$ = new Ast::PrintParam($1, ""); 
       }
     | STRING_LITERAL {
-    std::cout << "[Parser] - print_param" << std::endl;
-  //      $$ = new Ast::PrintParam(nullptr, $1); std::cout << "[Parser] - print_param" << std::endl;
-      }
+    std::cout << "[Parser] - print_param LITERAL" << std::endl;
+       $$ = new Ast::PrintParam(nullptr, $1); std::cout << "[Parser] - print_param" << std::endl;
+   }
 ;
 
 read_stmt:
       KW_READ OPEN_PAR IDENTIFIER CLOSE_PAR SEMICOLON {
-            $$ = new Ast::ReadStmt($3); std::cout << "[Parser] - read_stmt" << std::endl;
+            std::cout << "[Parser] - read_stmt" << std::endl;
+            $$ = new Ast::ReadStmt($3); 
       }
 ;
 
 expression:
       boolean_expression { 
-            $$ = $1; std::cout << "[Parser] - expression" << std::endl;
+            std::cout << "[Parser] - expression" << std::endl;
+            $$ = $1; 
+
       }
 
 boolean_expression:
       boolean_expression OP_BOOL_OR boolean_term { 
-            $$ = new Ast::OrBoolean($1, $3); std::cout << "[Parser] - boolean_expression" << std::endl;
+             std::cout << "[Parser] - boolean_expression" << std::endl;
+            $$ = new Ast::OrBoolean($1, $3);
         }
    
       | boolean_term { 
-            $$ = $1; std::cout << "[Parser] - boolean_expression" << std::endl;
+             std::cout << "[Parser] - boolean_expression" << std::endl;
+            $$ = $1;
       }
 ;
 
 
 boolean_term: 
       boolean_term OP_BOOL_AND boolean_factor { 
-            $$ = new Ast::AndBoolean($1, $3); std::cout << "[Parser] - boolean_term" << std::endl;
+             std::cout << "[Parser] - boolean_term" << std::endl;
+            $$ = new Ast::AndBoolean($1, $3);
         }
       | boolean_factor { 
-            $$ = $1; std::cout << "[Parser] - boolean_term" << std::endl;
+             std::cout << "[Parser] - boolean_term" << std::endl;
+            $$ = $1;
         }
 ;
 
 boolean_factor: 
       OP_BOOL_NOT boolean_factor { 
-            $$ = new Ast::UnaryNotBoolean($2); std::cout << "[Parser] - boolean_factor" << std::endl;
+            std::cout << "[Parser] - boolean_factor" << std::endl;
+            $$ = new Ast::UnaryNotBoolean($2); 
         }
       | OPEN_PAR boolean_expression CLOSE_PAR { 
-            $$ = $2; std::cout << "[Parser] - boolean_factor" << std::endl;
+             std::cout << "[Parser] - boolean_factor" << std::endl;
+            $$ = $2;
         }
       | relational_expression { 
-            $$ = $1; std::cout << "[Parser] - boolean_factor" << std::endl;
+            std::cout << "[Parser] - boolean_factor" << std::endl;
+            $$ = $1; 
         }
 ;
 
 arithmetic_expression:
    arithmetic_expression OP_SUB term {  
-            $$ = new Ast::SubExpr($1, $3);  std::cout << "[Parser] - expression" << std::endl;
+         std::cout << "[Parser] - arithmetic_expression" << std::endl;
+            $$ = new Ast::SubExpr($1, $3); 
         }
         | arithmetic_expression OP_ADD term { 
-            $$ = new Ast::SumExpr($1, $3); std::cout << "[Parser] - expression" << std::endl;
+               std::cout << "[Parser] - arithmetic_expression" << std::endl;
+            $$ = new Ast::SumExpr($1, $3); 
         }
     | term { 
+            std::cout << "[Parser] - arithmetic_expression term" << std::endl;
             $$ = $1; 
         }
 ;
@@ -391,25 +444,32 @@ arithmetic_expression:
 
 relational_expression: 
              arithmetic_expression OP_EQUAL arithmetic_expression { 
-                  $$ = $1; std::cout << "[Parser] - relational_expression" << std::endl;
+                  std::cout << "[Parser] - relational_expression" << std::endl;
+                  $$ = $1; 
             }
             | arithmetic_expression OP_NOT_EQUAL arithmetic_expression { 
-                  $$ = $1; std::cout << "[Parser] - relational_expression" << std::endl;
+                std::cout << "[Parser] - relational_expression" << std::endl;
+                  $$ = $1; 
             }
             | arithmetic_expression OP_LESS_THAN arithmetic_expression { 
-                  $$ = $1; std::cout << "[Parser] - relational_expression" << std::endl;
+                  std::cout << "[Parser] - relational_expression" << std::endl;
+                   $$ = $1;
             }
             | arithmetic_expression OP_GREATER_THAN arithmetic_expression { 
-                  $$ = $1; std::cout << "[Parser] - relational_expression" << std::endl;
+                   std::cout << "[Parser] - relational_expression" << std::endl;
+                   $$ = $1;
             }
             | arithmetic_expression OP_LESS_EQUAL arithmetic_expression { 
-                  $$ = $1; std::cout << "[Parser] - relational_expression" << std::endl;
+                  std::cout << "[Parser] - relational_expression" << std::endl;
+                   $$ = $1;
             }
             | arithmetic_expression OP_GREATER_EQUAL arithmetic_expression { 
-                  $$ = $1; std::cout << "[Parser] - relational_expression" << std::endl;
+                  std::cout << "[Parser] - relational_expression" << std::endl;
+                  $$ = $1; 
             }
       | arithmetic_expression { 
-                  $$ = $1; std::cout << "[Parser] - relational_expression" << std::endl;
+                   std::cout << "[Parser] - relational_expression" << std::endl;
+                   $$ = $1;
             }
 ;
 
@@ -421,16 +481,20 @@ relational_expression:
 
 term:
       term OP_MUL factor { 
-            $$ = new Ast::MulExpr($1, $3); std::cout << "[Parser] - term" << std::endl;
+            std::cout << "[Parser] - term" << std::endl;
+            $$ = new Ast::MulExpr($1, $3); 
         }
     | term OP_DIV factor {
-            $$ = new Ast::DivExpr($1, $3); std::cout << "[Parser] - term" << std::endl;
+      std::cout << "[Parser] - term" << std::endl;
+            $$ = new Ast::DivExpr($1, $3); 
         } 
         | term OP_MOD factor {
-            $$ = new Ast::DivExpr($1, $3); std::cout << "[Parser] - term" << std::endl;
+            std::cout << "[Parser] - term" << std::endl;
+            $$ = new Ast::DivExpr($1, $3); 
         } 
     | unaryOptional factor { 
-       
+      std::cout << "[Parser] - term" << std::endl;
+            $$ = $2; 
         }
 ;
 
@@ -442,7 +506,9 @@ unaryOptional:
 
 factor:
       INT_CONST { $$ = new Ast::Number($1); std::cout<< "[Parser] - factor" << std::endl; 
-      
+      //      Print value
+            std::cout << "Value: " << $1 << std::endl;
+            $$ = new Ast::Number($1); std::cout<< "[Parser] - factor" << std::endl;
       } 
     | OPEN_PAR arithmetic_expression CLOSE_PAR { $$ = $2; std::cout<< "[Parser] - factor" << std::endl; }
     | IDENTIFIER {

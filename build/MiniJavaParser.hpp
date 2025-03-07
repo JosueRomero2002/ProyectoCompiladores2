@@ -385,12 +385,14 @@ namespace Expr {
     {
       // program
       // variable_decl_list
+      // variable_decl_Body
       // variable_decl
       // ident_list
       // type
       // array_optional
       // method_decl_list
       // method_decl
+      // method_body
       // method_type
       // opt_param_decl_list
       // param_list
@@ -589,43 +591,44 @@ namespace Expr {
         S_input = 50,                            // input
         S_program = 51,                          // program
         S_variable_decl_list = 52,               // variable_decl_list
-        S_variable_decl_SimpleBody = 53,         // variable_decl_SimpleBody
+        S_variable_decl_Body = 53,               // variable_decl_Body
         S_variable_decl = 54,                    // variable_decl
         S_ident_list = 55,                       // ident_list
         S_type = 56,                             // type
         S_array_optional = 57,                   // array_optional
         S_method_decl_list = 58,                 // method_decl_list
         S_method_decl = 59,                      // method_decl
-        S_method_type = 60,                      // method_type
-        S_opt_param_decl_list = 61,              // opt_param_decl_list
-        S_param_list = 62,                       // param_list
-        S_param_decl = 63,                       // param_decl
-        S_ref_optional = 64,                     // ref_optional
-        S_stmt_list = 65,                        // stmt_list
-        S_array_access = 66,                     // array_access
-        S_array_access_opt = 67,                 // array_access_opt
-        S_assign_stmt = 68,                      // assign_stmt
-        S_call_stmt = 69,                        // call_stmt
-        S_stmt = 70,                             // stmt
-        S_return_stmt = 71,                      // return_stmt
-        S_if_stmt = 72,                          // if_stmt
-        S_else_optional = 73,                    // else_optional
-        S_block = 74,                            // block
-        S_while_stmt = 75,                       // while_stmt
-        S_call_param_list = 76,                  // call_param_list
-        S_call_param_rest = 77,                  // call_param_rest
-        S_print_stmt = 78,                       // print_stmt
-        S_print_param = 79,                      // print_param
-        S_read_stmt = 80,                        // read_stmt
-        S_expression = 81,                       // expression
-        S_boolean_expression = 82,               // boolean_expression
-        S_boolean_term = 83,                     // boolean_term
-        S_boolean_factor = 84,                   // boolean_factor
-        S_arithmetic_expression = 85,            // arithmetic_expression
-        S_relational_expression = 86,            // relational_expression
-        S_term = 87,                             // term
-        S_unaryOptional = 88,                    // unaryOptional
-        S_factor = 89                            // factor
+        S_method_body = 60,                      // method_body
+        S_method_type = 61,                      // method_type
+        S_opt_param_decl_list = 62,              // opt_param_decl_list
+        S_param_list = 63,                       // param_list
+        S_param_decl = 64,                       // param_decl
+        S_ref_optional = 65,                     // ref_optional
+        S_stmt_list = 66,                        // stmt_list
+        S_array_access = 67,                     // array_access
+        S_array_access_opt = 68,                 // array_access_opt
+        S_assign_stmt = 69,                      // assign_stmt
+        S_call_stmt = 70,                        // call_stmt
+        S_stmt = 71,                             // stmt
+        S_return_stmt = 72,                      // return_stmt
+        S_if_stmt = 73,                          // if_stmt
+        S_else_optional = 74,                    // else_optional
+        S_block = 75,                            // block
+        S_while_stmt = 76,                       // while_stmt
+        S_call_param_list = 77,                  // call_param_list
+        S_call_param_rest = 78,                  // call_param_rest
+        S_print_stmt = 79,                       // print_stmt
+        S_print_param = 80,                      // print_param
+        S_read_stmt = 81,                        // read_stmt
+        S_expression = 82,                       // expression
+        S_boolean_expression = 83,               // boolean_expression
+        S_boolean_term = 84,                     // boolean_term
+        S_boolean_factor = 85,                   // boolean_factor
+        S_arithmetic_expression = 86,            // arithmetic_expression
+        S_relational_expression = 87,            // relational_expression
+        S_term = 88,                             // term
+        S_unaryOptional = 89,                    // unaryOptional
+        S_factor = 90                            // factor
       };
     };
 
@@ -662,12 +665,14 @@ namespace Expr {
     {
       case symbol_kind::S_program: // program
       case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
       case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_body: // method_body
       case symbol_kind::S_method_type: // method_type
       case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
       case symbol_kind::S_param_list: // param_list
@@ -793,12 +798,14 @@ switch (yykind)
     {
       case symbol_kind::S_program: // program
       case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
       case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_body: // method_body
       case symbol_kind::S_method_type: // method_type
       case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
       case symbol_kind::S_param_list: // param_list
@@ -2060,8 +2067,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 158,     ///< Last index in yytable_.
-      yynnts_ = 41,  ///< Number of nonterminal symbols.
+      yylast_ = 147,     ///< Last index in yytable_.
+      yynnts_ = 42,  ///< Number of nonterminal symbols.
       yyfinal_ = 5 ///< Termination state number.
     };
 
@@ -2075,7 +2082,7 @@ switch (yykind)
 
 #line 10 "MiniJavaParser.y"
 } // Expr
-#line 2079 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 2086 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 

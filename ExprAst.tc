@@ -1,802 +1,956 @@
-%option lang = "C++"
-%option namespace = "Ast"
+% option lang = "C++" % option namespace = "Ast"
 
-%decls%{
-    #include <string>
-    #include <iostream>
-    #include <sstream>
-    #include <unordered_map>
+                                           % decls %
+{
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <unordered_map>
     using string_t = std::string;
     using symbol_table = std::unordered_map<std::string, int>;
-%}
-
-%{
-    #include "ExprAst.hpp"
-%}
-
-%node Node %abstract %typedef
-
-%node Program Node = {
-    string_t class_name;
-    Node *variable_decls;
-    Node *method_decls;
+    %
 }
 
-%node VariableDeclList Node = {
-    Node *first_decl;
-    Node *rest_decls;
+% {
+#include "ExprAst.hpp"
+      % }
+
+    % node Node % abstract % typedef
+
+    % node Program Node = {string_t class_name;
+Node *variable_decls;
+Node *method_decls;
 }
 
-%node VariableDecl Node = {
-    Node *type;
+% node VariableDeclList Node = {
+    Node * first_decl;
+Node *rest_decls;
+}
+
+% node VariableDecl Node = {
+    Node * type;
+string_t identifier;
+Node *variableDecl_Body;
+}
+
+% node VariableDecl_Body Node = {
+    Node * ident_list;
+}
+
+% node IdentList Node = {
     string_t identifier;
-    Node *ident_list;
+Node *IdentListParam;
 }
 
-%node IdentList Node = {
-    string_t identifier;
-    Node *IdentListParam;
-}
-
-%node Type Node = {
+% node Type Node = {
     string_t type_name;
-    Node *array_optional;
+Node *array_optional;
 }
 
-%node ArrayOptional Node = {
+% node ArrayOptional Node = {
     int size;
 }
 
-%node MethodDeclList Node = {
-    Node *first_decl;
-    Node *rest_decls;
+% node MethodDeclList Node = {
+    Node * first_decl;
+Node *rest_decls;
 }
 
-%node MethodDecl Node = {
-    Node *method_type;
-    string_t identifier;
-    Node *opt_param_decl_list;
-    Node *variable_decls;
-    Node *stmt_list;
+% node MethodDecl Node = {
+    Node * method_type;
+string_t identifier;
+Node *MethodDecl_Body;
 }
 
-%node MethodType Node = {
+% node MethodDecl_Body Node = {
+    Node * opt_param_decl_list;
+Node *variable_decls;
+Node *stmt_list;
+}
+
+% node MethodType Node = {
     string_t type;
 }
 
-%node OptParamDeclList Node = {
-    Node *first_param;
-    Node *rest_params;
+% node OptParamDeclList Node = {
+    Node * first_param;
+Node *rest_params;
 }
 
-%node ParamList Node = {
-    Node *first_param;
-    Node *rest_params;
+% node ParamList Node = {
+    Node * first_param;
+Node *rest_params;
 }
 
-%node ParamDecl Node = {
-    Node *ref_optional;
-    Node *type;
-    string_t identifier;
+% node ParamDecl Node = {
+    Node * ref_optional;
+Node *type;
+string_t identifier;
 }
 
-%node RefOptional Node = {
+% node RefOptional Node = {
     bool is_ref;
 }
 
-%node StmtList Node = {
-    Node *first_stmt;
-    Node *rest_stmts;
+% node StmtList Node = {
+    Node * first_stmt;
+Node *rest_stmts;
 }
 
-%node Stmt Node %abstract
+% node Stmt Node % abstract
 
-%node AssignStmt Stmt = {
+    % node AssignStmt Stmt = {
     string_t identifier;
-    Node *array_access;
-    Node *expression;
+Node *array_access;
+Node *expression;
 }
 
-%node ArrayAccess Node = {
-    Node *expression;
+% node ArrayAccess Node = {
+    Node * expression;
 }
 
-%node ReturnStmt Stmt = {
-    Node *expression;
+% node ReturnStmt Stmt = {
+    Node * expression;
 }
 
-%node IfStmt Stmt = {
-    Node *expression;
-    Node *block;
-    Node *else_optional;
+% node IfStmt Stmt = {
+    Node * expression;
+Node *block;
+Node *else_optional;
 }
 
-%node ElseOptional Node = {
-    Node *block;
+% node ElseOptional Node = {
+    Node * block;
 }
 
-%node Block Node = {
-    Node *stmt_list;
+% node Block Node = {
+    Node * stmt_list;
 }
 
-%node WhileStmt Stmt = {
-    Node *expression;
-    Node *block;
+% node WhileStmt Stmt = {
+    Node * expression;
+Node *block;
 }
 
-%node CallStmt Stmt = {
+% node CallStmt Stmt = {
     string_t identifier;
-    Node *call_param_list;
+Node *call_param_list;
 }
 
-%node CallParamList Node = {
-    Node *expression;
-    Node *call_param_rest;
+% node CallParamList Node = {
+    Node * expression;
+Node *call_param_rest;
 }
 
-%node CallParamRest Node = {
-    Node *expression;
-    Node *call_param_rest;
+% node CallParamRest Node = {
+    Node * expression;
+Node *call_param_rest;
 }
 
-%node PrintStmt Stmt = {
-    Node *print_param;
+% node PrintStmt Stmt = {
+    Node * print_param;
 }
 
-%node PrintParam Node = {
-    Node *expression;
-    string_t string_literal;
+% node PrintParam Node = {
+    Node * expression;
+string_t string_literal;
 }
 
-%node ReadStmt Stmt = {
+% node ReadStmt Stmt = {
     string_t identifier;
 }
 
-%node BinaryExpr Node %abstract ={
-    Node *left;
-    Node *right;
+% node BinaryExpr Node % abstract = {
+    Node * left;
+Node *right;
 }
 
-%node UnaryExpr Node %abstract ={
-    Node *expr;
+% node UnaryExpr Node % abstract = {
+    Node * expr;
 }
 
+% node EqualBoolean BinaryExpr = {} % node NEqualBoolean BinaryExpr = {} % node Less_ThanBoolean BinaryExpr = {} % node Greater_ThanBoolean BinaryExpr = {} % node LessEqualBoolean BinaryExpr = {} % node GreaterEqualBoolean BinaryExpr = {}
 
-%node EqualBoolean BinaryExpr = {}
-%node NEqualBoolean BinaryExpr = {}
-%node Less_ThanBoolean BinaryExpr = {}
-%node Greater_ThanBoolean BinaryExpr = {}
-%node LessEqualBoolean BinaryExpr = {}
-%node GreaterEqualBoolean BinaryExpr = {}
+                                                                                                                                                                                                                                            % node OrBoolean BinaryExpr = {} % node AndBoolean BinaryExpr = {}
 
-%node OrBoolean BinaryExpr = {}
-%node AndBoolean BinaryExpr = {}
+                                                                                                                                                                                                                                                                                                            % node UnaryNotBoolean UnaryExpr = {}
 
-%node UnaryNotBoolean UnaryExpr = {}
+                                                                                                                                                                                                                                                                                                                                               % node SumExpr BinaryExpr = {} % node SubExpr BinaryExpr = {} % node MulExpr BinaryExpr = {} % node DivExpr BinaryExpr = {} % node ModExpr BinaryExpr = {}
 
-%node SumExpr BinaryExpr = {}
-%node SubExpr BinaryExpr = {}
-%node MulExpr BinaryExpr = {}
-%node DivExpr BinaryExpr = {}
-%node ModExpr BinaryExpr = {}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       % node UnaryAddExpr UnaryExpr = {} % node UnarySubExpr UnaryExpr = {}
 
-%node UnaryAddExpr UnaryExpr = {}
-%node UnarySubExpr UnaryExpr = {}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          % node Expr Node % abstract
 
-%node Expr Node %abstract 
-
-%node Number Expr = {
-    int value;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          % node Number Expr = {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              int value;
 }
 
-%node Identifier Expr = {
+% node Identifier Expr = {
     string_t name;
 }
 
-%node ArrayVariable Node = {
+% node ArrayVariable Node = {
     string_t name;
-    Node *indexExpr;
+Node *indexExpr;
 }
 
+% operation % virtual string_t toString(Node *this) = {""}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-%operation %virtual string_t toString(Node *this) = {""}
-
-
-
-toString(Program) {
+toString(Program)
+{
     std::ostringstream os;
 
- 
     os << "Program "
-    << class_name <<    
-    "(" << variable_decls->toString() 
-    << ", " << method_decls->toString() << ")";
-    
+       << class_name << "(" << variable_decls->toString()
+       << ", " << method_decls->toString() << ")";
+
     return os.str();
 }
 
-toString(VariableDeclList) {
-   
+toString(VariableDeclList)
+{
 
-
-    if (!first_decl) return "VariableDeclList()";
+    if (!first_decl)
+        return "VariableDeclList()";
     std::ostringstream os;
     os << "VariableDeclList(" << first_decl->toString();
-    if (rest_decls) os << ", " << rest_decls->toString();
+    if (rest_decls)
+        os << ", " << rest_decls->toString();
     os << ")";
 
-
     return os.str();
 }
 
-toString(VariableDecl) {
+toString(VariableDecl)
+{
     std::ostringstream os;
-  os << "VARIABLEDECL" ;
+    os << "VARIABLEDECL";
     return os.str();
 }
 
-toString(IdentList) {
-    
+toString(VariableDecl_Body)
+{
     std::ostringstream os;
-    os << "IdentList(" <<  ")";
+    os << "VariableDecl_Body(" << ")";
+
     return os.str();
 }
 
-toString(Type) {
+toString(IdentList)
+{
+
+    std::ostringstream os;
+    os << "IdentList(" << ")";
+    return os.str();
+}
+
+toString(Type)
+{
     std::ostringstream os;
     os << "Type(" << type_name;
-    if (array_optional) os << ", " << array_optional->toString();
+    if (array_optional)
+        os << ", " << array_optional->toString();
     os << ")";
     return os.str();
 }
 
-toString(ArrayOptional) {
- 
+toString(ArrayOptional)
+{
+
     std::ostringstream os;
-    os << "ArrayOptional(" <<  ")";
+    os << "ArrayOptional(" << ")";
     return os.str();
 }
 
-toString(MethodDeclList) {
+toString(MethodDeclList)
+{
 
     std::ostringstream os;
     os << "MethodDeclList(" << ")";
     return os.str();
 }
 
-toString(MethodDecl) {
+toString(MethodDecl)
+{
     std::ostringstream os;
     os << "MethodDecl(" << ")";
     return os.str();
 }
 
-toString(MethodType) {
+toString(MethodDecl_Body)
+{
+    std::ostringstream os;
+    os << "MethodDecl_Body(" << ")";
+    return os.str();
+}
+
+toString(MethodType)
+{
     return "MethodType()";
 }
 
-
-toString(ParamList) {
-    if (!first_param) return "ParamList()";
+toString(ParamList)
+{
+    if (!first_param)
+        return "ParamList()";
     std::ostringstream os;
     os << "ParamList(" << first_param->toString();
-    if (rest_params) os << ", " << rest_params->toString();
+    if (rest_params)
+        os << ", " << rest_params->toString();
     os << ")";
     return os.str();
 }
 
-toString(ParamDecl) {
+toString(ParamDecl)
+{
     std::ostringstream os;
     os << "ParamDecl(";
-    if (ref_optional) os << ref_optional->toString() << ", ";
+    if (ref_optional)
+        os << ref_optional->toString() << ", ";
     os << type->toString() << ", " << identifier << ")";
     return os.str();
 }
 
-toString(RefOptional) {
+toString(RefOptional)
+{
     return is_ref ? "RefOptional(ref)" : "RefOptional()";
 }
 
-toString(StmtList) {
-    if (!first_stmt) return "StmtList()";
+toString(StmtList)
+{
+    if (!first_stmt)
+        return "StmtList()";
     std::ostringstream os;
     os << "StmtList(" << first_stmt->toString();
-    if (rest_stmts) os << ", " << rest_stmts->toString();
+    if (rest_stmts)
+        os << ", " << rest_stmts->toString();
     os << ")";
     return os.str();
 }
 
-toString(AssignStmt) {
+toString(AssignStmt)
+{
     std::ostringstream os;
     os << "AssignStmt(" << identifier;
-    if (array_access) os << array_access->toString();
+    if (array_access)
+        os << array_access->toString();
     os << ", " << expression->toString() << ")";
     return os.str();
 }
 
-toString(ReturnStmt) {
+toString(ReturnStmt)
+{
     return "ReturnStmt(" + expression->toString() + ")";
 }
 
-toString(IfStmt) {
+toString(IfStmt)
+{
     std::ostringstream os;
     os << "IfStmt(" << expression->toString() << ", " << block->toString();
-    if (else_optional) os << ", " << else_optional->toString();
+    if (else_optional)
+        os << ", " << else_optional->toString();
     os << ")";
     return os.str();
 }
 
-toString(WhileStmt) {
+toString(WhileStmt)
+{
     return "WhileStmt(" + expression->toString() + ", " + block->toString() + ")";
 }
 
-toString(CallStmt) {
+toString(CallStmt)
+{
     std::ostringstream os;
     os << "CallStmt(" << identifier << ", ";
-    if (call_param_list) os << call_param_list->toString();
+    if (call_param_list)
+        os << call_param_list->toString();
     os << ")";
     return os.str();
 }
 
-toString(PrintStmt) {
+toString(PrintStmt)
+{
     return "PrintStmt(" + print_param->toString() + ")";
 }
 
-
-
-
-toString(OptParamDeclList) {
-    if (!first_param) return "OptParamDeclList()";
+toString(OptParamDeclList)
+{
+    if (!first_param)
+        return "OptParamDeclList()";
     std::ostringstream os;
     os << "OptParamDeclList(" << first_param->toString();
-    if (rest_params) os << ", " << rest_params->toString();
+    if (rest_params)
+        os << ", " << rest_params->toString();
     os << ")";
     return os.str();
 }
 
-toString(ReadStmt) {
+toString(ReadStmt)
+{
     return "ReadStmt(" + identifier + ")";
 }
 
-toString(ArrayAccess) {
-    if (!expression) return "ArrayAccess()";
+toString(ArrayAccess)
+{
+    if (!expression)
+        return "ArrayAccess()";
     return "ArrayAccess(" + expression->toString() + ")";
 }
 
-toString(ElseOptional) {
-    if (!block) return "ElseOptional()";
+toString(ElseOptional)
+{
+    if (!block)
+        return "ElseOptional()";
     return "ElseOptional(" + block->toString() + ")";
 }
 
-toString(Block) {
+toString(Block)
+{
     return "Block(" + stmt_list->toString() + ")";
 }
 
+toString(CallParamList)
+{
 
-toString(CallParamList) {
-  
     return "CallParamList()";
 }
 
-toString(CallParamRest) {
-  
+toString(CallParamRest)
+{
+
     return "CallParamRest()";
 }
 
-toString(PrintParam) {
+toString(PrintParam)
+{
     return "PrintParam()";
 }
 
-
-
-toString(BinaryExpr){
+toString(BinaryExpr)
+{
     std::ostringstream os;
-    os << "BinaryExpr(" 
-       << left->toString() 
-       << ", " << right->toString() 
+    os << "BinaryExpr("
+       << left->toString()
+       << ", " << right->toString()
        << ")";
     return os.str();
 }
 
-
-toString(UnaryExpr){
+toString(UnaryExpr)
+{
     std::ostringstream os;
-    os << "UnaryExpr(" 
-       << expr->toString() 
-     
+    os << "UnaryExpr("
+       << expr->toString()
+
        << ")";
     return os.str();
 }
 
-
-toString(EqualBoolean){
+toString(EqualBoolean)
+{
     return "EqualBoolean(" + left->toString() + " == " + right->toString() + ")";
 }
 
-toString(NEqualBoolean){
+toString(NEqualBoolean)
+{
     return "NEqualBoolean(" + left->toString() + " != " + right->toString() + ")";
 }
 
-toString(Less_ThanBoolean){
+toString(Less_ThanBoolean)
+{
     return "Less_ThanBoolean(" + left->toString() + " < " + right->toString() + ")";
 }
 
-toString(Greater_ThanBoolean){
+toString(Greater_ThanBoolean)
+{
     return "Greater_ThanBoolean(" + left->toString() + " > " + right->toString() + ")";
 }
 
-toString(LessEqualBoolean){
+toString(LessEqualBoolean)
+{
     return "LessEqualBoolean(" + left->toString() + " <= " + right->toString() + ")";
 }
 
-toString(GreaterEqualBoolean){
+toString(GreaterEqualBoolean)
+{
     return "GreaterEqualBoolean(" + left->toString() + " >= " + right->toString() + ")";
 }
 
-
-toString(OrBoolean){
+toString(OrBoolean)
+{
     return "OrBoolean(" + left->toString() + " || " + right->toString() + ")";
 }
 
-toString(AndBoolean){
+toString(AndBoolean)
+{
     return "AndBoolean(" + left->toString() + " && " + right->toString() + ")";
 }
 
-toString(UnaryNotBoolean){
+toString(UnaryNotBoolean)
+{
     return "UnaryNotBoolean(!" + expr->toString() + ")";
 }
 
-toString(SumExpr){
+toString(SumExpr)
+{
     return "SumExpr(" + left->toString() + " + " + right->toString() + ")";
 }
 
-toString(SubExpr){
+toString(SubExpr)
+{
     return "SubExpr(" + left->toString() + " - " + right->toString() + ")";
 }
 
-toString(MulExpr){
+toString(MulExpr)
+{
     return "MulExpr(" + left->toString() + " * " + right->toString() + ")";
 }
 
-toString(DivExpr){
+toString(DivExpr)
+{
     return "DivExpr(" + left->toString() + " / " + right->toString() + ")";
 }
 
-toString(ModExpr){
+toString(ModExpr)
+{
     return "ModExpr(" + left->toString() + " % " + right->toString() + ")";
 }
 
-toString(UnaryAddExpr){
+toString(UnaryAddExpr)
+{
     return "UnaryAddExpr(" + expr->toString() + ")";
 }
 
-toString(UnarySubExpr){
+toString(UnarySubExpr)
+{
     return "UnarySubExpr(-" + expr->toString() + ")";
 }
 
-toString(Number){
+toString(Number)
+{
     std::ostringstream os;
     os << "Number(" << value << ")";
     return os.str();
 }
 
-toString(Identifier){
+toString(Identifier)
+{
     std::ostringstream os;
     os << "Identifier(" << name << ")";
     return os.str();
 }
 
-toString(ArrayVariable){
+toString(ArrayVariable)
+{
     std::ostringstream os;
     os << "ArrayVariable(" << name << ", " << indexExpr->toString() << ")";
     return os.str();
 }
 
+% operation int eval(Node *node, symbol_table &vars) = {0}
 
+eval(Program)
+{
+    std::cout << "AST Program" << std::endl;
 
+    std::cout << "==============================" << std::endl;
 
+    if (node->variable_decls)
+        eval(node->variable_decls, vars);
+    if (node->method_decls)
+        eval(node->method_decls, vars);
 
+    std::cout << "==============================" << std::endl;
 
-
-
-
-
-
-
-
-
-%operation int eval(Node *node, symbol_table& vars) = {0}
-
-
-eval(Program) {
-std::cout << "AST Program" << std::endl;
-
-    if (node->variable_decls) eval(node->variable_decls, vars);
-    if (node->method_decls) eval(node->method_decls, vars);
-
-    return 0;
-
-}
-
-eval(VariableDeclList) {
-    if (node->first_decl)  eval(node->first_decl, vars);
-
-    if (node->rest_decls)  eval(node->rest_decls, vars);
+    std::cout << "Resultado de Ejecuccion: " << std::endl;
 
     return 0;
 }
 
-eval(VariableDecl) {
+eval(VariableDeclList)
+{
+    std::cout << "[AST] - VariableDeclList" << std::endl;
+    if (node->first_decl)
+        eval(node->first_decl, vars);
+
+    if (node->rest_decls)
+        eval(node->rest_decls, vars);
+
+    return 0;
+}
+
+eval(VariableDecl)
+{
+    std::cout << "[AST] - VariableDecl" << std::endl;
     vars[node->identifier] = 0;
-    if (node->ident_list) eval(node->ident_list, vars);
+    if (node->variableDecl_Body)
+        eval(node->variableDecl_Body, vars);
     return 0;
-  
 }
 
-eval(IdentList) {
+eval(VariableDecl_Body)
+{
+    std::cout << "[AST] - VariableDecl_Body" << std::endl;
+    if (node->ident_list)
+        eval(node->ident_list, vars);
+    return 0;
+}
+
+eval(IdentList)
+{
+    std::cout << "[AST] - IdentList" << std::endl;
     vars[node->identifier] = 0;
-    if (node->IdentListParam) eval(node->IdentListParam, vars);
+    if (node->IdentListParam)
+        eval(node->IdentListParam, vars);
     return 0;
 }
 
-eval(Type) {
-    
+eval(Type)
+{
+    std::cout << "[AST] - Type" << std::endl;
+
     return 0;
 }
 
-eval(ArrayOptional) {
-    return node->size; 
+eval(ArrayOptional)
+{
+    std::cout << "[AST] - ArrayOptional" << std::endl;
+    return node->size;
 }
 
-eval(MethodDeclList) {
-    if (node->first_decl) eval(node->first_decl, vars);
-    if (node->rest_decls) eval(node->rest_decls, vars);
+eval(MethodDeclList)
+{
+    std::cout << "[AST] - MethodDeclList" << std::endl;
+    if (node->first_decl)
+        eval(node->first_decl, vars);
+    if (node->rest_decls)
+        eval(node->rest_decls, vars);
     return 0;
 }
 
-eval(MethodDecl) {
-    if (node->opt_param_decl_list) eval(node->opt_param_decl_list, vars);
-    if (node->variable_decls) eval(node->variable_decls, vars);
-    if (node->stmt_list) eval(node->stmt_list, vars);
+eval(MethodDecl)
+{
+    std::cout << "[AST] - MethodDecl" << std::endl;
+    if (node->MethodDecl_Body)
+        eval(node->MethodDecl_Body, vars);
     return 0;
 }
 
-eval(MethodType) {
-    return 0;  // Devuelve el tipo de retorno del método
-}
-
-eval(OptParamDeclList) {
-    if (node->first_param)eval(node->first_param, vars);
-    if (node->rest_params) eval(node->rest_params, vars);
+eval(MethodDecl_Body)
+{
+    std::cout << "[AST] - MethodDecl_Body" << std::endl;
+    if (node->opt_param_decl_list)
+        eval(node->opt_param_decl_list, vars);
+    if (node->variable_decls)
+        eval(node->variable_decls, vars);
+    if (node->stmt_list)
+        eval(node->stmt_list, vars);
     return 0;
 }
 
-eval(ParamList) {
-    if (node->first_param) eval(node->first_param, vars);
-    if (node->rest_params) eval(node->rest_params, vars);
+eval(MethodType)
+{
+    std::cout << "[AST] - MethodType" << std::endl;
+    return 0; // Devuelve el tipo de retorno del método
+}
+
+eval(OptParamDeclList)
+{
+    std::cout << "[AST] - OptParamDeclList" << std::endl;
+    if (node->first_param)
+        eval(node->first_param, vars);
+    if (node->rest_params)
+        eval(node->rest_params, vars);
     return 0;
 }
 
+eval(ParamList)
+{
+    std::cout << "[AST] - ParamList" << std::endl;
+    if (node->first_param)
+        eval(node->first_param, vars);
+    if (node->rest_params)
+        eval(node->rest_params, vars);
+    return 0;
+}
 
-eval(AssignStmt){
-
-  //  %node AssignStmt Stmt = {
-   // string_t identifier;
- //   Node *array_access;
- //   Node *expression;
-//}
-
+eval(AssignStmt)
+{
 
     std::cout << "[AST] - AssignStmt" << std::endl;
-   
-    return 0;
 
+    int value = eval(node->expression, vars);
+    if (node->array_access)
+    {
+        throw std::runtime_error("Array assignment not implemented");
+    }
+    else
+    {
+        vars[node->identifier] = value;
+    }
+    return 0;
 }
 
-eval(ReturnStmt){
+eval(ReturnStmt)
+{
+    std::cout << "[AST] - ReturnStmt" << std::endl;
     return eval(node->expression, vars);
 }
 
-eval(IfStmt){
-  
+eval(IfStmt)
+{
+    std::cout << "[AST] - IfStmt" << std::endl;
+    int cond = eval(node->expression, vars);
+    if (cond)
+    {
+        eval(node->block, vars);
+    }
+    else if (node->else_optional)
+    {
+        eval(node->else_optional, vars);
+    }
     return 0;
 }
 
-eval(WhileStmt){
+eval(WhileStmt)
+{
+    std::cout << "[AST] - WhileStmt" << std::endl;
     int last_val = 0;
-    while(eval(node->expression, vars)){
+    while (eval(node->expression, vars))
+    {
         last_val = eval(node->block, vars);
     }
     return last_val;
 }
 
-
-
-eval(ParamDecl) {
+eval(ParamDecl)
+{
+    std::cout << "[AST] - ParamDecl" << std::endl;
     vars[node->identifier] = 0;
     return 0;
 }
 
-eval(RefOptional) {
-    return node->is_ref;  // Devuelve si el parámetro es por referencia (true/false)
+eval(RefOptional)
+{
+    std::cout << "[AST] - RefOptional" << std::endl;
+    return node->is_ref; // Devuelve si el parámetro es por referencia (true/false)
 }
 
-eval(StmtList) {
-    if (node->first_stmt) eval(node->first_stmt, vars);
-    if (node->rest_stmts) eval(node->rest_stmts, vars);
+eval(StmtList)
+{
+    std::cout << "[AST] - StmtList" << std::endl;
+    if (node->first_stmt)
+        eval(node->first_stmt, vars);
+    if (node->rest_stmts)
+        eval(node->rest_stmts, vars);
 
     return 0;
 }
 
-eval(CallStmt) {
-        return 0;
-}
+eval(CallStmt)
+{
+    std::cout << "[AST] - CallStmt" << std::endl;
+    if (node->call_param_list)
+    {
+        eval(node->call_param_list, vars);
+    }
 
-eval(PrintStmt) {
     return 0;
 }
 
-eval(ReadStmt) {
-       return 0;
-}
-
-eval(ArrayAccess) {
+eval(PrintStmt)
+{
+    std::cout << "[AST] - PrintStmt" << std::endl;
+    if (node->print_param)
+    {
+        eval(node->print_param, vars);
+    }
     return 0;
 }
 
-eval(ElseOptional) {
-      return 0;
+eval(PrintParam)
+{
+
+    std::cout << "[AST] - PrintParam" << std::endl;
+    if (node->expression)
+    {
+
+        std::cout << eval(node->expression, vars) << std::endl;
+    }
+    else
+    {
+        std::cout << node->string_literal << std::endl;
+    }
+    return 0;
 }
 
-
-eval(Block) {
-      return 0;
+eval(ReadStmt)
+{
+    std::cout << "[AST] - ReadStmt" << std::endl;
+    int value;
+    std::cin >> value;
+    vars[node->identifier] = value;
+    return 0;
 }
 
-eval(CallParamList) {
-      return 0;
+eval(ArrayAccess)
+{
+    std::cout << "[AST] - ArrayAccess" << std::endl;
+    return 0;
 }
 
-eval(CallParamRest) {
-       return 0;
+eval(ElseOptional)
+{
+    std::cout << "[AST] - ElseOptional" << std::endl;
+    if (node->block)
+    {
+        eval(node->block, vars);
+    }
+    return 0;
 }
 
-eval(PrintParam) {
-     std::cout << "[AST] - PrintParam" << std::endl;
-
-        return 0;
-
+eval(Block)
+{
+    std::cout << "[AST] - Block" << std::endl;
+    return 0;
 }
 
+eval(CallParamList)
+{
+    std::cout << "[AST] - CallParamList" << std::endl;
+    return 0;
+}
 
+eval(CallParamRest)
+{
+    std::cout << "[AST] - CallParamRest" << std::endl;
+    return 0;
+}
 
-
-
-
-
-
-
-eval(EqualBoolean){
+eval(EqualBoolean)
+{
+    std::cout << "[AST] - EqualBoolean" << std::endl;
     return eval(node->left, vars) == eval(node->right, vars);
 }
 
-eval(NEqualBoolean){
+eval(NEqualBoolean)
+{
+    std::cout << "[AST] - NEqualBoolean" << std::endl;
     return eval(node->left, vars) != eval(node->right, vars);
 }
 
-eval(Less_ThanBoolean){
+eval(Less_ThanBoolean)
+{
+    std::cout << "[AST] - Less_ThanBoolean" << std::endl;
     return eval(node->left, vars) < eval(node->right, vars);
 }
 
-eval(Greater_ThanBoolean){
+eval(Greater_ThanBoolean)
+{
+    std::cout << "[AST] - Greater_ThanBoolean" << std::endl;
     return eval(node->left, vars) > eval(node->right, vars);
 }
 
-eval(LessEqualBoolean){
+eval(LessEqualBoolean)
+{
+    std::cout << "[AST] - LessEqualBoolean" << std::endl;
     return eval(node->left, vars) <= eval(node->right, vars);
 }
 
-eval(GreaterEqualBoolean){
+eval(GreaterEqualBoolean)
+{
+    std::cout << "[AST] - GreaterEqualBoolean" << std::endl;
     return eval(node->left, vars) >= eval(node->right, vars);
 }
 
-eval(OrBoolean ){
+eval(OrBoolean)
+{
+    std::cout << "[AST] - OrBoolean" << std::endl;
     return eval(node->left, vars) || eval(node->right, vars);
 }
 
-eval(AndBoolean){
+eval(AndBoolean)
+{
+    std::cout << "[AST] - AndBoolean" << std::endl;
     return eval(node->left, vars) && eval(node->right, vars);
 }
 
-eval(UnaryNotBoolean){
+eval(UnaryNotBoolean)
+{
+    std::cout << "[AST] - UnaryNotBoolean" << std::endl;
     return !eval(node->expr, vars);
 }
 
-
-eval(SumExpr){
+eval(SumExpr)
+{
+    std::cout << "[AST] - SumExpr" << std::endl;
     return eval(node->left, vars) + eval(node->right, vars);
 }
 
-eval(SubExpr){
+eval(SubExpr)
+{
+    std::cout << "[AST] - SubExpr" << std::endl;
     return eval(node->left, vars) - eval(node->right, vars);
 }
 
-eval(MulExpr){
+eval(MulExpr)
+{
+    std::cout << "[AST] - MulExpr" << std::endl;
     return eval(node->left, vars) * eval(node->right, vars);
 }
 
-
-eval(DivExpr){
+eval(DivExpr)
+{
+    std::cout << "[AST] - DivExpr" << std::endl;
     auto right = eval(node->right, vars);
-    if (right == 0) {
+    if (right == 0)
+    {
         throw std::runtime_error("División por cero");
     }
     return eval(node->left, vars) / right;
 }
 
-eval(ModExpr){
+eval(ModExpr)
+{
+    std::cout << "[AST] - ModExpr" << std::endl;
     return eval(node->left, vars) % eval(node->right, vars);
 }
 
-eval(UnaryAddExpr){
+eval(UnaryAddExpr)
+{
+    std::cout << "[AST] - UnaryAddExpr" << std::endl;
     return eval(node->expr, vars);
-    }
+}
 
-eval(UnarySubExpr){
+eval(UnarySubExpr)
+{
+    std::cout << "[AST] - UnarySubExpr" << std::endl;
+
     return -eval(node->expr, vars);
 }
 
-eval(Number){
+eval(Number)
+{
+    std::cout << "[AST] - Number" << std::endl;
     return node->value;
 }
 
-
-
-eval(Identifier){
-  return 0;
-}
-
-eval(ArrayVariable){
+eval(Identifier)
+{
+    std::cout << "[AST] - Identifier" << std::endl;
     auto it = vars.find(node->name);
-    if(it == vars.end()){
-        throw std::runtime_error("Variable not found");
+    if (it == vars.end())
+    {
+        throw std::runtime_error("Undefined variable: " + node->name);
     }
     return it->second;
+
+    return 0;
 }
 
-
-
-
-
-
+eval(ArrayVariable)
+{
+    std::cout << "[AST] - ArrayVariable" << std::endl;
+    throw std::runtime_error("Array access not implemented");
+    return 0;
+}

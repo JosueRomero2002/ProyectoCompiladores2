@@ -246,22 +246,27 @@ int MiniJavaLexer::nextToken(Expr::Parser::value_type *yylval)
           case 37: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:77: "\""(\\.|[^\\"])*"\"" :
 #line 77 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 {
-    yylval->emplace<std::string>(text());
+    std::string str = text();
+    str = str.substr(1, str.size() - 2);
+    yylval->emplace<std::string>(str);
+
+
+
     return Token::STRING_LITERAL;
 }
 
 
             break;
-          case 38: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:83: "/*" :
-#line 83 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 38: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:88: "/*" :
+#line 88 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 { this->start(COMMENT); }
             break;
-          case 39: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:86: "*/" :
-#line 86 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 39: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:91: "*/" :
+#line 91 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 { this->start(INITIAL); }
             break;
-          case 40: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:87: . :
-#line 87 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 40: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:92: . :
+#line 92 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 { return Token::ERROR; }
 
             break;
@@ -281,12 +286,12 @@ int MiniJavaLexer::nextToken(Expr::Parser::value_type *yylval)
               out().put(matcher().input());
             }
             break;
-          case 1: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:84: [^*]+ :
-#line 84 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 1: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:89: [^*]+ :
+#line 89 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 {  }
             break;
-          case 2: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:85: "*"+[^*/] :
-#line 85 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
+          case 2: // rule /mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l:90: "*"+[^*/] :
+#line 90 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/MiniJavaLexer.l"
 {  }
             break;
         }

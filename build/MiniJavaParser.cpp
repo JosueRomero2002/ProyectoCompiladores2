@@ -47,28 +47,27 @@
 
 // Declaramos la función de análisis léxico.
 int yylex();
-void yyerror(const char *s);
 
-#define yylex(arg) lexer.nextToken(arg)
-
-void yyerror(const char* msg);
+#define yylex(arg) lexer.nextToken(arg) 
 
 namespace Expr {
     void Parser::error (const std::string& msg)
     {
-        std::cerr << "Error de sintaxis: " << msg << '\n';
+       std::cerr << "Error: " << msg << " on line " << lexer.lineno() << '\n';
     }
 }
 
+
+
 void yyerror(const char* msg) {
-    std::cerr << "Syntax error: " << msg << std::endl;
+     std::cerr << "Error: " << msg << " on line " << '\n';
 }
 
 
 
 
 
-#line 72 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 71 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
 
 
 #include "MiniJavaParser.hpp"
@@ -147,7 +146,7 @@ void yyerror(const char* msg) {
 
 #line 10 "MiniJavaParser.y"
 namespace Expr {
-#line 151 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 150 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
 
   /// Build a parser object.
   Parser::Parser (MiniJavaLexer& lexer_yyarg, Ast::Node *&root_yyarg)
@@ -181,12 +180,14 @@ namespace Expr {
     {
       case symbol_kind::S_program: // program
       case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
       case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_body: // method_body
       case symbol_kind::S_method_type: // method_type
       case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
       case symbol_kind::S_param_list: // param_list
@@ -262,12 +263,14 @@ namespace Expr {
     {
       case symbol_kind::S_program: // program
       case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
       case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_body: // method_body
       case symbol_kind::S_method_type: // method_type
       case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
       case symbol_kind::S_param_list: // param_list
@@ -412,12 +415,14 @@ namespace Expr {
     {
       case symbol_kind::S_program: // program
       case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
       case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_body: // method_body
       case symbol_kind::S_method_type: // method_type
       case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
       case symbol_kind::S_param_list: // param_list
@@ -477,12 +482,14 @@ namespace Expr {
     {
       case symbol_kind::S_program: // program
       case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
       case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_body: // method_body
       case symbol_kind::S_method_type: // method_type
       case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
       case symbol_kind::S_param_list: // param_list
@@ -542,12 +549,14 @@ namespace Expr {
     {
       case symbol_kind::S_program: // program
       case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
       case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_body: // method_body
       case symbol_kind::S_method_type: // method_type
       case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
       case symbol_kind::S_param_list: // param_list
@@ -605,12 +614,14 @@ namespace Expr {
     {
       case symbol_kind::S_program: // program
       case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
       case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_body: // method_body
       case symbol_kind::S_method_type: // method_type
       case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
       case symbol_kind::S_param_list: // param_list
@@ -908,12 +919,14 @@ namespace Expr {
     {
       case symbol_kind::S_program: // program
       case symbol_kind::S_variable_decl_list: // variable_decl_list
+      case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
       case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
+      case symbol_kind::S_method_body: // method_body
       case symbol_kind::S_method_type: // method_type
       case symbol_kind::S_opt_param_decl_list: // opt_param_decl_list
       case symbol_kind::S_param_list: // param_list
@@ -971,645 +984,727 @@ namespace Expr {
           switch (yyn)
             {
   case 2: // input: program
-#line 88 "MiniJavaParser.y"
+#line 87 "MiniJavaParser.y"
                { root = yystack_[0].value.as < Ast::Node * > (); std::cout << "[Parser] - Parseo exitoso" << std::endl; }
-#line 977 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 990 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
   case 3: // program: KW_CLASS IDENTIFIER OPEN_CURLY variable_decl_list method_decl_list CLOSE_CURLY
-#line 94 "MiniJavaParser.y"
+#line 93 "MiniJavaParser.y"
                                                                                      {
-            yylhs.value.as < Ast::Node * > () = new Ast::Program(yystack_[4].value.as < std::string > (), yystack_[2].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > ());
-            std::cout << "[Parser] - Programa creado con declaraciones separadas" << std::endl;
+             std::cout << "[Parser] - Programa creado con declaraciones separadas" << std::endl;
+             yylhs.value.as < Ast::Node * > () = new Ast::Program(yystack_[4].value.as < std::string > (), yystack_[2].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > ());
       }
-#line 986 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 999 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 4: // variable_decl_list: KW_INT IDENTIFIER variable_decl
-#line 102 "MiniJavaParser.y"
-                                    {
-     //   std::cout << "[Parser] - Variable Lista declarada" << std::endl;    $$ = new Ast::VariableDeclList($1, $2);
+  case 4: // variable_decl_list: KW_INT IDENTIFIER method_body method_decl_list
+#line 100 "MiniJavaParser.y"
+                                                     { //Es Metodo entonces se detiene
+
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+
+         yylhs.value.as < Ast::Node * > () = new Ast::MethodDeclList(    new Ast::MethodDecl(new Ast::MethodType("INT"), yystack_[2].value.as < std::string > (), yystack_[1].value.as < Ast::Node * > ()) , yystack_[0].value.as < Ast::Node * > ());
       }
-#line 994 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1010 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 5: // variable_decl_list: KW_INT OPEN_BRACKET INT_CONST CLOSE_BRACKET IDENTIFIER variable_decl_SimpleBody
-#line 105 "MiniJavaParser.y"
-                                                                                       {
+  case 5: // variable_decl_list: KW_INT IDENTIFIER method_body
+#line 107 "MiniJavaParser.y"
+                                    { //Es Metodo entonces se detiene
 
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+
+         yylhs.value.as < Ast::Node * > () = new Ast::MethodDeclList(  new Ast::MethodDecl(new Ast::MethodType("INT"), yystack_[1].value.as < std::string > (), yystack_[0].value.as < Ast::Node * > ()) , nullptr);     
       }
-#line 1002 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1021 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 6: // variable_decl_list: %empty
-#line 109 "MiniJavaParser.y"
+  case 6: // variable_decl_list: variable_decl variable_decl_list
+#line 115 "MiniJavaParser.y"
+                                       { 
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+        yylhs.value.as < Ast::Node * > () = new Ast::VariableDeclList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ());
+      }
+#line 1030 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 7: // variable_decl_list: variable_decl
+#line 119 "MiniJavaParser.y"
+                     { 
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+      yylhs.value.as < Ast::Node * > () = new Ast::VariableDeclList(yystack_[0].value.as < Ast::Node * > (), nullptr);
+      }
+#line 1039 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 8: // variable_decl_list: %empty
+#line 124 "MiniJavaParser.y"
                {}
-#line 1008 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1045 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 7: // variable_decl_SimpleBody: ident_list SEMICOLON variable_decl_list
-#line 114 "MiniJavaParser.y"
-                                          { 
-     //   $$ = new Ast::VariableDecl($1, $2, $3);
-      }
-#line 1016 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
+  case 9: // variable_decl_Body: ident_list SEMICOLON
+#line 129 "MiniJavaParser.y"
+                       { 
 
-  case 8: // variable_decl: OPEN_PAR opt_param_decl_list CLOSE_PAR OPEN_CURLY variable_decl_list stmt_list CLOSE_CURLY
-#line 122 "MiniJavaParser.y"
-                                                                                                { 
-       // $$ = new Ast::MethodDecl($1, $2, $4, $7, $8);
-      }
-#line 1024 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 9: // variable_decl: ident_list SEMICOLON variable_decl_list
-#line 126 "MiniJavaParser.y"
-                                              { 
-     //   $$ = new Ast::VariableDecl($1, $2, $3);
-      }
-#line 1032 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 10: // ident_list: COMMA IDENTIFIER ident_list
-#line 134 "MiniJavaParser.y"
-                                  { 
-            yylhs.value.as < Ast::Node * > () = new Ast::IdentList(yystack_[1].value.as < std::string > (), yystack_[0].value.as < Ast::Node * > ());  std::cout << "[Parser] - ident_list" << std::endl;
-      }
-#line 1040 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 11: // ident_list: %empty
-#line 137 "MiniJavaParser.y"
-               {}
-#line 1046 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 12: // type: KW_INT array_optional
-#line 141 "MiniJavaParser.y"
-                            { 
-            yylhs.value.as < Ast::Node * > () = new Ast::Type("INT", yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - type" << std::endl;
+      yylhs.value.as < Ast::Node * > () = new Ast::VariableDecl_Body(yystack_[1].value.as < Ast::Node * > ()); std::cout << "[Parser] - variable_decl_Body" << std::endl;
       }
 #line 1054 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 13: // array_optional: OPEN_BRACKET INT_CONST CLOSE_BRACKET
-#line 148 "MiniJavaParser.y"
-                                           { 
-            yylhs.value.as < Ast::Node * > () = new Ast::ArrayOptional(yystack_[1].value.as < int > ()); std::cout << "[Parser] - array_optional" << std::endl;
-      }
+  case 10: // variable_decl: KW_INT IDENTIFIER variable_decl_Body
+#line 136 "MiniJavaParser.y"
+                                            {
+            yylhs.value.as < Ast::Node * > () = new Ast::VariableDecl(new Ast::Type("INT", nullptr), yystack_[1].value.as < std::string > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - variable_decl" << std::endl;
+       }
 #line 1062 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 14: // array_optional: %empty
-#line 151 "MiniJavaParser.y"
-               {}
-#line 1068 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 15: // method_decl_list: method_decl method_decl_list
-#line 155 "MiniJavaParser.y"
-                                   {
-          std::cout << "[Parser] - method_decl_list" << std::endl;  yylhs.value.as < Ast::Node * > () = new Ast::MethodDeclList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - method_decl_list" << std::endl;
+  case 11: // variable_decl: KW_INT array_optional IDENTIFIER variable_decl_Body
+#line 139 "MiniJavaParser.y"
+                                                            {
+            yylhs.value.as < Ast::Node * > () = new Ast::VariableDecl(new Ast::Type("INT", yystack_[2].value.as < Ast::Node * > ()), yystack_[1].value.as < std::string > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - variable_decl" << std::endl;
       }
-#line 1076 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1070 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 16: // method_decl_list: %empty
-#line 158 "MiniJavaParser.y"
-                 {}
-#line 1082 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 17: // method_decl: method_type IDENTIFIER OPEN_PAR opt_param_decl_list CLOSE_PAR OPEN_CURLY variable_decl_list stmt_list CLOSE_CURLY
-#line 162 "MiniJavaParser.y"
-                                                                                                                        {
-        std::cout << "[Parser] - method_decl" << std::endl;    yylhs.value.as < Ast::Node * > () = new Ast::MethodDecl(yystack_[8].value.as < Ast::Node * > (), yystack_[7].value.as < std::string > (), yystack_[5].value.as < Ast::Node * > (), yystack_[2].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > ()); std::cout << "[Parser] - method_decl" << std::endl;
-      }
-#line 1090 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 18: // method_type: KW_INT
-#line 168 "MiniJavaParser.y"
-             { 
-            yylhs.value.as < Ast::Node * > () = new Ast::MethodType("INT"); std::cout << "[Parser] - INT method_type" << std::endl;
-      }
-#line 1098 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 19: // method_type: KW_VOID
-#line 171 "MiniJavaParser.y"
-              { 
-            yylhs.value.as < Ast::Node * > () = new Ast::MethodType("VOID"); std::cout << "[Parser] - VOID method_type" << std::endl;
-      }
-#line 1106 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 20: // opt_param_decl_list: param_decl param_list
-#line 177 "MiniJavaParser.y"
-                            { 
-         std::cout << "[Parser] - opt_param_decl_list" << std::endl;   yylhs.value.as < Ast::Node * > () = new Ast::OptParamDeclList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - opt_param_decl_list" << std::endl;
-      }
-#line 1114 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 21: // opt_param_decl_list: %empty
-#line 180 "MiniJavaParser.y"
-              {}
-#line 1120 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 22: // param_list: COMMA param_decl param_list
-#line 184 "MiniJavaParser.y"
+  case 12: // ident_list: COMMA IDENTIFIER ident_list
+#line 145 "MiniJavaParser.y"
                                   { 
-            yylhs.value.as < Ast::Node * > () = new Ast::ParamList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - param_list" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::IdentList(yystack_[1].value.as < std::string > (), yystack_[0].value.as < Ast::Node * > ());  std::cout << "[Parser] - ident_list" << std::endl;
       }
-#line 1128 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1078 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 23: // param_list: %empty
-#line 187 "MiniJavaParser.y"
-                {}
-#line 1134 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+  case 13: // ident_list: %empty
+#line 148 "MiniJavaParser.y"
+               {}
+#line 1084 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 24: // param_decl: ref_optional type IDENTIFIER
-#line 191 "MiniJavaParser.y"
-                                   { 
-            yylhs.value.as < Ast::Node * > () = new Ast::ParamDecl(yystack_[2].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < std::string > ()); std::cout << "[Parser] - param_decl" << std::endl;
+  case 14: // type: KW_INT array_optional
+#line 152 "MiniJavaParser.y"
+                            { 
+            yylhs.value.as < Ast::Node * > () = new Ast::Type("INT", yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - type" << std::endl;
       }
-#line 1142 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1092 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 25: // ref_optional: KW_REF
-#line 197 "MiniJavaParser.y"
+  case 15: // array_optional: OPEN_BRACKET INT_CONST CLOSE_BRACKET
+#line 159 "MiniJavaParser.y"
+                                           { 
+            std::cout << "[Parser] - array_optional" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::ArrayOptional(yystack_[1].value.as < int > ()); 
+      }
+#line 1101 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 16: // array_optional: %empty
+#line 163 "MiniJavaParser.y"
+               {}
+#line 1107 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 17: // method_decl_list: method_decl method_decl_list
+#line 167 "MiniJavaParser.y"
+                                   {
+          std::cout << "[Parser] - method_decl_list" << std::endl;  
+          yylhs.value.as < Ast::Node * > () = new Ast::MethodDeclList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
+       
+      }
+#line 1117 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 18: // method_decl_list: %empty
+#line 172 "MiniJavaParser.y"
+                 {}
+#line 1123 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 19: // method_decl: method_type IDENTIFIER method_body
+#line 176 "MiniJavaParser.y"
+                                        {
+        std::cout << "[Parser] - method_decl" << std::endl;    
+        yylhs.value.as < Ast::Node * > () = new Ast::MethodDecl(yystack_[2].value.as < Ast::Node * > (), yystack_[1].value.as < std::string > (), yystack_[0].value.as < Ast::Node * > ());
+      }
+#line 1132 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 20: // method_body: OPEN_PAR opt_param_decl_list CLOSE_PAR OPEN_CURLY variable_decl_list stmt_list CLOSE_CURLY
+#line 183 "MiniJavaParser.y"
+                                                                                                 {
+      std::cout << "[Parser] - method_body" << std::endl;
+      yylhs.value.as < Ast::Node * > () = new Ast::MethodDecl_Body(yystack_[5].value.as < Ast::Node * > (), yystack_[2].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > ()); 
+      }
+#line 1141 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 21: // method_type: KW_INT
+#line 190 "MiniJavaParser.y"
              { 
-            yylhs.value.as < Ast::Node * > () = new Ast::RefOptional(true); std::cout << "[Parser] - ref_optional" << std::endl;
+            std::cout << "[Parser] - INT method_type" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::MethodType("INT");
       }
 #line 1150 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 26: // ref_optional: %empty
-#line 200 "MiniJavaParser.y"
-               {}
-#line 1156 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 27: // stmt_list: stmt stmt_list
-#line 204 "MiniJavaParser.y"
-                     { 
-        std::cout << "[Parser] - stmt_list" << std::endl;    yylhs.value.as < Ast::Node * > () = new Ast::StmtList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
+  case 22: // method_type: KW_VOID
+#line 194 "MiniJavaParser.y"
+              { 
+       std::cout << "[Parser] - VOID method_type" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::MethodType("VOID"); 
       }
-#line 1164 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1159 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 28: // stmt_list: %empty
-#line 207 "MiniJavaParser.y"
-                 {}
-#line 1170 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 29: // array_access: OPEN_BRACKET expression CLOSE_BRACKET
-#line 210 "MiniJavaParser.y"
-                                            {
-            yylhs.value.as < Ast::Node * > () = new Ast::ArrayAccess(yystack_[1].value.as < Ast::Node * > ());
-            std::cout << "[Parser] - array_access" << std::endl;
+  case 23: // opt_param_decl_list: param_decl param_list
+#line 201 "MiniJavaParser.y"
+                            { 
+         std::cout << "[Parser] - opt_param_decl_list" << std::endl;   
+         yylhs.value.as < Ast::Node * > () = new Ast::OptParamDeclList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
       }
-#line 1179 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1168 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 30: // array_access_opt: array_access
+  case 24: // opt_param_decl_list: %empty
+#line 205 "MiniJavaParser.y"
+              {}
+#line 1174 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 25: // param_list: COMMA param_decl param_list
+#line 209 "MiniJavaParser.y"
+                                  { 
+             std::cout << "[Parser] - param_list" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::ParamList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ());
+      }
+#line 1183 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 26: // param_list: %empty
+#line 213 "MiniJavaParser.y"
+                {}
+#line 1189 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 27: // param_decl: ref_optional type IDENTIFIER
 #line 217 "MiniJavaParser.y"
-                   { yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); }
-#line 1185 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 31: // array_access_opt: %empty
-#line 218 "MiniJavaParser.y"
-             { yylhs.value.as < Ast::Node * > () = nullptr; }
-#line 1191 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 32: // assign_stmt: IDENTIFIER array_access_opt OP_ASSIGN expression SEMICOLON
-#line 223 "MiniJavaParser.y"
-                                                                 {
-            yylhs.value.as < Ast::Node * > () = new Ast::AssignStmt(yystack_[4].value.as < std::string > (), yystack_[3].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > ());
+                                   { 
+             std::cout << "[Parser] - param_decl" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::ParamDecl(yystack_[2].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < std::string > ());
       }
-#line 1199 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1198 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 33: // call_stmt: IDENTIFIER OPEN_PAR call_param_list CLOSE_PAR SEMICOLON
-#line 230 "MiniJavaParser.y"
-                                                            {
-         yylhs.value.as < Ast::Node * > () = new Ast::CallStmt(yystack_[4].value.as < std::string > (), yystack_[2].value.as < Ast::Node * > ());
-    }
+  case 28: // ref_optional: KW_REF
+#line 224 "MiniJavaParser.y"
+             { 
+            std::cout << "[Parser] - ref_optional" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::RefOptional(true); 
+      }
 #line 1207 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 34: // stmt: call_stmt
-#line 235 "MiniJavaParser.y"
-          {
-          std::cout << "[Parser] - stmt" << std::endl;
-          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
-      }
-#line 1216 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+  case 29: // ref_optional: %empty
+#line 228 "MiniJavaParser.y"
+               {}
+#line 1213 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 35: // stmt: assign_stmt
-#line 240 "MiniJavaParser.y"
-                  {
-          std::cout << "[Parser] - stmt" << std::endl;
-          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+  case 30: // stmt_list: stmt stmt_list
+#line 232 "MiniJavaParser.y"
+                     { 
+        std::cout << "[Parser] - stmt_list" << std::endl;   
+         yylhs.value.as < Ast::Node * > () = new Ast::StmtList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
       }
-#line 1225 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1222 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 36: // stmt: return_stmt
-#line 245 "MiniJavaParser.y"
-                  {
-          std::cout << "[Parser] - stmt" << std::endl;
-          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
-      }
-#line 1234 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+  case 31: // stmt_list: %empty
+#line 236 "MiniJavaParser.y"
+                 {}
+#line 1228 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 37: // stmt: if_stmt
-#line 249 "MiniJavaParser.y"
-              {
-          std::cout << "[Parser] - stmt" << std::endl;
-          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+  case 32: // array_access: OPEN_BRACKET expression CLOSE_BRACKET
+#line 239 "MiniJavaParser.y"
+                                            {
+             std::cout << "[Parser] - array_access" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::ArrayAccess(yystack_[1].value.as < Ast::Node * > ());
+           
       }
-#line 1243 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1238 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 38: // stmt: while_stmt
+  case 33: // array_access_opt: array_access
+#line 247 "MiniJavaParser.y"
+                   { yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); }
+#line 1244 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 34: // array_access_opt: %empty
+#line 248 "MiniJavaParser.y"
+             {  }
+#line 1250 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 35: // assign_stmt: IDENTIFIER array_access_opt OP_ASSIGN expression SEMICOLON
 #line 253 "MiniJavaParser.y"
-                 {
-          std::cout << "[Parser] - stmt" << std::endl;
-          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+                                                                 {
+            yylhs.value.as < Ast::Node * > () = new Ast::AssignStmt(yystack_[4].value.as < std::string > (), yystack_[3].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > ());
       }
-#line 1252 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1258 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 39: // stmt: print_stmt
-#line 257 "MiniJavaParser.y"
-                 {
-          std::cout << "[Parser] - stmt" << std::endl;
-          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
-      }
-#line 1261 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+  case 36: // call_stmt: IDENTIFIER OPEN_PAR call_param_list CLOSE_PAR SEMICOLON
+#line 260 "MiniJavaParser.y"
+                                                            {
+         yylhs.value.as < Ast::Node * > () = new Ast::CallStmt(yystack_[4].value.as < std::string > (), yystack_[2].value.as < Ast::Node * > ());
+    }
+#line 1266 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 40: // stmt: read_stmt
-#line 261 "MiniJavaParser.y"
+  case 37: // stmt: call_stmt
+#line 265 "MiniJavaParser.y"
                 {
           std::cout << "[Parser] - stmt" << std::endl;
           yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
       }
-#line 1270 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1275 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 41: // return_stmt: KW_RETURN expression SEMICOLON
-#line 274 "MiniJavaParser.y"
+  case 38: // stmt: assign_stmt
+#line 270 "MiniJavaParser.y"
+                  {
+          std::cout << "[Parser] - stmt" << std::endl;
+          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+      }
+#line 1284 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 39: // stmt: return_stmt
+#line 275 "MiniJavaParser.y"
+                  {
+          std::cout << "[Parser] - stmt" << std::endl;
+          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+      }
+#line 1293 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 40: // stmt: if_stmt
+#line 279 "MiniJavaParser.y"
+              {
+          std::cout << "[Parser] - stmt" << std::endl;
+          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+      }
+#line 1302 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 41: // stmt: while_stmt
+#line 283 "MiniJavaParser.y"
+                 {
+          std::cout << "[Parser] - stmt" << std::endl;
+          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+      }
+#line 1311 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 42: // stmt: print_stmt
+#line 287 "MiniJavaParser.y"
+                 {
+          std::cout << "[Parser] - stmt" << std::endl;
+          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+      }
+#line 1320 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 43: // stmt: read_stmt
+#line 291 "MiniJavaParser.y"
+                {
+          std::cout << "[Parser] - stmt" << std::endl;
+          yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+      }
+#line 1329 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 44: // return_stmt: KW_RETURN expression SEMICOLON
+#line 304 "MiniJavaParser.y"
                                      {
-            yylhs.value.as < Ast::Node * > () = new Ast::ReturnStmt(yystack_[1].value.as < Ast::Node * > ()); std::cout << "[Parser] - return_stmt" << std::endl;
-      }
-#line 1278 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 42: // if_stmt: KW_IF OPEN_PAR expression CLOSE_PAR block else_optional
-#line 280 "MiniJavaParser.y"
-                                                              {
-            yylhs.value.as < Ast::Node * > () = new Ast::IfStmt(yystack_[3].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - if_stmt" << std::endl;
-      }
-#line 1286 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 43: // else_optional: KW_ELSE block
-#line 286 "MiniJavaParser.y"
-                    {
-            yylhs.value.as < Ast::Node * > () = new Ast::ElseOptional(yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - else_optional" << std::endl;
-      }
-#line 1294 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 44: // else_optional: %empty
-#line 289 "MiniJavaParser.y"
-               {}
-#line 1300 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 45: // block: OPEN_CURLY stmt_list CLOSE_CURLY
-#line 293 "MiniJavaParser.y"
-                                       {
-            yylhs.value.as < Ast::Node * > () = new Ast::Block(yystack_[1].value.as < Ast::Node * > ()); std::cout << "[Parser] - block" << std::endl;
-      }
-#line 1308 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 46: // while_stmt: KW_WHILE OPEN_PAR expression CLOSE_PAR block
-#line 299 "MiniJavaParser.y"
-                                                   {
-            yylhs.value.as < Ast::Node * > () = new Ast::WhileStmt(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - while_stmt" << std::endl;
-      }
-#line 1316 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 47: // call_param_list: expression call_param_rest
-#line 307 "MiniJavaParser.y"
-                                 {
-            yylhs.value.as < Ast::Node * > () = new Ast::CallParamList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - call_param_list" << std::endl;
-      }
-#line 1324 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 48: // call_param_list: %empty
-#line 310 "MiniJavaParser.y"
-               {}
-#line 1330 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 49: // call_param_rest: COMMA expression call_param_rest
-#line 314 "MiniJavaParser.y"
-                                       {
-            yylhs.value.as < Ast::Node * > () = new Ast::CallParamRest(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - call_param_rest" << std::endl;
+            std::cout << "[Parser] - return_stmt" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::ReturnStmt(yystack_[1].value.as < Ast::Node * > ()); 
       }
 #line 1338 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 50: // call_param_rest: %empty
-#line 317 "MiniJavaParser.y"
-                {}
-#line 1344 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+  case 45: // if_stmt: KW_IF OPEN_PAR expression CLOSE_PAR block else_optional
+#line 311 "MiniJavaParser.y"
+                                                              {
+            std::cout << "[Parser] - if_stmt" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::IfStmt(yystack_[3].value.as < Ast::Node * > (), yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
+      }
+#line 1347 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 51: // print_stmt: KW_PRINT OPEN_PAR print_param CLOSE_PAR SEMICOLON
-#line 321 "MiniJavaParser.y"
+  case 46: // else_optional: KW_ELSE block
+#line 318 "MiniJavaParser.y"
+                    {
+           std::cout << "[Parser] - else_optional" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::ElseOptional(yystack_[0].value.as < Ast::Node * > ());
+      }
+#line 1356 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 47: // else_optional: %empty
+#line 322 "MiniJavaParser.y"
+               {}
+#line 1362 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 48: // block: OPEN_CURLY stmt_list CLOSE_CURLY
+#line 326 "MiniJavaParser.y"
+                                       {
+             std::cout << "[Parser] - block" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::Block(yystack_[1].value.as < Ast::Node * > ());
+      }
+#line 1371 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 49: // while_stmt: KW_WHILE OPEN_PAR expression CLOSE_PAR block
+#line 333 "MiniJavaParser.y"
+                                                   {
+         std::cout << "[Parser] - while_stmt" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::WhileStmt(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ());
+      }
+#line 1380 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 50: // call_param_list: expression call_param_rest
+#line 342 "MiniJavaParser.y"
+                                 {
+        std::cout << "[Parser] - call_param_list" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::CallParamList(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ());
+      }
+#line 1389 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 51: // call_param_list: %empty
+#line 346 "MiniJavaParser.y"
+               {}
+#line 1395 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 52: // call_param_rest: COMMA expression call_param_rest
+#line 350 "MiniJavaParser.y"
+                                       {
+            std::cout << "[Parser] - call_param_rest" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::CallParamRest(yystack_[1].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ());
+      }
+#line 1404 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 53: // call_param_rest: %empty
+#line 354 "MiniJavaParser.y"
+                {}
+#line 1410 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 54: // print_stmt: KW_PRINT OPEN_PAR print_param CLOSE_PAR SEMICOLON
+#line 358 "MiniJavaParser.y"
                                                         {
     //   std::cout << "[Parser] - print_stmt" << std::endl;     $$ = new Ast::PrintStmt($3); std::cout << "[Parser] - print_stmt" << std::endl;
+    std::cout << "[Parser] - print_stmt" << std::endl;
+     yylhs.value.as < Ast::Node * > () = new Ast::PrintStmt(yystack_[2].value.as < Ast::Node * > ()); 
       }
-#line 1352 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1420 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 52: // print_param: expression
-#line 327 "MiniJavaParser.y"
+  case 55: // print_param: expression
+#line 366 "MiniJavaParser.y"
                  {
-    //  std::cout << "[Parser] - print_param" << std::endl;      $$ = new Ast::PrintParam(  $1, nullptr); std::cout << "[Parser] - print_param" << std::endl;
+      std::cout << "[Parser] - print_param EXPR" << std::endl;
+      yylhs.value.as < Ast::Node * > () = new Ast::PrintParam(yystack_[0].value.as < Ast::Node * > (), ""); 
       }
-#line 1360 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1429 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 53: // print_param: STRING_LITERAL
-#line 330 "MiniJavaParser.y"
+  case 56: // print_param: STRING_LITERAL
+#line 370 "MiniJavaParser.y"
                      {
-    std::cout << "[Parser] - print_param" << std::endl;
-  //      $$ = new Ast::PrintParam(nullptr, $1); std::cout << "[Parser] - print_param" << std::endl;
-      }
-#line 1369 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    std::cout << "[Parser] - print_param LITERAL" << std::endl;
+       yylhs.value.as < Ast::Node * > () = new Ast::PrintParam(nullptr, yystack_[0].value.as < std::string > ()); std::cout << "[Parser] - print_param" << std::endl;
+   }
+#line 1438 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 54: // read_stmt: KW_READ OPEN_PAR IDENTIFIER CLOSE_PAR SEMICOLON
-#line 337 "MiniJavaParser.y"
+  case 57: // read_stmt: KW_READ OPEN_PAR IDENTIFIER CLOSE_PAR SEMICOLON
+#line 377 "MiniJavaParser.y"
                                                       {
-            yylhs.value.as < Ast::Node * > () = new Ast::ReadStmt(yystack_[2].value.as < std::string > ()); std::cout << "[Parser] - read_stmt" << std::endl;
+            std::cout << "[Parser] - read_stmt" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::ReadStmt(yystack_[2].value.as < std::string > ()); 
       }
-#line 1377 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1447 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 55: // expression: boolean_expression
-#line 343 "MiniJavaParser.y"
+  case 58: // expression: boolean_expression
+#line 384 "MiniJavaParser.y"
                          { 
-            yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); std::cout << "[Parser] - expression" << std::endl;
+            std::cout << "[Parser] - expression" << std::endl;
+            yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); 
+
       }
-#line 1385 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 56: // boolean_expression: boolean_expression OP_BOOL_OR boolean_term
-#line 348 "MiniJavaParser.y"
-                                                 { 
-            yylhs.value.as < Ast::Node * > () = new Ast::OrBoolean(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - boolean_expression" << std::endl;
-        }
-#line 1393 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 57: // boolean_expression: boolean_term
-#line 352 "MiniJavaParser.y"
-                     { 
-            yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); std::cout << "[Parser] - boolean_expression" << std::endl;
-      }
-#line 1401 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 58: // boolean_term: boolean_term OP_BOOL_AND boolean_factor
-#line 359 "MiniJavaParser.y"
-                                              { 
-            yylhs.value.as < Ast::Node * > () = new Ast::AndBoolean(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - boolean_term" << std::endl;
-        }
-#line 1409 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 59: // boolean_term: boolean_factor
-#line 362 "MiniJavaParser.y"
-                       { 
-            yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); std::cout << "[Parser] - boolean_term" << std::endl;
-        }
-#line 1417 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 60: // boolean_factor: OP_BOOL_NOT boolean_factor
-#line 368 "MiniJavaParser.y"
-                                 { 
-            yylhs.value.as < Ast::Node * > () = new Ast::UnaryNotBoolean(yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - boolean_factor" << std::endl;
-        }
-#line 1425 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 61: // boolean_factor: OPEN_PAR boolean_expression CLOSE_PAR
-#line 371 "MiniJavaParser.y"
-                                              { 
-            yylhs.value.as < Ast::Node * > () = yystack_[1].value.as < Ast::Node * > (); std::cout << "[Parser] - boolean_factor" << std::endl;
-        }
-#line 1433 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 62: // boolean_factor: relational_expression
-#line 374 "MiniJavaParser.y"
-                              { 
-            yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); std::cout << "[Parser] - boolean_factor" << std::endl;
-        }
-#line 1441 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 63: // arithmetic_expression: arithmetic_expression OP_SUB term
-#line 380 "MiniJavaParser.y"
-                                     {  
-            yylhs.value.as < Ast::Node * > () = new Ast::SubExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ());  std::cout << "[Parser] - expression" << std::endl;
-        }
-#line 1449 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 64: // arithmetic_expression: arithmetic_expression OP_ADD term
-#line 383 "MiniJavaParser.y"
-                                            { 
-            yylhs.value.as < Ast::Node * > () = new Ast::SumExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - expression" << std::endl;
-        }
 #line 1457 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 65: // arithmetic_expression: term
-#line 386 "MiniJavaParser.y"
-           { 
+  case 59: // boolean_expression: boolean_expression OP_BOOL_OR boolean_term
+#line 391 "MiniJavaParser.y"
+                                                 { 
+             std::cout << "[Parser] - boolean_expression" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::OrBoolean(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ());
+        }
+#line 1466 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 60: // boolean_expression: boolean_term
+#line 396 "MiniJavaParser.y"
+                     { 
+             std::cout << "[Parser] - boolean_expression" << std::endl;
+            yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+      }
+#line 1475 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 61: // boolean_term: boolean_term OP_BOOL_AND boolean_factor
+#line 404 "MiniJavaParser.y"
+                                              { 
+             std::cout << "[Parser] - boolean_term" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::AndBoolean(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ());
+        }
+#line 1484 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 62: // boolean_term: boolean_factor
+#line 408 "MiniJavaParser.y"
+                       { 
+             std::cout << "[Parser] - boolean_term" << std::endl;
+            yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+        }
+#line 1493 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 63: // boolean_factor: OP_BOOL_NOT boolean_factor
+#line 415 "MiniJavaParser.y"
+                                 { 
+            std::cout << "[Parser] - boolean_factor" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::UnaryNotBoolean(yystack_[0].value.as < Ast::Node * > ()); 
+        }
+#line 1502 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 64: // boolean_factor: OPEN_PAR boolean_expression CLOSE_PAR
+#line 419 "MiniJavaParser.y"
+                                              { 
+             std::cout << "[Parser] - boolean_factor" << std::endl;
+            yylhs.value.as < Ast::Node * > () = yystack_[1].value.as < Ast::Node * > ();
+        }
+#line 1511 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 65: // boolean_factor: relational_expression
+#line 423 "MiniJavaParser.y"
+                              { 
+            std::cout << "[Parser] - boolean_factor" << std::endl;
             yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); 
         }
-#line 1465 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1520 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 66: // relational_expression: arithmetic_expression OP_EQUAL arithmetic_expression
-#line 393 "MiniJavaParser.y"
-                                                                  { 
-                  yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > (); std::cout << "[Parser] - relational_expression" << std::endl;
-            }
-#line 1473 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 67: // relational_expression: arithmetic_expression OP_NOT_EQUAL arithmetic_expression
-#line 396 "MiniJavaParser.y"
-                                                                       { 
-                  yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > (); std::cout << "[Parser] - relational_expression" << std::endl;
-            }
-#line 1481 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 68: // relational_expression: arithmetic_expression OP_LESS_THAN arithmetic_expression
-#line 399 "MiniJavaParser.y"
-                                                                       { 
-                  yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > (); std::cout << "[Parser] - relational_expression" << std::endl;
-            }
-#line 1489 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 69: // relational_expression: arithmetic_expression OP_GREATER_THAN arithmetic_expression
-#line 402 "MiniJavaParser.y"
-                                                                          { 
-                  yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > (); std::cout << "[Parser] - relational_expression" << std::endl;
-            }
-#line 1497 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 70: // relational_expression: arithmetic_expression OP_LESS_EQUAL arithmetic_expression
-#line 405 "MiniJavaParser.y"
-                                                                        { 
-                  yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > (); std::cout << "[Parser] - relational_expression" << std::endl;
-            }
-#line 1505 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 71: // relational_expression: arithmetic_expression OP_GREATER_EQUAL arithmetic_expression
-#line 408 "MiniJavaParser.y"
-                                                                           { 
-                  yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > (); std::cout << "[Parser] - relational_expression" << std::endl;
-            }
-#line 1513 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 72: // relational_expression: arithmetic_expression
-#line 411 "MiniJavaParser.y"
-                              { 
-                  yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); std::cout << "[Parser] - relational_expression" << std::endl;
-            }
-#line 1521 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 73: // term: term OP_MUL factor
-#line 423 "MiniJavaParser.y"
-                         { 
-            yylhs.value.as < Ast::Node * > () = new Ast::MulExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - term" << std::endl;
+  case 66: // arithmetic_expression: arithmetic_expression OP_SUB term
+#line 430 "MiniJavaParser.y"
+                                     {  
+         std::cout << "[Parser] - arithmetic_expression" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::SubExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
         }
 #line 1529 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 74: // term: term OP_DIV factor
-#line 426 "MiniJavaParser.y"
-                         {
-            yylhs.value.as < Ast::Node * > () = new Ast::DivExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - term" << std::endl;
+  case 67: // arithmetic_expression: arithmetic_expression OP_ADD term
+#line 434 "MiniJavaParser.y"
+                                            { 
+               std::cout << "[Parser] - arithmetic_expression" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::SumExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
         }
-#line 1537 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1538 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 75: // term: term OP_MOD factor
-#line 429 "MiniJavaParser.y"
-                             {
-            yylhs.value.as < Ast::Node * > () = new Ast::DivExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); std::cout << "[Parser] - term" << std::endl;
-        }
-#line 1545 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 76: // term: unaryOptional factor
-#line 432 "MiniJavaParser.y"
-                           { 
-          //  $$ = $1; 
-        }
-#line 1553 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 77: // unaryOptional: OP_ADD
+  case 68: // arithmetic_expression: term
 #line 438 "MiniJavaParser.y"
-             {  }
-#line 1559 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+           { 
+            std::cout << "[Parser] - arithmetic_expression term" << std::endl;
+            yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); 
+        }
+#line 1547 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 78: // unaryOptional: OP_SUB
-#line 439 "MiniJavaParser.y"
-             {  }
+  case 69: // relational_expression: arithmetic_expression OP_EQUAL arithmetic_expression
+#line 446 "MiniJavaParser.y"
+                                                                  { 
+                  std::cout << "[Parser] - relational_expression" << std::endl;
+                  yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > (); 
+            }
+#line 1556 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 70: // relational_expression: arithmetic_expression OP_NOT_EQUAL arithmetic_expression
+#line 450 "MiniJavaParser.y"
+                                                                       { 
+                std::cout << "[Parser] - relational_expression" << std::endl;
+                  yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > (); 
+            }
 #line 1565 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 79: // unaryOptional: %empty
-#line 440 "MiniJavaParser.y"
-             {  }
-#line 1571 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+  case 71: // relational_expression: arithmetic_expression OP_LESS_THAN arithmetic_expression
+#line 454 "MiniJavaParser.y"
+                                                                       { 
+                  std::cout << "[Parser] - relational_expression" << std::endl;
+                   yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > ();
+            }
+#line 1574 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 80: // factor: INT_CONST
-#line 444 "MiniJavaParser.y"
-                { yylhs.value.as < Ast::Node * > () = new Ast::Number(yystack_[0].value.as < int > ()); std::cout<< "[Parser] - factor" << std::endl; 
-      
-      }
-#line 1579 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+  case 72: // relational_expression: arithmetic_expression OP_GREATER_THAN arithmetic_expression
+#line 458 "MiniJavaParser.y"
+                                                                          { 
+                   std::cout << "[Parser] - relational_expression" << std::endl;
+                   yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > ();
+            }
+#line 1583 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 81: // factor: OPEN_PAR arithmetic_expression CLOSE_PAR
-#line 447 "MiniJavaParser.y"
-                                               { yylhs.value.as < Ast::Node * > () = yystack_[1].value.as < Ast::Node * > (); std::cout<< "[Parser] - factor" << std::endl; }
-#line 1585 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+  case 73: // relational_expression: arithmetic_expression OP_LESS_EQUAL arithmetic_expression
+#line 462 "MiniJavaParser.y"
+                                                                        { 
+                  std::cout << "[Parser] - relational_expression" << std::endl;
+                   yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > ();
+            }
+#line 1592 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 82: // factor: IDENTIFIER
-#line 448 "MiniJavaParser.y"
-                 {
-          yylhs.value.as < Ast::Node * > () = new Ast::Identifier(yystack_[0].value.as < std::string > ()); std::cout<< "[Parser] - factor" << std::endl; 
-      }
-#line 1593 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
-    break;
-
-  case 83: // factor: IDENTIFIER OPEN_PAR call_param_list CLOSE_PAR
-#line 451 "MiniJavaParser.y"
-                                                      { 
-            yylhs.value.as < Ast::Node * > () = new Ast::CallStmt(yystack_[3].value.as < std::string > (), yystack_[1].value.as < Ast::Node * > ()); std::cout<< "[Parser] - factor" << std::endl; 
-        }
+  case 74: // relational_expression: arithmetic_expression OP_GREATER_EQUAL arithmetic_expression
+#line 466 "MiniJavaParser.y"
+                                                                           { 
+                  std::cout << "[Parser] - relational_expression" << std::endl;
+                  yylhs.value.as < Ast::Node * > () = yystack_[2].value.as < Ast::Node * > (); 
+            }
 #line 1601 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
-  case 84: // factor: IDENTIFIER array_access
-#line 454 "MiniJavaParser.y"
+  case 75: // relational_expression: arithmetic_expression
+#line 470 "MiniJavaParser.y"
+                              { 
+                   std::cout << "[Parser] - relational_expression" << std::endl;
+                   yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > ();
+            }
+#line 1610 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 76: // term: term OP_MUL factor
+#line 483 "MiniJavaParser.y"
+                         { 
+            std::cout << "[Parser] - term" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::MulExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
+        }
+#line 1619 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 77: // term: term OP_DIV factor
+#line 487 "MiniJavaParser.y"
+                         {
+      std::cout << "[Parser] - term" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::DivExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
+        }
+#line 1628 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 78: // term: term OP_MOD factor
+#line 491 "MiniJavaParser.y"
+                             {
+            std::cout << "[Parser] - term" << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::DivExpr(yystack_[2].value.as < Ast::Node * > (), yystack_[0].value.as < Ast::Node * > ()); 
+        }
+#line 1637 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 79: // term: unaryOptional factor
+#line 495 "MiniJavaParser.y"
+                           { 
+      std::cout << "[Parser] - term" << std::endl;
+            yylhs.value.as < Ast::Node * > () = yystack_[0].value.as < Ast::Node * > (); 
+        }
+#line 1646 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 80: // unaryOptional: OP_ADD
+#line 502 "MiniJavaParser.y"
+             {  }
+#line 1652 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 81: // unaryOptional: OP_SUB
+#line 503 "MiniJavaParser.y"
+             {  }
+#line 1658 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 82: // unaryOptional: %empty
+#line 504 "MiniJavaParser.y"
+             {  }
+#line 1664 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 83: // factor: INT_CONST
+#line 508 "MiniJavaParser.y"
+                { yylhs.value.as < Ast::Node * > () = new Ast::Number(yystack_[0].value.as < int > ()); std::cout<< "[Parser] - factor" << std::endl; 
+      //      Print value
+            std::cout << "Value: " << yystack_[0].value.as < int > () << std::endl;
+            yylhs.value.as < Ast::Node * > () = new Ast::Number(yystack_[0].value.as < int > ()); std::cout<< "[Parser] - factor" << std::endl;
+      }
+#line 1674 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 84: // factor: OPEN_PAR arithmetic_expression CLOSE_PAR
+#line 513 "MiniJavaParser.y"
+                                               { yylhs.value.as < Ast::Node * > () = yystack_[1].value.as < Ast::Node * > (); std::cout<< "[Parser] - factor" << std::endl; }
+#line 1680 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 85: // factor: IDENTIFIER
+#line 514 "MiniJavaParser.y"
+                 {
+          yylhs.value.as < Ast::Node * > () = new Ast::Identifier(yystack_[0].value.as < std::string > ()); std::cout<< "[Parser] - factor" << std::endl; 
+      }
+#line 1688 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 86: // factor: IDENTIFIER OPEN_PAR call_param_list CLOSE_PAR
+#line 517 "MiniJavaParser.y"
+                                                      { 
+            yylhs.value.as < Ast::Node * > () = new Ast::CallStmt(yystack_[3].value.as < std::string > (), yystack_[1].value.as < Ast::Node * > ()); std::cout<< "[Parser] - factor" << std::endl; 
+        }
+#line 1696 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+    break;
+
+  case 87: // factor: IDENTIFIER array_access
+#line 520 "MiniJavaParser.y"
                                 { 
             yylhs.value.as < Ast::Node * > () = new Ast::ArrayVariable(yystack_[1].value.as < std::string > (), yystack_[0].value.as < Ast::Node * > ()); std::cout<< "[Parser] - factor" << std::endl; 
         }
-#line 1609 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1704 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
     break;
 
 
-#line 1613 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 1708 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
 
             default:
               break;
@@ -1957,164 +2052,162 @@ namespace Expr {
   }
 
 
-  const signed char Parser::yypact_ninf_ = -126;
+  const signed char Parser::yypact_ninf_ = -117;
 
-  const signed char Parser::yytable_ninf_ = -49;
+  const signed char Parser::yytable_ninf_ = -52;
 
   const signed char
   Parser::yypact_[] =
   {
-      -5,   -26,    22,  -126,    -3,  -126,    15,    19,    73,    -7,
-       8,  -126,  -126,    55,    73,    49,    57,    50,    52,  -126,
-      54,  -126,  -126,    62,    59,  -126,    63,    61,    89,    65,
-      15,    50,    65,    68,    91,  -126,    69,    64,  -126,  -126,
-      71,  -126,    70,    15,    61,    67,  -126,  -126,    72,    15,
-      -6,  -126,    74,    15,  -126,    76,    78,    13,    79,    80,
-      43,    82,  -126,  -126,    -6,  -126,  -126,  -126,  -126,  -126,
-    -126,    -6,    13,    13,    13,  -126,  -126,    13,    77,    99,
-     100,  -126,    45,  -126,    14,    20,    -9,    75,     4,    13,
-    -126,   103,  -126,  -126,    88,    87,    90,  -126,   -14,  -126,
-      13,    13,    56,    56,    56,    56,    56,    56,    56,    56,
-      20,    20,    20,    56,  -126,    44,  -126,  -126,    92,  -126,
-      93,    94,    85,    95,    13,  -126,    98,    98,  -126,   100,
-    -126,    58,    58,    58,    58,    58,    58,    14,    14,  -126,
-    -126,  -126,    29,     4,  -126,    96,    97,   101,    13,  -126,
-    -126,   102,    -6,   112,  -126,  -126,   104,  -126,  -126,  -126,
-      85,  -126,   105,    98,  -126,  -126,  -126,  -126,  -126
+      23,     0,    37,  -117,    25,  -117,    64,   -23,    10,    64,
+      39,    20,    41,  -117,  -117,    49,    10,    47,  -117,    54,
+      16,    50,  -117,    53,    10,    56,  -117,  -117,    61,  -117,
+    -117,    62,    58,    90,    56,  -117,  -117,  -117,  -117,    67,
+      91,  -117,    66,    57,  -117,    64,    58,  -117,  -117,    -9,
+    -117,    69,    70,    13,    71,    72,     8,    74,  -117,  -117,
+      -9,  -117,  -117,  -117,  -117,  -117,    13,    13,    13,  -117,
+    -117,    13,    73,    92,    89,  -117,    43,  -117,    44,   -20,
+     -12,    68,    11,    13,  -117,    96,  -117,  -117,    79,    80,
+    -117,    -8,  -117,    13,    13,    33,    33,    33,    33,    33,
+      33,    33,    33,   -20,   -20,   -20,    33,  -117,    45,  -117,
+    -117,    81,  -117,    82,    83,    84,    86,    13,    77,    77,
+    -117,    89,  -117,    59,    59,    59,    59,    59,    59,    44,
+      44,  -117,  -117,  -117,    28,    11,  -117,    85,    87,    88,
+      13,  -117,  -117,    93,    -9,   107,  -117,  -117,    94,  -117,
+    -117,  -117,    84,  -117,    95,    77,  -117,  -117,  -117,  -117,
+    -117
   };
 
   const signed char
   Parser::yydefact_[] =
   {
-       0,     0,     0,     2,     0,     1,     6,     0,    16,     0,
-      11,    18,    19,     0,    16,     0,     0,    21,     0,     4,
-       0,     3,    15,     0,     0,    25,     0,    23,     0,    11,
-       6,    21,    11,     0,    26,    20,    14,     0,    10,     9,
-       0,     5,     0,     6,    23,     0,    12,    24,     0,     6,
-      28,    22,     0,     6,     7,     0,     0,    79,     0,     0,
-      31,     0,    35,    34,    28,    36,    37,    38,    39,    40,
-      13,    28,    79,    79,    79,    77,    78,    79,     0,    55,
-      57,    59,    72,    62,    65,     0,    79,     0,    79,    79,
-      30,     0,     8,    27,     0,     0,     0,    60,     0,    41,
-      79,    79,    79,    79,    79,    79,    79,    79,    79,    79,
-       0,     0,     0,    79,    80,    82,    76,    53,     0,    52,
-       0,     0,    50,     0,    79,    17,     0,     0,    61,    56,
-      58,    66,    67,    68,    69,    70,    71,    64,    63,    73,
-      74,    75,     0,    79,    84,     0,     0,     0,    79,    47,
-      29,     0,    28,    44,    46,    81,     0,    51,    54,    33,
-      50,    32,     0,     0,    42,    83,    49,    45,    43
+       0,     0,     0,     2,     0,     1,     8,     0,    18,     7,
+       0,    13,     0,    21,    22,     0,    18,     0,     6,     0,
+      24,     0,    10,     0,     5,    13,     3,    17,     0,    15,
+      28,     0,    26,     0,    13,     9,     4,    11,    19,     0,
+      29,    23,    16,     0,    12,     8,    26,    14,    27,    31,
+      25,     0,     0,    82,     0,     0,    34,     0,    38,    37,
+      31,    39,    40,    41,    42,    43,    82,    82,    82,    80,
+      81,    82,     0,    58,    60,    62,    75,    65,    68,     0,
+      82,     0,    82,    82,    33,     0,    20,    30,     0,     0,
+      63,     0,    44,    82,    82,    82,    82,    82,    82,    82,
+      82,    82,    82,     0,     0,     0,    82,    83,    85,    79,
+      56,     0,    55,     0,     0,    53,     0,    82,     0,     0,
+      64,    59,    61,    69,    70,    71,    72,    73,    74,    67,
+      66,    76,    77,    78,     0,    82,    87,     0,     0,     0,
+      82,    50,    32,     0,    31,    47,    49,    84,     0,    54,
+      57,    36,    53,    35,     0,     0,    45,    86,    52,    48,
+      46
   };
 
   const signed char
   Parser::yypgoto_[] =
   {
-    -126,  -126,  -126,   -25,  -126,  -126,   -15,  -126,  -126,   114,
-    -126,  -126,   108,   106,   110,  -126,   -63,    18,  -126,  -126,
-    -126,  -126,  -126,  -126,  -126,  -125,  -126,    -8,   -24,  -126,
-    -126,  -126,   -57,    81,    46,   -71,   -52,  -126,   -16,  -126,
-     -34
+    -117,  -117,  -117,    -7,    97,  -117,    98,  -117,    99,    -5,
+    -117,   105,  -117,  -117,   100,   102,  -117,   -59,    15,  -117,
+    -117,  -117,  -117,  -117,  -117,  -117,  -116,  -117,     1,   -17,
+    -117,  -117,  -117,   -53,    76,    34,   -63,   -45,  -117,   -11,
+    -117,   -25
   };
 
   const unsigned char
   Parser::yydefgoto_[] =
   {
-       0,     2,     3,     8,    41,    19,    20,    37,    46,    13,
-      14,    15,    26,    35,    27,    28,    61,    90,    91,    62,
-      63,    64,    65,    66,   164,   153,    67,   121,   149,    68,
-     118,    69,   122,    79,    80,    81,    82,    83,    84,    85,
-     116
+       0,     2,     3,     8,    22,     9,    23,    43,    12,    15,
+      16,    24,    17,    31,    41,    32,    33,    57,    84,    85,
+      58,    59,    60,    61,    62,   156,   145,    63,   114,   141,
+      64,   111,    65,   115,    73,    74,    75,    76,    77,    78,
+      79,   109
   };
 
   const short
   Parser::yytable_[] =
   {
-      78,    93,   154,    97,     1,    39,   100,    55,    94,    56,
-      57,    58,    59,    74,    38,    95,    96,    42,    50,     4,
-      75,    76,     5,   128,    54,     7,    74,    77,    71,   119,
-     130,     6,   123,    75,    76,    74,    16,   117,   168,    60,
-      77,   -48,    75,    76,    17,   110,   111,   112,    18,    77,
-     131,   132,   133,   134,   135,   136,   113,     9,   108,   109,
-     -26,   142,    25,   114,    10,   115,   155,   151,   102,   103,
-     104,   105,   106,   107,   108,   109,   139,   140,   141,    88,
-     143,    89,    89,    11,    12,    75,    76,   108,   109,   162,
-      21,   160,   137,   138,    23,    30,    24,    29,    31,    36,
-      33,    34,    43,    25,    32,    18,    53,    45,    48,    47,
-      52,    49,    72,    70,    73,    86,    87,    92,    99,   100,
-     120,   101,   124,   125,   126,   148,   163,   127,    22,   145,
-     146,   147,   152,   144,   150,   156,   166,   157,   158,    40,
-     167,   165,   159,   161,    44,     0,   129,     0,     0,     0,
-      51,     0,     0,     0,     0,     0,     0,     0,    98
+      72,    87,    18,   146,    51,    90,    52,    53,    54,    55,
+      68,    27,    93,    88,    89,    10,   106,    69,    70,    36,
+      13,    14,    11,   107,    71,   108,   -29,   112,    30,   120,
+     116,   122,     1,    68,   110,    68,    56,     5,    49,   160,
+      69,    70,    69,    70,    82,     4,    83,    71,   -51,    71,
+     123,   124,   125,   126,   127,   128,    20,   101,   102,     6,
+      21,   134,    69,    70,   143,   147,    95,    96,    97,    98,
+      99,   100,   101,   102,     7,   103,   104,   105,   131,   132,
+     133,   135,    19,    83,    26,   154,    25,   152,   101,   102,
+     129,   130,    28,    29,    35,    34,    21,    20,    40,    39,
+      42,    45,    48,    30,    10,    66,    67,    80,    81,    86,
+      94,   144,    93,   113,    92,   117,   118,   119,   137,   138,
+     139,   155,    37,   136,   140,   142,   149,   121,   150,   151,
+     159,   157,    44,    38,   153,   158,   148,     0,     0,     0,
+       0,    47,    46,     0,     0,     0,    50,    91
   };
 
   const short
   Parser::yycheck_[] =
   {
-      57,    64,   127,    74,     9,    30,    20,    13,    71,    15,
-      16,    17,    18,    22,    29,    72,    73,    32,    43,    45,
-      29,    30,     0,    37,    49,    10,    22,    36,    53,    86,
-     101,    34,    89,    29,    30,    22,    43,    46,   163,    45,
-      36,    37,    29,    30,    36,    31,    32,    33,    40,    36,
-     102,   103,   104,   105,   106,   107,    36,    38,    29,    30,
-      10,   113,    12,    43,    45,    45,    37,   124,    23,    24,
-      25,    26,    27,    28,    29,    30,   110,   111,   112,    36,
-      36,    38,    38,    10,    11,    29,    30,    29,    30,   152,
-      35,   148,   108,   109,    45,    41,    39,    45,    36,    10,
-      37,    40,    34,    12,    45,    40,    34,    38,    37,    45,
-      43,    41,    36,    39,    36,    36,    36,    35,    41,    20,
-      45,    21,    19,    35,    37,    40,    14,    37,    14,    37,
-      37,    37,    34,   115,    39,   143,   160,    41,    41,    31,
-      35,    37,    41,    41,    34,    -1,   100,    -1,    -1,    -1,
-      44,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    77
+      53,    60,     9,   119,    13,    68,    15,    16,    17,    18,
+      22,    16,    20,    66,    67,    38,    36,    29,    30,    24,
+      10,    11,    45,    43,    36,    45,    10,    80,    12,    37,
+      83,    94,     9,    22,    46,    22,    45,     0,    45,   155,
+      29,    30,    29,    30,    36,    45,    38,    36,    37,    36,
+      95,    96,    97,    98,    99,   100,    36,    29,    30,    34,
+      40,   106,    29,    30,   117,    37,    23,    24,    25,    26,
+      27,    28,    29,    30,    10,    31,    32,    33,   103,   104,
+     105,    36,    43,    38,    35,   144,    45,   140,    29,    30,
+     101,   102,    45,    39,    41,    45,    40,    36,    40,    37,
+      10,    34,    45,    12,    38,    36,    36,    36,    36,    35,
+      21,    34,    20,    45,    41,    19,    37,    37,    37,    37,
+      37,    14,    25,   108,    40,    39,    41,    93,    41,    41,
+      35,    37,    34,    28,    41,   152,   135,    -1,    -1,    -1,
+      -1,    42,    40,    -1,    -1,    -1,    46,    71
   };
 
   const signed char
   Parser::yystos_[] =
   {
-       0,     9,    50,    51,    45,     0,    34,    10,    52,    38,
-      45,    10,    11,    58,    59,    60,    43,    36,    40,    54,
-      55,    35,    58,    45,    39,    12,    61,    63,    64,    45,
-      41,    36,    45,    37,    40,    62,    10,    56,    55,    52,
-      61,    53,    55,    34,    63,    38,    57,    45,    37,    41,
-      52,    62,    43,    34,    52,    13,    15,    16,    17,    18,
-      45,    65,    68,    69,    70,    71,    72,    75,    78,    80,
-      39,    52,    36,    36,    22,    29,    30,    36,    81,    82,
-      83,    84,    85,    86,    87,    88,    36,    36,    36,    38,
-      66,    67,    35,    65,    65,    81,    81,    84,    82,    41,
-      20,    21,    23,    24,    25,    26,    27,    28,    29,    30,
-      31,    32,    33,    36,    43,    45,    89,    46,    79,    81,
-      45,    76,    81,    81,    19,    35,    37,    37,    37,    83,
-      84,    85,    85,    85,    85,    85,    85,    87,    87,    89,
-      89,    89,    85,    36,    66,    37,    37,    37,    40,    77,
-      39,    81,    34,    74,    74,    37,    76,    41,    41,    41,
-      81,    41,    65,    14,    73,    37,    77,    35,    74
+       0,     9,    50,    51,    45,     0,    34,    10,    52,    54,
+      38,    45,    57,    10,    11,    58,    59,    61,    52,    43,
+      36,    40,    53,    55,    60,    45,    35,    58,    45,    39,
+      12,    62,    64,    65,    45,    41,    58,    53,    60,    37,
+      40,    63,    10,    56,    55,    34,    64,    57,    45,    52,
+      63,    13,    15,    16,    17,    18,    45,    66,    69,    70,
+      71,    72,    73,    76,    79,    81,    36,    36,    22,    29,
+      30,    36,    82,    83,    84,    85,    86,    87,    88,    89,
+      36,    36,    36,    38,    67,    68,    35,    66,    82,    82,
+      85,    83,    41,    20,    21,    23,    24,    25,    26,    27,
+      28,    29,    30,    31,    32,    33,    36,    43,    45,    90,
+      46,    80,    82,    45,    77,    82,    82,    19,    37,    37,
+      37,    84,    85,    86,    86,    86,    86,    86,    86,    88,
+      88,    90,    90,    90,    86,    36,    67,    37,    37,    37,
+      40,    78,    39,    82,    34,    75,    75,    37,    77,    41,
+      41,    41,    82,    41,    66,    14,    74,    37,    78,    35,
+      75
   };
 
   const signed char
   Parser::yyr1_[] =
   {
-       0,    49,    50,    51,    52,    52,    52,    53,    54,    54,
-      55,    55,    56,    57,    57,    58,    58,    59,    60,    60,
-      61,    61,    62,    62,    63,    64,    64,    65,    65,    66,
-      67,    67,    68,    69,    70,    70,    70,    70,    70,    70,
-      70,    71,    72,    73,    73,    74,    75,    76,    76,    77,
-      77,    78,    79,    79,    80,    81,    82,    82,    83,    83,
-      84,    84,    84,    85,    85,    85,    86,    86,    86,    86,
-      86,    86,    86,    87,    87,    87,    87,    88,    88,    88,
-      89,    89,    89,    89,    89
+       0,    49,    50,    51,    52,    52,    52,    52,    52,    53,
+      54,    54,    55,    55,    56,    57,    57,    58,    58,    59,
+      60,    61,    61,    62,    62,    63,    63,    64,    65,    65,
+      66,    66,    67,    68,    68,    69,    70,    71,    71,    71,
+      71,    71,    71,    71,    72,    73,    74,    74,    75,    76,
+      77,    77,    78,    78,    79,    80,    80,    81,    82,    83,
+      83,    84,    84,    85,    85,    85,    86,    86,    86,    87,
+      87,    87,    87,    87,    87,    87,    88,    88,    88,    88,
+      89,    89,    89,    90,    90,    90,    90,    90
   };
 
   const signed char
   Parser::yyr2_[] =
   {
-       0,     2,     1,     6,     3,     6,     0,     3,     7,     3,
-       3,     0,     2,     3,     0,     2,     0,     9,     1,     1,
-       2,     0,     3,     0,     3,     1,     0,     2,     0,     3,
-       1,     0,     5,     5,     1,     1,     1,     1,     1,     1,
-       1,     3,     6,     2,     0,     3,     5,     2,     0,     3,
-       0,     5,     1,     1,     5,     1,     3,     1,     3,     1,
-       2,     3,     1,     3,     3,     1,     3,     3,     3,     3,
-       3,     3,     1,     3,     3,     3,     2,     1,     1,     0,
-       1,     3,     1,     4,     2
+       0,     2,     1,     6,     4,     3,     2,     1,     0,     2,
+       3,     4,     3,     0,     2,     3,     0,     2,     0,     3,
+       7,     1,     1,     2,     0,     3,     0,     3,     1,     0,
+       2,     0,     3,     1,     0,     5,     5,     1,     1,     1,
+       1,     1,     1,     1,     3,     6,     2,     0,     3,     5,
+       2,     0,     3,     0,     5,     1,     1,     5,     1,     3,
+       1,     3,     1,     2,     3,     1,     3,     3,     1,     3,
+       3,     3,     3,     3,     3,     1,     3,     3,     3,     2,
+       1,     1,     0,     1,     3,     1,     4,     2
   };
 
 
@@ -2134,10 +2227,10 @@ namespace Expr {
   "CLOSE_BRACKET", "COMMA", "SEMICOLON", "COMMENT", "INT_CONST",
   "CONSTANT", "IDENTIFIER", "STRING_LITERAL", "ERROR",
   "LOWER_THAN_OPEN_PAR", "$accept", "input", "program",
-  "variable_decl_list", "variable_decl_SimpleBody", "variable_decl",
+  "variable_decl_list", "variable_decl_Body", "variable_decl",
   "ident_list", "type", "array_optional", "method_decl_list",
-  "method_decl", "method_type", "opt_param_decl_list", "param_list",
-  "param_decl", "ref_optional", "stmt_list", "array_access",
+  "method_decl", "method_body", "method_type", "opt_param_decl_list",
+  "param_list", "param_decl", "ref_optional", "stmt_list", "array_access",
   "array_access_opt", "assign_stmt", "call_stmt", "stmt", "return_stmt",
   "if_stmt", "else_optional", "block", "while_stmt", "call_param_list",
   "call_param_rest", "print_stmt", "print_param", "read_stmt",
@@ -2152,15 +2245,15 @@ namespace Expr {
   const short
   Parser::yyrline_[] =
   {
-       0,    88,    88,    94,   102,   105,   109,   114,   122,   126,
-     134,   137,   141,   148,   151,   155,   158,   162,   168,   171,
-     177,   180,   184,   187,   191,   197,   200,   204,   207,   210,
-     217,   218,   223,   230,   235,   240,   245,   249,   253,   257,
-     261,   274,   280,   286,   289,   293,   299,   307,   310,   314,
-     317,   321,   327,   330,   337,   343,   348,   352,   359,   362,
-     368,   371,   374,   380,   383,   386,   393,   396,   399,   402,
-     405,   408,   411,   423,   426,   429,   432,   438,   439,   440,
-     444,   447,   448,   451,   454
+       0,    87,    87,    93,   100,   107,   115,   119,   124,   129,
+     136,   139,   145,   148,   152,   159,   163,   167,   172,   176,
+     183,   190,   194,   201,   205,   209,   213,   217,   224,   228,
+     232,   236,   239,   247,   248,   253,   260,   265,   270,   275,
+     279,   283,   287,   291,   304,   311,   318,   322,   326,   333,
+     342,   346,   350,   354,   358,   366,   370,   377,   384,   391,
+     396,   404,   408,   415,   419,   423,   430,   434,   438,   446,
+     450,   454,   458,   462,   466,   470,   483,   487,   491,   495,
+     502,   503,   504,   508,   513,   514,   517,   520
   };
 
   void
@@ -2244,8 +2337,8 @@ namespace Expr {
 
 #line 10 "MiniJavaParser.y"
 } // Expr
-#line 2248 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
+#line 2341 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.cpp"
 
-#line 463 "MiniJavaParser.y"
+#line 529 "MiniJavaParser.y"
 
 

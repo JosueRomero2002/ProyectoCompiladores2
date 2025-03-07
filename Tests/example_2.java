@@ -1,22 +1,21 @@
 class FactorialCalculator {
-    int gg;
 
     int factorial(int n) {
+        n = 5;
+        print(n);
         if (n <= 1) {
+            print(n);
             return 1;
         } else {
             return n * factorial(n - 1);
         }
     }
 
-    void dw() {
-        int n;
-    }
-
     int main() {
         int n;
         int resultado;
         n = 5;
+        print(n);
 
         resultado = factorial(n);
         print(resultado);

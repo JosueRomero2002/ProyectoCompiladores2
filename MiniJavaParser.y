@@ -445,27 +445,27 @@ arithmetic_expression:
 relational_expression: 
              arithmetic_expression OP_EQUAL arithmetic_expression { 
                   std::cout << "[Parser] - relational_expression" << std::endl;
-                  $$ = $1; 
+                  $$ = new Ast::EqualBoolean($1, $3);
             }
             | arithmetic_expression OP_NOT_EQUAL arithmetic_expression { 
                 std::cout << "[Parser] - relational_expression" << std::endl;
-                  $$ = $1; 
+                  $$ = new Ast::NEqualBoolean($1, $3);
             }
             | arithmetic_expression OP_LESS_THAN arithmetic_expression { 
                   std::cout << "[Parser] - relational_expression" << std::endl;
-                   $$ = $1;
+                   $$ = new Ast::Less_ThanBoolean($1, $3);
             }
             | arithmetic_expression OP_GREATER_THAN arithmetic_expression { 
                    std::cout << "[Parser] - relational_expression" << std::endl;
-                   $$ = $1;
+                   $$ = new Ast::Greater_ThanBoolean($1, $3);
             }
             | arithmetic_expression OP_LESS_EQUAL arithmetic_expression { 
                   std::cout << "[Parser] - relational_expression" << std::endl;
-                   $$ = $1;
+                   $$ = new Ast::LessEqualBoolean($1, $3);
             }
             | arithmetic_expression OP_GREATER_EQUAL arithmetic_expression { 
                   std::cout << "[Parser] - relational_expression" << std::endl;
-                  $$ = $1; 
+                  $$ = new Ast::GreaterEqualBoolean($1, $3);
             }
       | arithmetic_expression { 
                    std::cout << "[Parser] - relational_expression" << std::endl;
@@ -490,21 +490,25 @@ term:
         } 
         | term OP_MOD factor {
             std::cout << "[Parser] - term" << std::endl;
-            $$ = new Ast::DivExpr($1, $3); 
+            $$ = new Ast::ModExpr($1, $3); 
         } 
-    | unaryOptional factor { 
+    | factor { 
       std::cout << "[Parser] - term" << std::endl;
-            $$ = $2; 
+            $$ = $1; 
         }
 ;
 
-unaryOptional: 
-      OP_ADD {  }
-    | OP_SUB {  }
-    | %empty {  }
 
 
 factor:
+
+        OP_ADD factor {  // Unario positivo
+            $$ = new Ast::UnaryAddExpr($2);
+      }
+      | OP_SUB factor {  // Unario negativo
+            $$ = new Ast::UnarySubExpr($2); 
+      }
+      |
       INT_CONST { $$ = new Ast::Number($1); std::cout<< "[Parser] - factor" << std::endl; 
       //      Print value
             std::cout << "Value: " << $1 << std::endl;

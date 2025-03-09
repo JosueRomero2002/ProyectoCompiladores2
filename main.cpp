@@ -6,6 +6,11 @@
 #include "MiniJavaLexer.hpp"
 #include "MiniJavaParser.hpp"
 
+namespace Ast
+{
+    class Node;
+}
+
 int main(int argc, char *argv[])
 {
     std::ifstream in;
@@ -20,6 +25,12 @@ int main(int argc, char *argv[])
     std::unordered_map<std::string, int> vars;
     vars.insert({{"a", 1}});
 
+    std::unordered_map<std::string, Ast::Node *> Method_Table;
+
+    std::unordered_map<std::string, std::vector<int>> Array_Table;
+
+    std::vector<int> args;
+
     Ast::Node *root;
     MiniJavaLexer lexer(in);
     Expr::Parser parser(lexer, root);
@@ -27,7 +38,7 @@ int main(int argc, char *argv[])
     try
     {
         parser.parse();
-        std::cout << "Eval: " << eval(root, vars) << std::endl;
+        std::cout << "Eval: " << eval(root, vars, Method_Table, args, Array_Table) << std::endl;
     }
     catch (const std::runtime_error &err)
     {

@@ -19,6 +19,21 @@ cmake --build build
 
 =====================================
 
+funciones que usan los arrays o relacionados
+
+eval(VariableDecl)
+eval(AssignStmt)
+eval(ParamDecl)
+
+eval(ArrayVariable)
+
+eval()
+
+1
+4
+7
+10
+
 {DIGIT}+ {
 yylval->emplace<int>(std::stol(text(),nullptr, 10));
 return token::TK_NUMBER

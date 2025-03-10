@@ -27,7 +27,11 @@ int main(int argc, char *argv[])
 
     std::unordered_map<std::string, Ast::Node *> Method_Table;
 
-    std::unordered_map<std::string, std::vector<int>> Array_Table;
+    std::unordered_map<
+        std::string,
+        std::shared_ptr<std::vector<std::optional<int>>> // Mantener consistencia
+        >
+        Array_Table;
 
     std::vector<int> args;
 

@@ -3,28 +3,29 @@
 
 
 %decls%{
+    #include <memory>  // Necesario para shared_ptr
     #include <string>
     #include <iostream>
     #include <sstream>
     #include <unordered_map>
-    using string_t = std::string;
-
-
-    using symbol_table = std::unordered_map<std::string, int>;
     #include <vector>
-    #include <string>
-
-
+    #include <optional>
+    
+    using string_t = std::string;
+    using symbol_table = std::unordered_map<std::string, int>;
     using arguments = std::vector<int>;
-     namespace Ast {
+    
+    // Declarar primero ArrayVariables_Table
+  using ArrayVariables_Table = std::unordered_map<
+    std::string, 
+    std::shared_ptr<std::vector<std::optional<int>>> // Mantener consistencia
+>;
+    namespace Ast {
         class Node;
     }
-
+    
+    // Luego Method_Table que lo referencia
     using Method_Table = std::unordered_map<std::string, Ast::Node*>;
-    using ArrayVariables_Table = std::unordered_map<std::string, std::vector<int>>;
-    
-    
-
 %}
 
 
@@ -357,7 +358,7 @@ toString(MethodType) {
 
 
 toString(ParamList) {
-    if (!first_param) return "ParamList()";
+    if (first_param) return "ParamList()";
     std::ostringstream os;
     os << "ParamList(" << first_param->toString();
     if (rest_params) os << ", " << rest_params->toString();
@@ -620,11 +621,22 @@ eval(VariableDeclList) {
 
 eval(VariableDecl) {
     std::cout << "[AST] - VariableDecl" << std::endl;
-    vars[node->identifier] = 0;
-    if (node->variableDecl_Body) eval(node->variableDecl_Body, vars, methodTable, args, arrayvarTable);
+    Ast::Type* typeNode = dynamic_cast<Ast::Type*>(node->type);
+    if (typeNode && typeNode->array_optional) {
+        // Se espera que array_optional contenga el tamaño del arreglo.
+        int size = eval(typeNode->array_optional, vars, methodTable, args, arrayvarTable);
+        std::cout << "->Declarando ARREGLO: " << node->identifier << std::endl;
+        arrayvarTable[node->identifier] = std::make_shared<std::vector<std::optional<int>>>(size, std::nullopt);
+    } else {
+        vars[node->identifier] = 0;
+    }
+    if (node->variableDecl_Body) {
+        eval(node->variableDecl_Body, vars, methodTable, args, arrayvarTable);
+    }
     return 0;
-  
 }
+
+
 
 eval(VariableDecl_Body) {
     std::cout << "[AST] - VariableDecl_Body" << std::endl;
@@ -647,9 +659,8 @@ eval(Type) {
 
 eval(ArrayOptional) {
     std::cout << "[AST] - ArrayOptional" << std::endl;
-    return node->size; 
+    return node->size;
 }
-
 eval(MethodDeclList) {
     std::cout << "[AST] - MethodDeclList" << std::endl;
     if (node->first_decl) eval(node->first_decl, vars, methodTable, args, arrayvarTable);
@@ -663,19 +674,19 @@ eval(MethodDecl) {
    
     return 0;
 }
-
 eval(MethodDecl_Body) {
     try {
         if (node->opt_param_decl_list)
             eval(node->opt_param_decl_list, vars, methodTable, args, arrayvarTable);
         if (node->variable_decls)
             eval(node->variable_decls, vars, methodTable, args, arrayvarTable);
-       
         return eval(node->stmt_list, vars, methodTable, args, arrayvarTable);
     } catch (const ReturnException& retEx) {
         return retEx.value;
     }
 }
+
+
 
 eval(MethodType) {
      std::cout << "[AST] - MethodType" << std::endl;
@@ -697,20 +708,44 @@ eval(ParamList) {
 }
 
 
-eval(AssignStmt){
- 
+eval(AssignStmt) {
     std::cout << "[AST] - AssignStmt" << std::endl;
-   
-
     int value = eval(node->expression, vars, methodTable, args, arrayvarTable);
+    
     if (node->array_access) {
-        throw std::runtime_error("Array assignment not implemented");
+        Ast::ArrayAccess* arrayAccess = dynamic_cast<Ast::ArrayAccess*>(node->array_access);
+        int index = eval(arrayAccess->expression, vars, methodTable, args, arrayvarTable);
+        
+        std::cout << "Leyendo Arreglo en Posicion: " << index << std::endl;
+
+        auto it = arrayvarTable.find(node->identifier);
+        if (it == arrayvarTable.end()) {
+            throw std::runtime_error("Array '" + node->identifier + "' no declarado");
+        }
+        
+        auto& array = *it->second; // Dereferenciar aquí
+        if (index < 0 || index >= array.size()) {
+            throw std::runtime_error("Índice inválido");
+        }
+        
+        array[index] = value; // Acceso correcto
+        std::cout << "Asignando " << value << " en posición " << index << std::endl;
+        std::cout << "Array: ";
+        for (int i = 0; i < array.size(); i++) {
+    if (array[i].has_value()) {
+        std::cout << array[i].value() << " ";
+    } else {
+        std::cout << "null ";
+    }
+}
+        std::cout << std::endl;
+   
     } else {
         vars[node->identifier] = value;
     }
     return 0;
-
 }
+
 eval(ReturnStmt) {
     std::cout << "[AST] - ReturnStmt" << std::endl;
     int ret = eval(node->expression, vars, methodTable, args, arrayvarTable);
@@ -745,13 +780,18 @@ eval(WhileStmt) {
     }
     return last_val;
 }
-
 eval(ParamDecl) {
     std::cout << "[AST] - ParamDecl" << std::endl;
-    vars[node->identifier] = 0; 
+    Ast::Type* typeNode = dynamic_cast<Ast::Type*>(node->type);
+    
+    if (typeNode && typeNode->array_optional) {
+        // Corrección: Usar el tipo correcto std::optional<int>
+        arrayvarTable[node->identifier] = std::make_shared<std::vector<std::optional<int>>>();
+    } else {
+        vars[node->identifier] = 0;
+    }
     return 0;
 }
-
 eval(RefOptional) {
      std::cout << "[AST] - RefOptional" << std::endl;
     return node->is_ref; 
@@ -767,70 +807,221 @@ eval(StmtList) {
     }
     return result;
 }
-
-
-
-
 eval(CallStmt) {
     std::cout << "[AST] - CallStmt: " << node->identifier << std::endl;
 
-    std::vector<int> localArgs;
-    if (node->call_param_list) {
-        eval(node->call_param_list, vars, methodTable, localArgs, arrayvarTable);
+    // 1. Recolectar argumentos (escalares y arreglos)
+    std::vector<int> scalarArgs;
+    std::vector<std::string> arrayArgs;
+
+    Ast::Node* currentParam = node->call_param_list;
+    while (currentParam != nullptr) {
+        int argValue = 0;
+        // Si es un nodo CallParamList
+        if (Ast::CallParamList* cpList = dynamic_cast<Ast::CallParamList*>(currentParam)) {
+            if (Ast::Identifier* id = dynamic_cast<Ast::Identifier*>(cpList->expression)) {
+                std::cout << "Identificador: " << id->name << std::endl;
+                if (arrayvarTable.find(id->name) != arrayvarTable.end()) {
+                    arrayArgs.push_back(id->name);
+                    scalarArgs.push_back(-1); // Marcador para array
+                } else {
+                    argValue = eval(cpList->expression, vars, methodTable, args, arrayvarTable);
+                    scalarArgs.push_back(argValue);
+                    arrayArgs.push_back("");
+                }
+            } else {
+                argValue = eval(cpList->expression, vars, methodTable, args, arrayvarTable);
+                scalarArgs.push_back(argValue);
+                arrayArgs.push_back("");
+            }
+            currentParam = cpList->call_param_rest;
+        }
+        // Si es un nodo CallParamRest (estructura alternativa)
+        else if (Ast::CallParamRest* cpRest = dynamic_cast<Ast::CallParamRest*>(currentParam)) {
+            if (Ast::Identifier* id = dynamic_cast<Ast::Identifier*>(cpRest->expression)) {
+                std::cout << "Identificador: " << id->name << std::endl;
+                if (arrayvarTable.find(id->name) != arrayvarTable.end()) {
+                    arrayArgs.push_back(id->name);
+                    scalarArgs.push_back(-1);
+                } else {
+                    argValue = eval(cpRest->expression, vars, methodTable, args, arrayvarTable);
+                    scalarArgs.push_back(argValue);
+                    arrayArgs.push_back("");
+                }
+            } else {
+                argValue = eval(cpRest->expression, vars, methodTable, args, arrayvarTable);
+                scalarArgs.push_back(argValue);
+                arrayArgs.push_back("");
+            }
+            currentParam = cpRest->call_param_rest;
+        } else {
+            break;
+        }
     }
 
+    std::cout << "Argumentos escalares: ";
+    for (int arg : scalarArgs) {
+        std::cout << arg << " ";
+    }
+    std::cout << std::endl;
 
+    // 2. Buscar el método en la tabla de métodos
     auto methodIt = methodTable.find(node->identifier);
     if (methodIt == methodTable.end()) {
-        throw std::runtime_error("Undefined method: " + node->identifier);
+        throw std::runtime_error("Método no encontrado: " + node->identifier);
     }
-
     Ast::MethodDecl_Body* methodBody = static_cast<Ast::MethodDecl_Body*>(methodIt->second);
 
-    std::vector<Ast::ParamDecl*> params;
-    Ast::OptParamDeclList* optParamDecls = dynamic_cast<Ast::OptParamDeclList*>(methodBody->opt_param_decl_list);
-    
-    while (optParamDecls) {
-        
-        if (Ast::ParamDecl* param = dynamic_cast<Ast::ParamDecl*>(optParamDecls->first_param)) {
-            params.push_back(param);
-        }
-        
-        Ast::ParamList* paramList = dynamic_cast<Ast::ParamList*>(optParamDecls->rest_params);
-        while (paramList) {
-            if (Ast::ParamDecl* param = dynamic_cast<Ast::ParamDecl*>(paramList->first_param)) {
-                params.push_back(param);
+    // 3. Contar parámetros formales (integrado sin función externa)
+    size_t totalParams = 0;
+    Ast::Node* paramNode = methodBody->opt_param_decl_list;
+    while (paramNode != nullptr) {
+        if (Ast::OptParamDeclList* optParams = dynamic_cast<Ast::OptParamDeclList*>(paramNode)) {
+            if (optParams->first_param) {
+                // Si first_param es un ParamDecl, contamos 1
+                if (dynamic_cast<Ast::ParamDecl*>(optParams->first_param) != nullptr) {
+                    totalParams++;
+                }
+                // Si es un ParamList, iteramos por la cadena
+                else if (Ast::ParamList* paramList = dynamic_cast<Ast::ParamList*>(optParams->first_param)) {
+                    while (paramList != nullptr) {
+                        if (paramList->first_param)
+                            totalParams++;
+                        paramList = dynamic_cast<Ast::ParamList*>(paramList->rest_params);
+                    }
+                }
             }
-            paramList = dynamic_cast<Ast::ParamList*>(paramList->rest_params);
+            paramNode = optParams->rest_params;
         }
-        
-        optParamDecls = dynamic_cast<Ast::OptParamDeclList*>(optParamDecls->rest_params);
+        else if (Ast::ParamList* paramList = dynamic_cast<Ast::ParamList*>(paramNode)) {
+            while (paramList != nullptr) {
+                if (paramList->first_param)
+                    totalParams++;
+                paramList = dynamic_cast<Ast::ParamList*>(paramList->rest_params);
+            }
+            break;
+        } else {
+            break;
+        }
     }
 
-   
-    std::cout << "Argumentos: " << localArgs.size() 
-              << ", Parámetros: " << params.size() << std::endl;
-    
-    if (localArgs.size() != params.size()) {
-        throw std::runtime_error("Argument count mismatch for '" + node->identifier + "'");
-    }
-    
-    symbol_table previousVars = vars;
-    for (size_t i = 0; i < params.size(); ++i) {
-        vars[params[i]->identifier] = localArgs[i];
+    if (totalParams != scalarArgs.size()) {
+        throw std::runtime_error("Error en " + node->identifier +
+            ": Parámetros esperados = " + std::to_string(totalParams) +
+            ", Argumentos recibidos = " + std::to_string(scalarArgs.size()));
     }
 
-    std::vector<int> emptyArgs;
+    // 4. Configurar el contexto local para el método y vincular los parámetros
+    symbol_table newVars;
+    ArrayVariables_Table newArrays;
+    paramNode = methodBody->opt_param_decl_list;
+    size_t scalarIndex = 0;
+    size_t arrayIndex = 0;
+    while (paramNode != nullptr) {
+        if (Ast::OptParamDeclList* optParams = dynamic_cast<Ast::OptParamDeclList*>(paramNode)) {
+            // Si first_param es un ParamDecl
+            if (Ast::ParamDecl* paramDecl = dynamic_cast<Ast::ParamDecl*>(optParams->first_param)) {
+                Ast::Type* paramType = dynamic_cast<Ast::Type*>(paramDecl->type);
+                if (paramType && paramType->array_optional) {
+                    if (arrayIndex < arrayArgs.size()) {
+                        newArrays[paramDecl->identifier] = arrayvarTable[arrayArgs[arrayIndex]];
+                        std::cout << "Array vinculado: " << paramDecl->identifier 
+                                  << " -> " << arrayArgs[arrayIndex] << std::endl;
+                        arrayIndex++;
+                    }
+                } else {
+                    if (scalarIndex < scalarArgs.size()) {
+                        newVars[paramDecl->identifier] = scalarArgs[scalarIndex];
+                        std::cout << "Parámetro escalar: " << paramDecl->identifier 
+                                  << " = " << scalarArgs[scalarIndex] << std::endl;
+                        scalarIndex++;
+                    }
+                }
+            }
+            // Si first_param es un ParamList, iteramos sobre ella
+            else if (Ast::ParamList* paramList = dynamic_cast<Ast::ParamList*>(optParams->first_param)) {
+                while (paramList != nullptr) {
+                    if (Ast::ParamDecl* paramDecl = dynamic_cast<Ast::ParamDecl*>(paramList->first_param)) {
+                        Ast::Type* paramType = dynamic_cast<Ast::Type*>(paramDecl->type);
+                        if (paramType && paramType->array_optional) {
+                            if (arrayIndex < arrayArgs.size()) {
+                                newArrays[paramDecl->identifier] = arrayvarTable[arrayArgs[arrayIndex]];
+                                std::cout << "Array vinculado: " << paramDecl->identifier 
+                                          << " -> " << arrayArgs[arrayIndex] << std::endl;
+                                arrayIndex++;
+                            }
+                        } else {
+                            if (scalarIndex < scalarArgs.size()) {
+                                newVars[paramDecl->identifier] = scalarArgs[scalarIndex];
+                                std::cout << "Parámetro escalar: " << paramDecl->identifier 
+                                          << " = " << scalarArgs[scalarIndex] << std::endl;
+                                scalarIndex++;
+                            }
+                        }
+                    }
+                    paramList = dynamic_cast<Ast::ParamList*>(paramList->rest_params);
+                }
+            }
+            paramNode = optParams->rest_params;
+        }
+        else if (Ast::ParamList* paramList = dynamic_cast<Ast::ParamList*>(paramNode)) {
+            while (paramList != nullptr) {
+                if (Ast::ParamDecl* paramDecl = dynamic_cast<Ast::ParamDecl*>(paramList->first_param)) {
+                    Ast::Type* paramType = dynamic_cast<Ast::Type*>(paramDecl->type);
+                    if (paramType && paramType->array_optional) {
+                        if (arrayIndex < arrayArgs.size()) {
+                            newArrays[paramDecl->identifier] = arrayvarTable[arrayArgs[arrayIndex]];
+                            std::cout << "Array vinculado: " << paramDecl->identifier 
+                                      << " -> " << arrayArgs[arrayIndex] << std::endl;
+                            arrayIndex++;
+                        }
+                    } else {
+                        if (scalarIndex < scalarArgs.size()) {
+                            newVars[paramDecl->identifier] = scalarArgs[scalarIndex];
+                            std::cout << "Parámetro escalar: " << paramDecl->identifier 
+                                      << " = " << scalarArgs[scalarIndex] << std::endl;
+                            scalarIndex++;
+                        }
+                    }
+                }
+                paramList = dynamic_cast<Ast::ParamList*>(paramList->rest_params);
+            }
+            break;
+        } else {
+            break;
+        }
+    }
+
+    // 5. Ejecutar el método en el nuevo contexto
+    std::vector<int> dummyArgs;
     int result = 0;
+
+    //Agregar vars dentro de newVars
+
+    for (auto& var : vars) {
+        newVars[var.first] = var.second;
+    }
+
+    //Agregar arrays dentro de newArrays
+    for (auto& array : arrayvarTable) {
+        newArrays[array.first] = array.second;
+    }
+
     try {
-        result = eval(methodBody->stmt_list, vars, methodTable, emptyArgs, arrayvarTable);
+        result = eval(methodBody->stmt_list, newVars, methodTable, dummyArgs, newArrays);
     } catch (const ReturnException& retEx) {
         result = retEx.value;
     }
-    vars = previousVars;
-
+    
+    std::cout << "Método " << node->identifier << " retornó: " << result << std::endl;
     return result;
 }
+
+
+
+
+
+
 
 eval(PrintStmt) {
      std::cout << "[AST] - PrintStmt" << std::endl;
@@ -862,8 +1053,9 @@ eval(ReadStmt) {
 }
 
 eval(ArrayAccess) {
-     std::cout << "[AST] - ArrayAccess" << std::endl;
-    return 0;
+    std::cout << "[AST] - ArrayAccess" << std::endl;
+    // Evaluar la expresión del índice correctamente
+    return eval(node->expression, vars, methodTable, args, arrayvarTable); 
 }
 
 eval(ElseOptional) {
@@ -998,29 +1190,47 @@ eval(Number){
 }
 
 
+eval(Identifier) {
+    std::cout << "[AST] - Identifier" << std::endl;
 
-eval(Identifier){
-     std::cout << "[AST] - Identifier" << std::endl;
-
-    auto it = vars.find(node->name);
-    if (it == vars.end()) {
-        throw std::runtime_error("Undefined variable: " + node->name);
+    // Buscar en variables escalares
+    auto varIt = vars.find(node->name);
+    if (varIt != vars.end()) {
+        return varIt->second;
     }
-
-    std::cout << it->second << std::endl;
-    return it->second;
-
-  return 0;
+    
+    // Si es un array, permitir su uso como argumento (no lanzar error)
+    if (arrayvarTable.find(node->name) != arrayvarTable.end()) {
+        return 0; // Valor dummy, el manejo real está en CallStmt
+    }
+    
+    throw std::runtime_error("Variable no definida: " + node->name);
 }
 
-eval(ArrayVariable){
-     std::cout << "[AST] - ArrayVariable" << std::endl;
- throw std::runtime_error("Array access not implemented");
-    return 0;
+eval(ArrayVariable) {
+    std::cout << "[AST] - ArrayVariable" << std::endl;
+    int index = eval(node->indexExpr, vars, methodTable, args, arrayvarTable);
+    
+    auto it = arrayvarTable.find(node->name);
+    if (it == arrayvarTable.end()) {
+        throw std::runtime_error("Array '" + node->name + "' no declarado");
+    }
+    
+    auto& array = *it->second;
+    if (index < 0 || index >= array.size()) {
+        throw std::runtime_error("Índice fuera de rango");
+    }
+    
+    // Verificar si el valor está inicializado
+    if (!array[index].has_value()) {
+        throw std::runtime_error("Elemento no inicializado en posición " + std::to_string(index));
+    }
+    
+    std::cout << "Leyendo arreglo en posición " << index << ": " << array[index].value() << std::endl;
+    std::cout << "Valor en Array: " << array[index].value() << std::endl;
+
+    return array[index].value(); // Extraer el valor int
 }
-
-
-
 
 
 

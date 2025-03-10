@@ -133,13 +133,38 @@ variable_decl_Body:
 ;
 
 variable_decl:
-       KW_INT IDENTIFIER variable_decl_Body {
+       KW_INT  OPEN_BRACKET INT_CONST CLOSE_BRACKET  IDENTIFIER variable_decl_Body {
+            $$ = new Ast::VariableDecl(new Ast::Type("INT", new Ast::ArrayOptional($3)), $5, $6); std::cout << "[Parser] - variable_decl" << std::endl;
+      }
+      |  KW_INT IDENTIFIER variable_decl_Body {
             $$ = new Ast::VariableDecl(new Ast::Type("INT", nullptr), $2, $3); std::cout << "[Parser] - variable_decl" << std::endl;
        }
-      | KW_INT array_optional IDENTIFIER variable_decl_Body {
-            $$ = new Ast::VariableDecl(new Ast::Type("INT", $2), $3, $4); std::cout << "[Parser] - variable_decl" << std::endl;
-      }
+      
 ;
+
+array_optional:
+      OPEN_BRACKET INT_CONST CLOSE_BRACKET { 
+            std::cout << "[Parser] - array_optional" << std::endl;
+            $$ = new Ast::ArrayOptional($2); 
+      }
+      | %empty {}
+;
+
+// variable_decl:
+//     KW_INT array_optional_opt IDENTIFIER variable_decl_Body {
+//          $$ = new Ast::VariableDecl(new Ast::Type("INT", $2), $3, $4);
+//          std::cout << "[Parser] - variable_decl" << std::endl;
+//     }
+// ;
+
+
+
+// array_optional_opt:
+//     array_optional { $$ = $1; }
+//   | %empty { $$ = nullptr; }
+// ;
+
+
 
 ident_list:
       COMMA IDENTIFIER ident_list { 
@@ -155,13 +180,7 @@ type:
       
 ;
 
-array_optional:
-      OPEN_BRACKET INT_CONST CLOSE_BRACKET { 
-            std::cout << "[Parser] - array_optional" << std::endl;
-            $$ = new Ast::ArrayOptional($2); 
-      }
-      | %empty {}
-;
+
 
 method_decl_list:
       method_decl method_decl_list {
@@ -238,6 +257,7 @@ stmt_list:
 array_access:
       OPEN_BRACKET expression CLOSE_BRACKET {
              std::cout << "[Parser] - array_access" << std::endl;
+             std::cout << "Array access2: " << $2 << std::endl;
             $$ = new Ast::ArrayAccess($2);
            
       }
@@ -522,6 +542,10 @@ factor:
             $$ = new Ast::CallStmt($1, $3); std::cout<< "[Parser] - factor" << std::endl; 
         }
       | IDENTIFIER array_access { 
+
+            std::cout<< "[Parser] - array access" << std::endl;
+            std::cout<< "Array access: " << $1 << std::endl;
+            
             $$ = new Ast::ArrayVariable($1, $2); std::cout<< "[Parser] - factor" << std::endl; 
         }
       

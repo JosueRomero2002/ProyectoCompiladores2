@@ -42,7 +42,12 @@ int main(int argc, char *argv[])
     try
     {
         parser.parse();
-        std::cout << "Eval: " << eval(root, vars, Method_Table, args, Array_Table) << std::endl;
+
+        // std::cout << "Eval: " << eval(root, vars, Method_Table, args, Array_Table) << std::endl;
+        // std::cout << "Print: " << root->toString() << std::endl;
+        CodegenResult r = exprCompile(root, vars);
+        std::cout << r.code << std::endl;
+
     }
     catch (const std::runtime_error &err)
     {

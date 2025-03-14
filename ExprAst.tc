@@ -16,22 +16,47 @@
     using arguments = std::vector<int>;
     
     // Declarar primero ArrayVariables_Table
-  using ArrayVariables_Table = std::unordered_map<
+    using ArrayVariables_Table = std::unordered_map<
     std::string, 
     std::shared_ptr<std::vector<std::optional<int>>> // Mantener consistencia
->;
+    >;
+
+
     namespace Ast {
         class Node;
     }
     
     // Luego Method_Table que lo referencia
     using Method_Table = std::unordered_map<std::string, Ast::Node*>;
+
+    struct CodegenResult{
+        std::string code;
+        std::string place;
+    };
 %}
 
 
 %{
     #include "ExprAst.hpp"
     #include "exceptions.hpp"
+
+    
+
+    std::string newVariable(){
+        static int index = 0;
+
+        return "t" + std::to_string(index++);
+    }
+
+    std::string newLabel(){
+        static int index = 0;
+
+        return "L" + std::to_string(index++);
+    }
+
+
+
+
 %}
 
 %node Node %abstract %typedef
@@ -580,8 +605,6 @@ toString(ArrayVariable){
 
 
 
-
-
 %operation int eval(Node *node, symbol_table& vars, Method_Table& methodTable, arguments& args, ArrayVariables_Table& arrayvarTable) = {0}
 
 
@@ -811,8 +834,9 @@ eval(CallStmt) {
     std::cout << "[AST] - CallStmt: " << node->identifier << std::endl;
 
     // 1. Recolectar argumentos (escalares y arreglos)
-    std::vector<int> scalarArgs;
+    std::vector<int> scalarArgs;  //Argumentos en llamado a funcion func(1,2,3)
     std::vector<std::string> arrayArgs;
+
 
     Ast::Node* currentParam = node->call_param_list;
     while (currentParam != nullptr) {
@@ -839,7 +863,6 @@ eval(CallStmt) {
         // Si es un nodo CallParamRest (estructura alternativa)
         else if (Ast::CallParamRest* cpRest = dynamic_cast<Ast::CallParamRest*>(currentParam)) {
             if (Ast::Identifier* id = dynamic_cast<Ast::Identifier*>(cpRest->expression)) {
-                std::cout << "Identificador: " << id->name << std::endl;
                 if (arrayvarTable.find(id->name) != arrayvarTable.end()) {
                     arrayArgs.push_back(id->name);
                     scalarArgs.push_back(-1);
@@ -859,11 +882,7 @@ eval(CallStmt) {
         }
     }
 
-    std::cout << "Argumentos escalares: ";
-    for (int arg : scalarArgs) {
-        std::cout << arg << " ";
-    }
-    std::cout << std::endl;
+
 
     // 2. Buscar el método en la tabla de métodos
     auto methodIt = methodTable.find(node->identifier);
@@ -873,7 +892,7 @@ eval(CallStmt) {
     Ast::MethodDecl_Body* methodBody = static_cast<Ast::MethodDecl_Body*>(methodIt->second);
 
     // 3. Contar parámetros formales (integrado sin función externa)
-    size_t totalParams = 0;
+    size_t totalParams = 0;  //Lista de parametros en la declaracion de la funcion
     Ast::Node* paramNode = methodBody->opt_param_decl_list;
     while (paramNode != nullptr) {
         if (Ast::OptParamDeclList* optParams = dynamic_cast<Ast::OptParamDeclList*>(paramNode)) {
@@ -914,6 +933,19 @@ eval(CallStmt) {
     // 4. Configurar el contexto local para el método y vincular los parámetros
     symbol_table newVars;
     ArrayVariables_Table newArrays;
+
+    //Agregar vars dentro de newVars
+
+    for (auto& var : vars) {
+        newVars[var.first] = var.second;
+    }
+
+    //Agregar arrays dentro de newArrays
+    for (auto& array : arrayvarTable) {
+        newArrays[array.first] = array.second;
+    }
+
+
     paramNode = methodBody->opt_param_decl_list;
     size_t scalarIndex = 0;
     size_t arrayIndex = 0;
@@ -992,20 +1024,17 @@ eval(CallStmt) {
         }
     }
 
+
+    // 4.1. Evaluar las declaraciones de variables locales del método
+    if (methodBody->variable_decls) {
+        eval(methodBody->variable_decls, newVars, methodTable, args, newArrays);
+    }
+
     // 5. Ejecutar el método en el nuevo contexto
     std::vector<int> dummyArgs;
     int result = 0;
 
-    //Agregar vars dentro de newVars
-
-    for (auto& var : vars) {
-        newVars[var.first] = var.second;
-    }
-
-    //Agregar arrays dentro de newArrays
-    for (auto& array : arrayvarTable) {
-        newArrays[array.first] = array.second;
-    }
+   
 
     try {
         result = eval(methodBody->stmt_list, newVars, methodTable, dummyArgs, newArrays);
@@ -1234,3 +1263,614 @@ eval(ArrayVariable) {
 
 
 
+
+%operation CodegenResult exprCompile(Node* root, symbol_table& vars) = {CodegenResult{} }
+
+
+
+exprCompile(Program) {
+    // string_t class_name;
+    // Node *variable_decls;
+    // Node *method_decls;
+
+    CodegenResult r1 = exprCompile(root->variable_decls, vars);
+
+    std::ostringstream os;
+    os << "Program("
+ 
+
+       << root->class_name
+       << r1.code;
+       
+       if(root->variable_decls) {
+           CodegenResult r2 = exprCompile(root->variable_decls, vars);
+           os << r2.code;
+       }
+
+        if(root->method_decls) {
+           CodegenResult r2 = exprCompile(root->method_decls, vars);
+           os << r2.code;
+       }
+  
+    os  << ")";
+
+
+
+
+    
+
+
+for(const auto& [lit, tag] : texts){
+    int size = lit.size();
+
+       os << "@" << tag << " = private constant [" << size << " x i8] c\"" << lit << "\\00\", align 1\n";
+}
+
+
+
+
+    return {os.str(), ""};
+}
+
+exprCompile(VariableDeclList) {
+    // Node *first_decl;
+    // Node *rest_decls;
+    std::ostringstream os;
+    os << "VariableDeclList(";
+    // if(root->first_decl)
+        // os << "exprCompile(root->first_decl, vars).code";
+    // if(root->rest_decls)
+    //     os << "exprCompile(root->rest_decls, vars).code";
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(VariableDecl) {
+    // Node *type;
+    // string_t identifier;
+    // Node *variableDecl_Body;
+    std::ostringstream os;
+    os << "VariableDecl("
+       << exprCompile(root->type, vars).code
+       << root->identifier
+       << exprCompile(root->variableDecl_Body, vars).code
+       << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(VariableDecl_Body) {
+    // Node *ident_list;
+    std::ostringstream os;
+    os << "VariableDecl_Body(";
+    if(root->ident_list)
+        os << exprCompile(root->ident_list, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(IdentList) {
+    // string_t identifier;
+    // Node *IdentListParam;
+    std::ostringstream os;
+    os << "IdentList(" << root->identifier;
+    if(root->IdentListParam)
+        os << exprCompile(root->IdentListParam, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(Type) {
+    // string_t type_name;
+    // Node *array_optional;
+    std::ostringstream os;
+    os << "Type(" << root->type_name;
+    if(root->array_optional)
+        os << exprCompile(root->array_optional, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(ArrayOptional) {
+    // int size;
+    std::ostringstream os;
+    os << "ArrayOptional(" << root->size << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(MethodDeclList) {
+    // Node *first_decl;
+    // Node *rest_decls;
+    std::ostringstream os;
+    os << "MethodDeclList(";
+    if(root->first_decl)
+        os << exprCompile(root->first_decl, vars).code;
+    if(root->rest_decls)
+        os << exprCompile(root->rest_decls, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(MethodDecl) {
+    // Node *method_type;
+    // string_t identifier;
+    // Node *MethodDecl_Body;
+    std::ostringstream os;
+    os << "MethodDecl("
+       << exprCompile(root->method_type, vars).code
+       << root->identifier
+       << exprCompile(root->MethodDecl_Body, vars).code
+       << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(MethodDecl_Body) {
+    // Node *opt_param_decl_list;
+    // Node *variable_decls;
+    // Node *stmt_list;
+    std::ostringstream os;
+    os << "MethodDecl_Body(";
+    if(root->opt_param_decl_list)
+        os << exprCompile(root->opt_param_decl_list, vars).code;
+    if(root->variable_decls)
+        os << exprCompile(root->variable_decls, vars).code;
+    if(root->stmt_list)
+        os << exprCompile(root->stmt_list, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(MethodType) {
+    // string_t type;
+    std::ostringstream os;
+    os << "MethodType(" << root->type << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(OptParamDeclList) {
+    // Node *first_param;
+    // Node *rest_params;
+    std::ostringstream os;
+    os << "OptParamDeclList(";
+    if(root->first_param)
+        os << exprCompile(root->first_param, vars).code;
+    if(root->rest_params)
+        os << exprCompile(root->rest_params, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(ParamList) {
+    // Node *first_param;
+    // Node *rest_params;
+    std::ostringstream os;
+    os << "ParamList(";
+    if(root->first_param)
+        os << exprCompile(root->first_param, vars).code;
+    if(root->rest_params)
+        os << exprCompile(root->rest_params, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(ParamDecl) {
+    // Node *ref_optional;
+    // Node *type;
+    // string_t identifier;
+    std::ostringstream os;
+    os << "ParamDecl(";
+    if(root->ref_optional)
+        os << exprCompile(root->ref_optional, vars).code;
+    os << exprCompile(root->type, vars).code
+       << root->identifier
+       << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(AssignStmt) {
+    // string_t identifier;
+    // Node *array_access;
+    // Node *expression;
+    std::ostringstream os;
+    os << "AssignStmt(" << root->identifier;
+    if(root->array_access)
+        os << exprCompile(root->array_access, vars).code;
+    if(root->expression)
+        os << exprCompile(root->expression, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(ReturnStmt) {
+    // Node *expression;
+    std::ostringstream os;
+    os << "ReturnStmt(";
+    if(root->expression)
+        os << exprCompile(root->expression, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(IfStmt) {
+    // Node *expression;
+    // Node *block;
+    // Node *else_optional;
+    std::ostringstream os;
+    os << "IfStmt(";
+    if(root->expression)
+        os << exprCompile(root->expression, vars).code;
+    if(root->block)
+        os << exprCompile(root->block, vars).code;
+    if(root->else_optional)
+        os << exprCompile(root->else_optional, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(WhileStmt) {
+    // Node *expression;
+    // Node *block;
+    std::ostringstream os;
+    os << "WhileStmt(";
+    if(root->expression)
+        os << exprCompile(root->expression, vars).code;
+    if(root->block)
+        os << exprCompile(root->block, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(RefOptional) {
+    // bool is_ref;
+    std::ostringstream os;
+    os << "RefOptional(" << (root->is_ref ? "true" : "false") << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(StmtList) {
+    // Node *first_stmt;
+    // Node *rest_stmts;
+    std::ostringstream os;
+    os << "StmtList(";
+    if(root->first_stmt)
+        os << exprCompile(root->first_stmt, vars).code;
+    if(root->rest_stmts)
+        os << exprCompile(root->rest_stmts, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(CallStmt) {
+    // string_t identifier;
+    // Node *call_param_list;
+    std::ostringstream os;
+    os << "CallStmt(" << root->identifier;
+    if(root->call_param_list)
+        os << exprCompile(root->call_param_list, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(PrintStmt) {
+    // Node *print_param;
+    std::ostringstream os;
+    os << "PrintStmt(";
+    if(root->print_param)
+        os << exprCompile(root->print_param, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(PrintParam) {
+    // Node *expression;
+    // string_t string_literal;
+    std::ostringstream os;
+    os << "PrintParam(";
+    if(root->expression)
+        os << exprCompile(root->expression, vars).code;
+    os << root->string_literal
+       << ")";
+    return {os.str(), ""};
+
+
+
+// Print Literal
+
+// std::ostringstream os;
+
+// auto it - texts.find(root->literal);
+
+// if(it == texts.end()) {
+//    os << "call i32 (i8*, ...)* @printf(i8* )";
+// } else {
+    
+
+
+
+}
+
+exprCompile(ReadStmt) {
+    // string_t identifier;
+    std::ostringstream os;
+    os << "ReadStmt(" << root->identifier << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(ArrayAccess) {
+    // Node *expression;
+    std::ostringstream os;
+    os << "ArrayAccess(";
+    if(root->expression)
+        os << exprCompile(root->expression, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(ElseOptional) {
+    // Node *block;
+    std::ostringstream os;
+    os << "ElseOptional(";
+    if(root->block)
+        os << exprCompile(root->block, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(Block) {
+    // Node *stmt_list;
+    std::ostringstream os;
+    os << "Block(";
+    if(root->stmt_list)
+        os << exprCompile(root->stmt_list, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(CallParamList) {
+    // Node *expression;
+    // Node *call_param_rest;
+    std::ostringstream os;
+    os << "CallParamList(";
+    if(root->expression)
+        os << exprCompile(root->expression, vars).code;
+    if(root->call_param_rest)
+        os << exprCompile(root->call_param_rest, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(CallParamRest) {
+    // Node *expression;
+    // Node *call_param_rest;
+    std::ostringstream os;
+    os << "CallParamRest(";
+    if(root->expression)
+        os << exprCompile(root->expression, vars).code;
+    if(root->call_param_rest)
+        os << exprCompile(root->call_param_rest, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(EqualBoolean) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "EqualBoolean(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(NEqualBoolean) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "NEqualBoolean(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(Less_ThanBoolean) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "Less_ThanBoolean(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(Greater_ThanBoolean) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "Greater_ThanBoolean(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(LessEqualBoolean) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "LessEqualBoolean(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(GreaterEqualBoolean) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "GreaterEqualBoolean(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(OrBoolean) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "OrBoolean(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(AndBoolean) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "AndBoolean(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(UnaryNotBoolean) {
+    // Node *expr;
+    std::ostringstream os;
+    os << "UnaryNotBoolean(";
+    if(root->expr)
+        os << exprCompile(root->expr, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(SumExpr) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "SumExpr(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(SubExpr) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "SubExpr(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(MulExpr) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "MulExpr(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(DivExpr) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "DivExpr(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(ModExpr) {
+    // Node *left;
+    // Node *right;
+    std::ostringstream os;
+    os << "ModExpr(";
+    if(root->left)
+        os << exprCompile(root->left, vars).code;
+    if(root->right)
+        os << exprCompile(root->right, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(UnaryAddExpr) {
+    // Node *expr;
+    std::ostringstream os;
+    os << "UnaryAddExpr(";
+    if(root->expr)
+        os << exprCompile(root->expr, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(UnarySubExpr) {
+    // Node *expr;
+    std::ostringstream os;
+    os << "UnarySubExpr(";
+    if(root->expr)
+        os << exprCompile(root->expr, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(Number) {
+    // int value;
+    std::ostringstream os;
+    os << "Number(" << root->value << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(Identifier) {
+    // string_t name;
+    std::ostringstream os;
+    os << "Identifier(" << root->name << ")";
+    return {os.str(), ""};
+}
+
+exprCompile(ArrayVariable) {
+    // string_t name;
+    // Node *indexExpr;
+    std::ostringstream os;
+    os << "ArrayVariable(" << root->name;
+    if(root->indexExpr)
+        os << exprCompile(root->indexExpr, vars).code;
+    os << ")";
+    return {os.str(), ""};
+}

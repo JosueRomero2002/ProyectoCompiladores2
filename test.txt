@@ -1,8 +1,18 @@
 class FactorialCalculator {
-    void awiwi() {
-      
-      
-        print(a);
+
+    int x; 
+    void prueba2(){
+       int[3] x;
+       x[0]=1;
+       print(x[0]);
+        
+       
     }
+  
+
+    void main(){
+        prueba2();
+    }
+
     
 }

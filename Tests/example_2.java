@@ -1,9 +1,12 @@
 class FactorialCalculator {
 
     int factorial(int n) {
-        n = 5;
+
+        print("Factorial");
         print(n);
+
         if (n <= 1) {
+            print("VERDADERO");
             print(n);
             return 1;
         } else {
@@ -12,12 +15,14 @@ class FactorialCalculator {
     }
 
     int main() {
-        int n;
+
         int resultado;
         n = 5;
-        print(n);
 
         resultado = factorial(n);
+
+        print("Resultado: ");
         print(resultado);
+        print("Fin");
     }
 }

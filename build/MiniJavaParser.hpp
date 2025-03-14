@@ -387,9 +387,9 @@ namespace Expr {
       // variable_decl_list
       // variable_decl_Body
       // variable_decl
+      // array_optional
       // ident_list
       // type
-      // array_optional
       // method_decl_list
       // method_decl
       // method_body
@@ -593,9 +593,9 @@ namespace Expr {
         S_variable_decl_list = 52,               // variable_decl_list
         S_variable_decl_Body = 53,               // variable_decl_Body
         S_variable_decl = 54,                    // variable_decl
-        S_ident_list = 55,                       // ident_list
-        S_type = 56,                             // type
-        S_array_optional = 57,                   // array_optional
+        S_array_optional = 55,                   // array_optional
+        S_ident_list = 56,                       // ident_list
+        S_type = 57,                             // type
         S_method_decl_list = 58,                 // method_decl_list
         S_method_decl = 59,                      // method_decl
         S_method_body = 60,                      // method_body
@@ -627,8 +627,7 @@ namespace Expr {
         S_arithmetic_expression = 86,            // arithmetic_expression
         S_relational_expression = 87,            // relational_expression
         S_term = 88,                             // term
-        S_unaryOptional = 89,                    // unaryOptional
-        S_factor = 90                            // factor
+        S_factor = 89                            // factor
       };
     };
 
@@ -667,9 +666,9 @@ namespace Expr {
       case symbol_kind::S_variable_decl_list: // variable_decl_list
       case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
+      case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
-      case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
       case symbol_kind::S_method_body: // method_body
@@ -800,9 +799,9 @@ switch (yykind)
       case symbol_kind::S_variable_decl_list: // variable_decl_list
       case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
+      case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_ident_list: // ident_list
       case symbol_kind::S_type: // type
-      case symbol_kind::S_array_optional: // array_optional
       case symbol_kind::S_method_decl_list: // method_decl_list
       case symbol_kind::S_method_decl: // method_decl
       case symbol_kind::S_method_body: // method_body
@@ -1825,7 +1824,7 @@ switch (yykind)
     // number is the opposite.  If YYTABLE_NINF, syntax error.
     static const short yytable_[];
 
-    static const short yycheck_[];
+    static const unsigned char yycheck_[];
 
     // YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
     // state STATE-NUM.
@@ -2067,8 +2066,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 147,     ///< Last index in yytable_.
-      yynnts_ = 42,  ///< Number of nonterminal symbols.
+      yylast_ = 152,     ///< Last index in yytable_.
+      yynnts_ = 41,  ///< Number of nonterminal symbols.
       yyfinal_ = 5 ///< Termination state number.
     };
 
@@ -2082,7 +2081,7 @@ switch (yykind)
 
 #line 10 "MiniJavaParser.y"
 } // Expr
-#line 2086 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 2085 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 

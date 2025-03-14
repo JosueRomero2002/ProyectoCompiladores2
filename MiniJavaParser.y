@@ -133,10 +133,13 @@ variable_decl_Body:
 ;
 
 variable_decl:
+      
        KW_INT  OPEN_BRACKET INT_CONST CLOSE_BRACKET  IDENTIFIER variable_decl_Body {
+            std::cout << "[Parser] - variable_decl -ARRAY" << std::endl;
             $$ = new Ast::VariableDecl(new Ast::Type("INT", new Ast::ArrayOptional($3)), $5, $6); std::cout << "[Parser] - variable_decl" << std::endl;
       }
       |  KW_INT IDENTIFIER variable_decl_Body {
+            std::cout << "[Parser] - variable_decl -NORMAL" << std::endl;
             $$ = new Ast::VariableDecl(new Ast::Type("INT", nullptr), $2, $3); std::cout << "[Parser] - variable_decl" << std::endl;
        }
       

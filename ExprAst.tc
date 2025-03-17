@@ -3,7 +3,7 @@
 
 
 %decls%{
-    #include <memory>  // Necesario para shared_ptr
+    #include <memory>  // Necesario para shared_ptr (posiblemente ya no se use)
     #include <string>
     #include <iostream>
     #include <sstream>
@@ -12,22 +12,47 @@
     #include <optional>
     
     using string_t = std::string;
-    using symbol_table = std::unordered_map<std::string, int>;
-    using arguments = std::vector<int>;
+    struct variables{
+        std::string methodIdentifier;
+        std::optional<int>  value;
+        variables* ref = nullptr;
+        bool isArgument = false;
+    };
+    
+    using symbol_table = std::unordered_map<std::string, variables>;
+    using arguments = std::vector<std::string>;
     
     // Declarar primero ArrayVariables_Table
+
+    struct arrayVariables{
+        std::string methodIdentifier;
+        std::vector<std::optional<int>> values;
+        variables* ref = nullptr;
+        bool isArgument = false;
+    };
+
     using ArrayVariables_Table = std::unordered_map<
     std::string, 
-    std::shared_ptr<std::vector<std::optional<int>>> // Mantener consistencia
+    arrayVariables // Mantener consistencia
     >;
+
+    using Texts_Table = std::unordered_map<std::string, std::string>;
 
 
     namespace Ast {
         class Node;
     }
     
+
+    struct methodVariable{
+        std::string methodName;
+        std::string Type;
+        std::vector<std::string> params;
+    };
+
     // Luego Method_Table que lo referencia
-    using Method_Table = std::unordered_map<std::string, Ast::Node*>;
+    // using Method_Table = std::unordered_map<std::string, Ast::Node*>;
+    using Method_Table = std::unordered_map<std::string, methodVariable>;
 
     struct CodegenResult{
         std::string code;
@@ -55,6 +80,15 @@
     }
 
 
+    std::string newFmts(){
+        static int index = 0;
+
+        return "@.fmt" + std::to_string(index++);
+    }
+
+
+
+
 
 
 %}
@@ -71,8 +105,13 @@
 
 %node Program Node = {
     string_t class_name;
-    Node *variable_decls;
+    Node *varmethod_decls;
     Node *method_decls;
+}
+
+%node VarMethodDeclList Node = {
+    Node *first_decl;
+    Node *rest_decls;
 }
 
 %node VariableDeclList Node = {
@@ -302,10 +341,19 @@ toString(Program) {
 
  
     os << "Program "
-    << class_name <<    
-    "(" << variable_decls->toString() 
-    << ", " << method_decls->toString() << ")";
+  << ")";
     
+    return os.str();
+}
+
+toString(VarMethodDeclList){
+    if (!first_decl) return "VariableDeclList()";
+    std::ostringstream os;
+    os << "VariableDeclList(" << first_decl->toString();
+    if (rest_decls) os << ", " << rest_decls->toString();
+    os << ")";
+
+
     return os.str();
 }
 
@@ -599,672 +647,7 @@ toString(ArrayVariable){
 }
 
 
-
-
-
-
-
-
-%operation int eval(Node *node, symbol_table& vars, Method_Table& methodTable, arguments& args, ArrayVariables_Table& arrayvarTable) = {0}
-
-
-
-
-eval(Program) {
-    std::cout << "========================================" << std::endl;
-    std::cout << "AST Program" << std::endl;
-
-   
-    if (node->variable_decls) eval(node->variable_decls, vars, methodTable, args, arrayvarTable);
-
- 
-    if (node->method_decls) eval(node->method_decls, vars, methodTable, args, arrayvarTable);
-
- 
-    auto mainIt = methodTable.find("main");
-    if (mainIt == methodTable.end()) {
-        throw std::runtime_error("Main method not found");
-    }
-   std::cout << "======================MAIN CALL==================" << std::endl;
-    Ast::MethodDecl_Body* mainBody = static_cast<Ast::MethodDecl_Body*>(mainIt->second);
-    symbol_table mainVars;
-    std::vector<int> emptyArgs;
-    eval(mainBody, mainVars, methodTable, emptyArgs, arrayvarTable);
-   std::cout << "========================================" << std::endl;
-    return 0;
-}
-eval(VariableDeclList) {
-    std::cout << "[AST] - VariableDeclList" << std::endl;
-    if (node->first_decl)  eval(node->first_decl, vars, methodTable, args, arrayvarTable);
-
-    if (node->rest_decls)  eval(node->rest_decls, vars, methodTable, args, arrayvarTable);
-
-    return 0;
-}
-
-eval(VariableDecl) {
-    std::cout << "[AST] - VariableDecl" << std::endl;
-    Ast::Type* typeNode = dynamic_cast<Ast::Type*>(node->type);
-    if (typeNode && typeNode->array_optional) {
-        // Se espera que array_optional contenga el tamaño del arreglo.
-        int size = eval(typeNode->array_optional, vars, methodTable, args, arrayvarTable);
-        std::cout << "->Declarando ARREGLO: " << node->identifier << std::endl;
-        arrayvarTable[node->identifier] = std::make_shared<std::vector<std::optional<int>>>(size, std::nullopt);
-    } else {
-        vars[node->identifier] = 0;
-    }
-    if (node->variableDecl_Body) {
-        eval(node->variableDecl_Body, vars, methodTable, args, arrayvarTable);
-    }
-    return 0;
-}
-
-
-
-eval(VariableDecl_Body) {
-    std::cout << "[AST] - VariableDecl_Body" << std::endl;
-    if (node->ident_list) eval(node->ident_list, vars, methodTable, args, arrayvarTable);
-    return 0;
-}
-
-eval(IdentList) {
-    std::cout << "[AST] - IdentList" << std::endl;
-    vars[node->identifier] = 0;
-    if (node->IdentListParam) eval(node->IdentListParam, vars, methodTable, args, arrayvarTable);
-    return 0;
-}
-
-eval(Type) {
-    std::cout << "[AST] - Type" << std::endl;
-    
-    return 0;
-}
-
-eval(ArrayOptional) {
-    std::cout << "[AST] - ArrayOptional" << std::endl;
-    return node->size;
-}
-eval(MethodDeclList) {
-    std::cout << "[AST] - MethodDeclList" << std::endl;
-    if (node->first_decl) eval(node->first_decl, vars, methodTable, args, arrayvarTable);
-    if (node->rest_decls) eval(node->rest_decls, vars, methodTable, args, arrayvarTable);
-    return 0;
-}
-
-eval(MethodDecl) {
-    std::cout << "[AST] - MethodDecl: " << node->identifier << std::endl;
-    methodTable[node->identifier] = node->MethodDecl_Body; // Registrar el método
-   
-    return 0;
-}
-eval(MethodDecl_Body) {
-    try {
-        if (node->opt_param_decl_list)
-            eval(node->opt_param_decl_list, vars, methodTable, args, arrayvarTable);
-        if (node->variable_decls)
-            eval(node->variable_decls, vars, methodTable, args, arrayvarTable);
-        return eval(node->stmt_list, vars, methodTable, args, arrayvarTable);
-    } catch (const ReturnException& retEx) {
-        return retEx.value;
-    }
-}
-
-
-
-eval(MethodType) {
-     std::cout << "[AST] - MethodType" << std::endl;
-    return 0; 
-}
-
-eval(OptParamDeclList) {
-     std::cout << "[AST] - OptParamDeclList" << std::endl;
-    if (node->first_param)eval(node->first_param, vars, methodTable, args, arrayvarTable);
-    if (node->rest_params) eval(node->rest_params, vars, methodTable, args, arrayvarTable);
-    return 0;
-}
-
-eval(ParamList) {
-     std::cout << "[AST] - ParamList" << std::endl;
-    if (node->first_param) eval(node->first_param, vars, methodTable, args, arrayvarTable);
-    if (node->rest_params) eval(node->rest_params, vars, methodTable, args, arrayvarTable);
-    return 0;
-}
-
-
-eval(AssignStmt) {
-    std::cout << "[AST] - AssignStmt" << std::endl;
-    int value = eval(node->expression, vars, methodTable, args, arrayvarTable);
-    
-    if (node->array_access) {
-        Ast::ArrayAccess* arrayAccess = dynamic_cast<Ast::ArrayAccess*>(node->array_access);
-        int index = eval(arrayAccess->expression, vars, methodTable, args, arrayvarTable);
-        
-        std::cout << "Leyendo Arreglo en Posicion: " << index << std::endl;
-
-        auto it = arrayvarTable.find(node->identifier);
-        if (it == arrayvarTable.end()) {
-            throw std::runtime_error("Array '" + node->identifier + "' no declarado");
-        }
-        
-        auto& array = *it->second; // Dereferenciar aquí
-        if (index < 0 || index >= array.size()) {
-            throw std::runtime_error("Índice inválido");
-        }
-        
-        array[index] = value; // Acceso correcto
-        std::cout << "Asignando " << value << " en posición " << index << std::endl;
-        std::cout << "Array: ";
-        for (int i = 0; i < array.size(); i++) {
-    if (array[i].has_value()) {
-        std::cout << array[i].value() << " ";
-    } else {
-        std::cout << "null ";
-    }
-}
-        std::cout << std::endl;
-   
-    } else {
-        vars[node->identifier] = value;
-    }
-    return 0;
-}
-
-eval(ReturnStmt) {
-    std::cout << "[AST] - ReturnStmt" << std::endl;
-    int ret = eval(node->expression, vars, methodTable, args, arrayvarTable);
-    throw ReturnException(ret);
-}
-
-eval(IfStmt) {
-    std::cout << "[AST] - IfStmt" << std::endl;
-    
-  
-    int cond_value = eval(node->expression, vars, methodTable, args, arrayvarTable);
-    bool cond = (cond_value != 0);
-    std::cout << "Condición: " << cond_value << std::endl;
-    if (cond) {
-        std::cout << "Condición TRUE" << std::endl;
-        return eval(node->block, vars, methodTable, args, arrayvarTable);
-    } else if (node->else_optional) {
-        std::cout << "Condición FALSE - Ejecutando ELSE" << std::endl;
-        return eval(node->else_optional, vars, methodTable, args, arrayvarTable);
-    }
-    
-    return 0; // Retorno por defecto si no hay else
-}
-eval(WhileStmt) {
-    std::cout << "[AST] - WhileStmt" << std::endl;
-    int last_val = 0;
-    while (true) {  
-        int cond_value = eval(node->expression, vars, methodTable, args, arrayvarTable);
-        std::cout << "Evaluando condición del while: " << cond_value << std::endl; // Debug
-        if (!cond_value) break;  // Si es 0 (false), salir
-        last_val = eval(node->block, vars, methodTable, args, arrayvarTable);
-    }
-    return last_val;
-}
-eval(ParamDecl) {
-    std::cout << "[AST] - ParamDecl" << std::endl;
-    Ast::Type* typeNode = dynamic_cast<Ast::Type*>(node->type);
-    
-    if (typeNode && typeNode->array_optional) {
-        // Corrección: Usar el tipo correcto std::optional<int>
-        arrayvarTable[node->identifier] = std::make_shared<std::vector<std::optional<int>>>();
-    } else {
-        vars[node->identifier] = 0;
-    }
-    return 0;
-}
-eval(RefOptional) {
-     std::cout << "[AST] - RefOptional" << std::endl;
-    return node->is_ref; 
-}
-eval(StmtList) {
-   
-    if (!node) return 0;
-  
-    int result = eval(node->first_stmt, vars, methodTable, args, arrayvarTable);
-   
-    if (node->rest_stmts) {
-        result = eval(node->rest_stmts, vars, methodTable, args, arrayvarTable);
-    }
-    return result;
-}
-eval(CallStmt) {
-    std::cout << "[AST] - CallStmt: " << node->identifier << std::endl;
-
-    // 1. Recolectar argumentos (escalares y arreglos)
-    std::vector<int> scalarArgs;  //Argumentos en llamado a funcion func(1,2,3)
-    std::vector<std::string> arrayArgs;
-
-
-    Ast::Node* currentParam = node->call_param_list;
-    while (currentParam != nullptr) {
-        int argValue = 0;
-        // Si es un nodo CallParamList
-        if (Ast::CallParamList* cpList = dynamic_cast<Ast::CallParamList*>(currentParam)) {
-            if (Ast::Identifier* id = dynamic_cast<Ast::Identifier*>(cpList->expression)) {
-                std::cout << "Identificador: " << id->name << std::endl;
-                if (arrayvarTable.find(id->name) != arrayvarTable.end()) {
-                    arrayArgs.push_back(id->name);
-                    scalarArgs.push_back(-1); // Marcador para array
-                } else {
-                    argValue = eval(cpList->expression, vars, methodTable, args, arrayvarTable);
-                    scalarArgs.push_back(argValue);
-                    arrayArgs.push_back("");
-                }
-            } else {
-                argValue = eval(cpList->expression, vars, methodTable, args, arrayvarTable);
-                scalarArgs.push_back(argValue);
-                arrayArgs.push_back("");
-            }
-            currentParam = cpList->call_param_rest;
-        }
-        // Si es un nodo CallParamRest (estructura alternativa)
-        else if (Ast::CallParamRest* cpRest = dynamic_cast<Ast::CallParamRest*>(currentParam)) {
-            if (Ast::Identifier* id = dynamic_cast<Ast::Identifier*>(cpRest->expression)) {
-                if (arrayvarTable.find(id->name) != arrayvarTable.end()) {
-                    arrayArgs.push_back(id->name);
-                    scalarArgs.push_back(-1);
-                } else {
-                    argValue = eval(cpRest->expression, vars, methodTable, args, arrayvarTable);
-                    scalarArgs.push_back(argValue);
-                    arrayArgs.push_back("");
-                }
-            } else {
-                argValue = eval(cpRest->expression, vars, methodTable, args, arrayvarTable);
-                scalarArgs.push_back(argValue);
-                arrayArgs.push_back("");
-            }
-            currentParam = cpRest->call_param_rest;
-        } else {
-            break;
-        }
-    }
-
-
-
-    // 2. Buscar el método en la tabla de métodos
-    auto methodIt = methodTable.find(node->identifier);
-    if (methodIt == methodTable.end()) {
-        throw std::runtime_error("Método no encontrado: " + node->identifier);
-    }
-    Ast::MethodDecl_Body* methodBody = static_cast<Ast::MethodDecl_Body*>(methodIt->second);
-
-    // 3. Contar parámetros formales (integrado sin función externa)
-    size_t totalParams = 0;  //Lista de parametros en la declaracion de la funcion
-    Ast::Node* paramNode = methodBody->opt_param_decl_list;
-    while (paramNode != nullptr) {
-        if (Ast::OptParamDeclList* optParams = dynamic_cast<Ast::OptParamDeclList*>(paramNode)) {
-            if (optParams->first_param) {
-                // Si first_param es un ParamDecl, contamos 1
-                if (dynamic_cast<Ast::ParamDecl*>(optParams->first_param) != nullptr) {
-                    totalParams++;
-                }
-                // Si es un ParamList, iteramos por la cadena
-                else if (Ast::ParamList* paramList = dynamic_cast<Ast::ParamList*>(optParams->first_param)) {
-                    while (paramList != nullptr) {
-                        if (paramList->first_param)
-                            totalParams++;
-                        paramList = dynamic_cast<Ast::ParamList*>(paramList->rest_params);
-                    }
-                }
-            }
-            paramNode = optParams->rest_params;
-        }
-        else if (Ast::ParamList* paramList = dynamic_cast<Ast::ParamList*>(paramNode)) {
-            while (paramList != nullptr) {
-                if (paramList->first_param)
-                    totalParams++;
-                paramList = dynamic_cast<Ast::ParamList*>(paramList->rest_params);
-            }
-            break;
-        } else {
-            break;
-        }
-    }
-
-    if (totalParams != scalarArgs.size()) {
-        throw std::runtime_error("Error en " + node->identifier +
-            ": Parámetros esperados = " + std::to_string(totalParams) +
-            ", Argumentos recibidos = " + std::to_string(scalarArgs.size()));
-    }
-
-    // 4. Configurar el contexto local para el método y vincular los parámetros
-    symbol_table newVars;
-    ArrayVariables_Table newArrays;
-
-    //Agregar vars dentro de newVars
-
-    for (auto& var : vars) {
-        newVars[var.first] = var.second;
-    }
-
-    //Agregar arrays dentro de newArrays
-    for (auto& array : arrayvarTable) {
-        newArrays[array.first] = array.second;
-    }
-
-
-    paramNode = methodBody->opt_param_decl_list;
-    size_t scalarIndex = 0;
-    size_t arrayIndex = 0;
-    while (paramNode != nullptr) {
-        if (Ast::OptParamDeclList* optParams = dynamic_cast<Ast::OptParamDeclList*>(paramNode)) {
-            // Si first_param es un ParamDecl
-            if (Ast::ParamDecl* paramDecl = dynamic_cast<Ast::ParamDecl*>(optParams->first_param)) {
-                Ast::Type* paramType = dynamic_cast<Ast::Type*>(paramDecl->type);
-                if (paramType && paramType->array_optional) {
-                    if (arrayIndex < arrayArgs.size()) {
-                        newArrays[paramDecl->identifier] = arrayvarTable[arrayArgs[arrayIndex]];
-                        std::cout << "Array vinculado: " << paramDecl->identifier 
-                                  << " -> " << arrayArgs[arrayIndex] << std::endl;
-                        arrayIndex++;
-                    }
-                } else {
-                    if (scalarIndex < scalarArgs.size()) {
-                        newVars[paramDecl->identifier] = scalarArgs[scalarIndex];
-                        std::cout << "Parámetro escalar: " << paramDecl->identifier 
-                                  << " = " << scalarArgs[scalarIndex] << std::endl;
-                        scalarIndex++;
-                    }
-                }
-            }
-            // Si first_param es un ParamList, iteramos sobre ella
-            else if (Ast::ParamList* paramList = dynamic_cast<Ast::ParamList*>(optParams->first_param)) {
-                while (paramList != nullptr) {
-                    if (Ast::ParamDecl* paramDecl = dynamic_cast<Ast::ParamDecl*>(paramList->first_param)) {
-                        Ast::Type* paramType = dynamic_cast<Ast::Type*>(paramDecl->type);
-                        if (paramType && paramType->array_optional) {
-                            if (arrayIndex < arrayArgs.size()) {
-                                newArrays[paramDecl->identifier] = arrayvarTable[arrayArgs[arrayIndex]];
-                                std::cout << "Array vinculado: " << paramDecl->identifier 
-                                          << " -> " << arrayArgs[arrayIndex] << std::endl;
-                                arrayIndex++;
-                            }
-                        } else {
-                            if (scalarIndex < scalarArgs.size()) {
-                                newVars[paramDecl->identifier] = scalarArgs[scalarIndex];
-                                std::cout << "Parámetro escalar: " << paramDecl->identifier 
-                                          << " = " << scalarArgs[scalarIndex] << std::endl;
-                                scalarIndex++;
-                            }
-                        }
-                    }
-                    paramList = dynamic_cast<Ast::ParamList*>(paramList->rest_params);
-                }
-            }
-            paramNode = optParams->rest_params;
-        }
-        else if (Ast::ParamList* paramList = dynamic_cast<Ast::ParamList*>(paramNode)) {
-            while (paramList != nullptr) {
-                if (Ast::ParamDecl* paramDecl = dynamic_cast<Ast::ParamDecl*>(paramList->first_param)) {
-                    Ast::Type* paramType = dynamic_cast<Ast::Type*>(paramDecl->type);
-                    if (paramType && paramType->array_optional) {
-                        if (arrayIndex < arrayArgs.size()) {
-                            newArrays[paramDecl->identifier] = arrayvarTable[arrayArgs[arrayIndex]];
-                            std::cout << "Array vinculado: " << paramDecl->identifier 
-                                      << " -> " << arrayArgs[arrayIndex] << std::endl;
-                            arrayIndex++;
-                        }
-                    } else {
-                        if (scalarIndex < scalarArgs.size()) {
-                            newVars[paramDecl->identifier] = scalarArgs[scalarIndex];
-                            std::cout << "Parámetro escalar: " << paramDecl->identifier 
-                                      << " = " << scalarArgs[scalarIndex] << std::endl;
-                            scalarIndex++;
-                        }
-                    }
-                }
-                paramList = dynamic_cast<Ast::ParamList*>(paramList->rest_params);
-            }
-            break;
-        } else {
-            break;
-        }
-    }
-
-
-    // 4.1. Evaluar las declaraciones de variables locales del método
-    if (methodBody->variable_decls) {
-        eval(methodBody->variable_decls, newVars, methodTable, args, newArrays);
-    }
-
-    // 5. Ejecutar el método en el nuevo contexto
-    std::vector<int> dummyArgs;
-    int result = 0;
-
-   
-
-    try {
-        result = eval(methodBody->stmt_list, newVars, methodTable, dummyArgs, newArrays);
-    } catch (const ReturnException& retEx) {
-        result = retEx.value;
-    }
-    
-    std::cout << "Método " << node->identifier << " retornó: " << result << std::endl;
-    return result;
-}
-
-
-
-
-
-
-
-eval(PrintStmt) {
-     std::cout << "[AST] - PrintStmt" << std::endl;
-     if (node->print_param) {
-        eval(node->print_param, vars, methodTable, args, arrayvarTable);
-    } 
-    return 0;
-}
-
-eval(PrintParam) {
-   
-     std::cout << "[AST] - PrintParam" << std::endl;
-    if (node->expression) {
-       
-        std::cout << eval(node->expression, vars, methodTable, args, arrayvarTable)  << std::endl;
-    } else {
-        std::cout << node->string_literal << std::endl;
-    }
-    return 0;
-}
-
-eval(ReadStmt) {
-     std::cout << "[AST] - ReadStmt" << std::endl;
-     int value;
-    std::cin >> value;
-    vars[node->identifier] = value;
-    return 0;
-      
-}
-
-eval(ArrayAccess) {
-    std::cout << "[AST] - ArrayAccess" << std::endl;
-    // Evaluar la expresión del índice correctamente
-    return eval(node->expression, vars, methodTable, args, arrayvarTable); 
-}
-
-eval(ElseOptional) {
-    std::cout << "[AST] - ElseOptional" << std::endl;
-    if (node->block) {
-        return eval(node->block, vars, methodTable, args, arrayvarTable); // Retornar valor del bloque "else"
-    }
-    return 0;
-}
-
-
-eval(Block) {
-    std::cout << "[AST] - Block" << std::endl;
-    return eval(node->stmt_list, vars, methodTable, args, arrayvarTable); // Retornar resultado del cuerpo del bloque
-}
-eval(CallParamList) {
-    args.push_back(eval(node->expression, vars, methodTable, args, arrayvarTable)); // args es una referencia
-    if (node->call_param_rest) {
-        eval(node->call_param_rest, vars, methodTable, args, arrayvarTable);
-    }
-    return 0;
-}
-eval(CallParamRest) {
-    args.push_back(eval(node->expression, vars, methodTable, args, arrayvarTable));
-    if (node->call_param_rest) {
-        eval(node->call_param_rest, vars, methodTable, args, arrayvarTable);
-    }
-    return 0;
-}
-
-
-
-
-
-
-
-
-
-eval(EqualBoolean){
-     std::cout << "[AST] - EqualBoolean" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) == eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-eval(NEqualBoolean){
-     std::cout << "[AST] - NEqualBoolean" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) != eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-eval(Less_ThanBoolean){
-     std::cout << "[AST] - Less_ThanBoolean" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) < eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-eval(Greater_ThanBoolean){
-    int left_val = eval(node->left, vars, methodTable, args, arrayvarTable);
-    int right_val = eval(node->right, vars, methodTable, args, arrayvarTable);
-    std::cout << "Greater_ThanBoolean: " << left_val << " > " << right_val << std::endl; // Debug
-    return left_val > right_val ? 1 : 0;
-}
-eval(LessEqualBoolean){
-     std::cout << "[AST] - LessEqualBoolean" << std::endl;
-
-    int res = eval(node->left, vars, methodTable, args, arrayvarTable) <= eval(node->right, vars, methodTable, args, arrayvarTable);
-    std::cout << res << std::endl;
-    return res;
-}
-
-eval(GreaterEqualBoolean){
-     std::cout << "[AST] - GreaterEqualBoolean" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) >= eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-eval(OrBoolean ){
-     std::cout << "[AST] - OrBoolean" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) || eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-eval(AndBoolean){
-     std::cout << "[AST] - AndBoolean" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) && eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-eval(UnaryNotBoolean){
-     std::cout << "[AST] - UnaryNotBoolean" << std::endl;
-    return !eval(node->expr, vars, methodTable, args, arrayvarTable);
-}
-
-
-eval(SumExpr){
-     std::cout << "[AST] - SumExpr" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) + eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-eval(SubExpr){
-     std::cout << "[AST] - SubExpr" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) - eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-eval(MulExpr){
-     std::cout << "[AST] - MulExpr" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) * eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-
-eval(DivExpr){
-     std::cout << "[AST] - DivExpr" << std::endl;
-    auto right = eval(node->right, vars, methodTable, args, arrayvarTable);
-    if (right == 0) {
-        throw std::runtime_error("División por cero");
-    }
-    return eval(node->left, vars, methodTable, args, arrayvarTable) / right;
-}
-
-eval(ModExpr){
-     std::cout << "[AST] - ModExpr" << std::endl;
-    return eval(node->left, vars, methodTable, args, arrayvarTable) % eval(node->right, vars, methodTable, args, arrayvarTable);
-}
-
-eval(UnaryAddExpr){
-     std::cout << "[AST] - UnaryAddExpr" << std::endl;
-    return eval(node->expr, vars, methodTable, args, arrayvarTable);
-    }
-
-eval(UnarySubExpr){ std::cout << "[AST] - UnarySubExpr" << std::endl;
-
-    return -eval(node->expr, vars, methodTable, args, arrayvarTable);
-}
-
-eval(Number){
-     std::cout << "[AST] - Number" << std::endl;
-    return node->value;
-}
-
-
-eval(Identifier) {
-    std::cout << "[AST] - Identifier" << std::endl;
-
-    // Buscar en variables escalares
-    auto varIt = vars.find(node->name);
-    if (varIt != vars.end()) {
-        return varIt->second;
-    }
-    
-    // Si es un array, permitir su uso como argumento (no lanzar error)
-    if (arrayvarTable.find(node->name) != arrayvarTable.end()) {
-        return 0; // Valor dummy, el manejo real está en CallStmt
-    }
-    
-    throw std::runtime_error("Variable no definida: " + node->name);
-}
-
-eval(ArrayVariable) {
-    std::cout << "[AST] - ArrayVariable" << std::endl;
-    int index = eval(node->indexExpr, vars, methodTable, args, arrayvarTable);
-    
-    auto it = arrayvarTable.find(node->name);
-    if (it == arrayvarTable.end()) {
-        throw std::runtime_error("Array '" + node->name + "' no declarado");
-    }
-    
-    auto& array = *it->second;
-    if (index < 0 || index >= array.size()) {
-        throw std::runtime_error("Índice fuera de rango");
-    }
-    
-    // Verificar si el valor está inicializado
-    if (!array[index].has_value()) {
-        throw std::runtime_error("Elemento no inicializado en posición " + std::to_string(index));
-    }
-    
-    std::cout << "Leyendo arreglo en posición " << index << ": " << array[index].value() << std::endl;
-    std::cout << "Valor en Array: " << array[index].value() << std::endl;
-
-    return array[index].value(); // Extraer el valor int
-}
-
-
-
-
-%operation CodegenResult exprCompile(Node* root, symbol_table& vars) = {CodegenResult{} }
+%operation CodegenResult exprCompile(Node* root, symbol_table& vars, Method_Table& methodTable, arguments& args, ArrayVariables_Table& arrayvarTable, string_t actualmethodName, Texts_Table& textsTable) = {CodegenResult{} }
 
 
 
@@ -1273,55 +656,101 @@ exprCompile(Program) {
     // Node *variable_decls;
     // Node *method_decls;
 
-    CodegenResult r1 = exprCompile(root->variable_decls, vars);
-
     std::ostringstream os;
-    os << "Program("
+    os << "\n\ndeclare i32 @printf(i8*, ...)\n";
+    os << "declare i32 @exit(i32)\n";
+    // os << "define i32 @main() {\n";
+       
+    if(root->varmethod_decls) {
+         CodegenResult r2 = exprCompile(root->varmethod_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+           os << r2.code;
+    }
+
+        
+   
+
+    if(root->method_decls) {
+        CodegenResult r2 = exprCompile(root->method_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        os << r2.code;
+    }
  
 
-       << root->class_name
-       << r1.code;
-       
-       if(root->variable_decls) {
-           CodegenResult r2 = exprCompile(root->variable_decls, vars);
-           os << r2.code;
-       }
+    os << "@.fmt = private constant [4 x i8] c\"%d\\0A\\00\", align 1\n";
 
-        if(root->method_decls) {
-           CodegenResult r2 = exprCompile(root->method_decls, vars);
-           os << r2.code;
-       }
-  
-    os  << ")";
+    for (const auto& [lit, var] : textsTable) {
+        int size = lit.size() + 1;
+        os << var << " = private constant [" << size << " x i8] c\"" << lit << "\\00\", align 1\n";
+    }
 
-
-
-
-    
-
-
-for(const auto& [lit, tag] : texts){
-    int size = lit.size();
-
-       os << "@" << tag << " = private constant [" << size << " x i8] c\"" << lit << "\\00\", align 1\n";
+    return { os.str(), "" };
 }
 
 
+exprCompile(VarMethodDeclList){
+    // Node *first_decl;   variables 
+    // Node *rest_decls;   metodos
+    std::ostringstream os;
 
+    // Variables
+    Ast::MethodDeclList* Method_DLIST = dynamic_cast<Ast::MethodDeclList*>(root->first_decl);
+
+    if(Method_DLIST){
+        // os << "ES METOODO";
+        // os << "ret i32 0\n";
+        // os << "}\n\n";
+
+        for (const auto& [var, variable] : vars) {
+            if (variable.methodIdentifier == actualmethodName) {
+                if(variable.methodIdentifier.empty()){ // son globales
+                    os << "    @" << var << " = global i32, align 4\n";
+                    // @x = global i32 0 
+                }else{
+                    os << "    %" << var << " = alloca i32, align 4\n";
+                }
+               
+            }
+        }
+
+        for (const auto& [arrVarIdent, arrayVariable] : arrayvarTable) {
+            if (arrayVariable.methodIdentifier == actualmethodName) {
+                if(arrayVariable.methodIdentifier.empty()){ // son globales
+                    os << "    @" << arrVarIdent << " = global ["<< arrayVariable.values.size() <<" x i32] zeroinitializer\n";
+                 
+                    // @global_array = global [10 x i32] zeroinitializer
+                }else{
+                    os << "    %" << arrVarIdent << " = alloca i32, align 4\n";
+                       // %array = alloca [10 x i32], align 4 
+                }
+               
+            }
+        }
+
+    }
+    // os << "ITERACION " << "\n";
+
+    os << exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    if(root->rest_decls){
+    os << exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    }
 
     return {os.str(), ""};
 }
+
 
 exprCompile(VariableDeclList) {
     // Node *first_decl;
     // Node *rest_decls;
     std::ostringstream os;
-    os << "VariableDeclList(";
-    // if(root->first_decl)
-        // os << "exprCompile(root->first_decl, vars).code";
-    // if(root->rest_decls)
-    //     os << "exprCompile(root->rest_decls, vars).code";
-    os << ")";
+
+    if (root->first_decl) {
+        CodegenResult r = exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        os << r.code;
+    }
+    if (root->rest_decls) {
+        CodegenResult r = exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        os << r.code;
+    }
+
     return {os.str(), ""};
 }
 
@@ -1330,21 +759,33 @@ exprCompile(VariableDecl) {
     // string_t identifier;
     // Node *variableDecl_Body;
     std::ostringstream os;
-    os << "VariableDecl("
-       << exprCompile(root->type, vars).code
-       << root->identifier
-       << exprCompile(root->variableDecl_Body, vars).code
-       << ")";
+
+    Ast::Type* arrayAccessNode = dynamic_cast<Ast::Type*>(root->type);
+    if (arrayAccessNode && arrayAccessNode->array_optional) {
+       
+        CodegenResult r = exprCompile( arrayAccessNode->array_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        arrayvarTable[root->identifier] = {actualmethodName, std::vector<std::optional<int>> (std::stoi(r.code), std::nullopt), nullptr}; 
+    
+    } else {
+        vars[root->identifier] = {actualmethodName, std::nullopt, nullptr}; 
+
+    }
+    if (root->variableDecl_Body) {
+        exprCompile(root->variableDecl_Body, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    }
+
+ 
+    
+
     return {os.str(), ""};
 }
 
 exprCompile(VariableDecl_Body) {
     // Node *ident_list;
     std::ostringstream os;
-    os << "VariableDecl_Body(";
-    if(root->ident_list)
-        os << exprCompile(root->ident_list, vars).code;
-    os << ")";
+    if(root->ident_list) {
+        os << exprCompile(root->ident_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    }
     return {os.str(), ""};
 }
 
@@ -1352,10 +793,10 @@ exprCompile(IdentList) {
     // string_t identifier;
     // Node *IdentListParam;
     std::ostringstream os;
-    os << "IdentList(" << root->identifier;
-    if(root->IdentListParam)
-        os << exprCompile(root->IdentListParam, vars).code;
-    os << ")";
+    vars[root->identifier] ={"", std::nullopt, nullptr}; 
+
+    if(root->IdentListParam) exprCompile(root->IdentListParam, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    os << "";
     return {os.str(), ""};
 }
 
@@ -1363,17 +804,28 @@ exprCompile(Type) {
     // string_t type_name;
     // Node *array_optional;
     std::ostringstream os;
-    os << "Type(" << root->type_name;
-    if(root->array_optional)
-        os << exprCompile(root->array_optional, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    // os << "Type(" << root->type_name;
+
+    CodegenResult r;
+    r.place = "";
+    // os << root->type_name;
+    if(root->array_optional){
+        // os << exprCompile(root->array_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        r.place = "";
+    }
+    if(root->type_name == "INT"){
+       r.code = " i32";
+    }
+
+    
+        // os << ")";
+    return r;
 }
 
 exprCompile(ArrayOptional) {
     // int size;
     std::ostringstream os;
-    os << "ArrayOptional(" << root->size << ")";
+    os << std::to_string(root->size);
     return {os.str(), ""};
 }
 
@@ -1381,12 +833,12 @@ exprCompile(MethodDeclList) {
     // Node *first_decl;
     // Node *rest_decls;
     std::ostringstream os;
-    os << "MethodDeclList(";
+ 
     if(root->first_decl)
-        os << exprCompile(root->first_decl, vars).code;
+        os << exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->rest_decls)
-        os << exprCompile(root->rest_decls, vars).code;
-    os << ")";
+        os << exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+  
     return {os.str(), ""};
 }
 
@@ -1395,11 +847,35 @@ exprCompile(MethodDecl) {
     // string_t identifier;
     // Node *MethodDecl_Body;
     std::ostringstream os;
-    os << "MethodDecl("
-       << exprCompile(root->method_type, vars).code
-       << root->identifier
-       << exprCompile(root->MethodDecl_Body, vars).code
-       << ")";
+
+
+    CodegenResult r = exprCompile(root->method_type, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    // os << "define "
+    os << "define ";
+     os  << r.code;
+    //    << root->identifier
+    os << "@" << root->identifier;
+     os  << exprCompile(root->MethodDecl_Body, vars, methodTable, args, arrayvarTable, root->identifier, textsTable).code;
+    //    << ")";
+
+    auto it = methodTable.find( root->identifier);
+    if (it == methodTable.end() && root->identifier != "main"){
+        // FIX: POSIBLE ERROR CON MAIn
+        throw std::runtime_error("Error: Method '" + root->identifier + "' not declared.");
+    }else{
+        if(root->identifier != "main"){
+        it->second.Type = r.code;
+    }
+    }
+   
+    if(r.code == "i32 "){
+       
+    }else{
+        os << "ret void" << "\n";
+    }
+
+    os << "}" << "\n\n";
+       
     return {os.str(), ""};
 }
 
@@ -1408,21 +884,57 @@ exprCompile(MethodDecl_Body) {
     // Node *variable_decls;
     // Node *stmt_list;
     std::ostringstream os;
-    os << "MethodDecl_Body(";
-    if(root->opt_param_decl_list)
-        os << exprCompile(root->opt_param_decl_list, vars).code;
-    if(root->variable_decls)
-        os << exprCompile(root->variable_decls, vars).code;
-    if(root->stmt_list)
-        os << exprCompile(root->stmt_list, vars).code;
+    os << "(";
+    if(root->opt_param_decl_list){
+         os << exprCompile(root->opt_param_decl_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    }
     os << ")";
+    os << "{" << "\n";
+    if(root->variable_decls){
+        os << exprCompile(root->variable_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        for (const auto& [var, variable] : vars) {
+            if (variable.methodIdentifier == actualmethodName && !variable.isArgument) {
+                if(variable.methodIdentifier.empty()){ // son globales
+                    os << "    @" << var << " = global i32, align 4\n";
+                    // @x = global i32 0 
+                }else{
+                    os << "    %" << var << " = alloca i32, align 4\n";
+                }
+               
+            }
+        }
+        for (const auto& [arrVarIdent, arrayVariable] : arrayvarTable) {
+            if (arrayVariable.methodIdentifier == actualmethodName && !arrayVariable.isArgument) {
+                if(arrayVariable.methodIdentifier.empty()){ // son globales
+                    os << "    @" << arrVarIdent << " = global ["<< arrayVariable.values.size() <<" x i32] zeroinitializer\n";
+                 
+                    // @global_array = global [10 x i32] zeroinitializer
+                }else{
+                    os << "    %" << arrVarIdent << " = alloca ["<< arrayVariable.values.size() <<" x i32], align 4\n";
+                       // %array = alloca [10 x i32], align 4 
+                }
+               
+            }
+        }
+    }
+    if(root->stmt_list)
+        os << exprCompile(root->stmt_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    // os << ")";
+
     return {os.str(), ""};
 }
 
 exprCompile(MethodType) {
     // string_t type;
     std::ostringstream os;
-    os << "MethodType(" << root->type << ")";
+    // os << "MethodType(" << root->type << ")";
+
+    if(root->type == "INT" ){
+        os << "i32 ";
+    }else if(root->type == "VOID"){
+        os << "void ";
+    }
+
     return {os.str(), ""};
 }
 
@@ -1430,25 +942,14 @@ exprCompile(OptParamDeclList) {
     // Node *first_param;
     // Node *rest_params;
     std::ostringstream os;
-    os << "OptParamDeclList(";
-    if(root->first_param)
-        os << exprCompile(root->first_param, vars).code;
-    if(root->rest_params)
-        os << exprCompile(root->rest_params, vars).code;
-    os << ")";
-    return {os.str(), ""};
-}
-
-exprCompile(ParamList) {
-    // Node *first_param;
-    // Node *rest_params;
-    std::ostringstream os;
-    os << "ParamList(";
-    if(root->first_param)
-        os << exprCompile(root->first_param, vars).code;
-    if(root->rest_params)
-        os << exprCompile(root->rest_params, vars).code;
-    os << ")";
+    // os << "OptParamDeclList(";
+    if(root->first_param){
+        os << exprCompile(root->first_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    }
+    if(root->rest_params){
+        os << exprCompile(root->rest_params, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    }
+        // os << ")";
     return {os.str(), ""};
 }
 
@@ -1457,37 +958,126 @@ exprCompile(ParamDecl) {
     // Node *type;
     // string_t identifier;
     std::ostringstream os;
-    os << "ParamDecl(";
-    if(root->ref_optional)
-        os << exprCompile(root->ref_optional, vars).code;
-    os << exprCompile(root->type, vars).code
-       << root->identifier
-       << ")";
+
+    
+    CodegenResult r2 = exprCompile(root->type, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r1;
+    r1.code == "";
+    
+    if(root->ref_optional){
+    r1 = exprCompile(root->ref_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+  
+    if((r1.code == "true")){
+        os <<  "* ";
+    }
+    }else{
+        os <<  " ";
+    }
+    os << root->identifier;
+
+    // Desconocemos el tamano
+    if (  r2.place != "") {
+       
+        // FIX: DESCONOCEMOS EL TAMANHO DEL ARREGLO
+        arrayvarTable[root->identifier] = {actualmethodName, std::vector<std::optional<int>> (1, std::nullopt), nullptr, true}; 
+        methodTable[actualmethodName].params.push_back("ARRAY");
+    } else {
+        vars[root->identifier] = {actualmethodName, std::nullopt, nullptr, true}; 
+        if((r1.code == "true")){
+            methodTable[actualmethodName].params.push_back("REF");
+        }else{
+            methodTable[actualmethodName].params.push_back("VAR");
+        }
+        
+    }
+
+
+
+    
     return {os.str(), ""};
 }
+
+exprCompile(ParamList) {
+    // Node *first_param;
+    // Node *rest_params;
+    std::ostringstream os;
+    // os << "ParamList(";
+    os << ", ";
+    if(root->first_param)
+        os << exprCompile(root->first_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+   
+    if(root->rest_params)
+        os << exprCompile(root->rest_params, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    // os << ")";
+    return {os.str(), ""};
+}
+
+
 
 exprCompile(AssignStmt) {
     // string_t identifier;
     // Node *array_access;
     // Node *expression;
     std::ostringstream os;
-    os << "AssignStmt(" << root->identifier;
-    if(root->array_access)
-        os << exprCompile(root->array_access, vars).code;
-    if(root->expression)
-        os << exprCompile(root->expression, vars).code;
-    os << ")";
+    // os << "AssignStmt(" << root->identifier;
+        if(root->array_access){
+           
+            auto it = arrayvarTable.find( root->identifier);
+                if (it == arrayvarTable.end()){
+                    throw std::runtime_error("Error: Array '" + root->identifier + "' not declared.");
+                }else{
+                    CodegenResult r;
+                    //Valor a Ingresar
+                    CodegenResult r2 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+                    os << r2.code << "\n";
+
+                    // Indice de Arreglo
+                    CodegenResult r1 = exprCompile(root->array_access, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+                    os << r1.code << "\n";
+                    r.place = newVariable();
+
+                    os << "%"<< r.place <<" = getelementptr ["<< it->second.values.size()<<" x i32], ["<< it->second.values.size()<<" x i32]* %"<< root->identifier <<", i32 0, i32 %"<< r1.place << "\n";
+                    os << "store i32 %"<< r2.place << ", i32* %"<< r.place << ", align 4" << "\n";
+
+                }
+               
+
+            // ; Obtener dirección de la posición 2 del array global
+            // %idx = getelementptr [5 x i32], [5 x i32]* @global_array, i32 0, i32 2
+
+            // ; Almacenar el valor 42 en la posición 2
+            // store i32 42, i32* %idx
+        }
+    
+    
+        if(root->expression){
+            CodegenResult r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+            os << r.code << "\n";
+
+            auto it = vars.find( root->identifier);
+            if (it != vars.end()) it->second.value = 1; //Solucion Posible para determinar que tiene un valor
+            os << "store " << "i32 %" << r.place << ", i32* %" << root->identifier << "\n";
+           
+            
+        }
+  
+    
+        // os << ")";
     return {os.str(), ""};
 }
 
 exprCompile(ReturnStmt) {
     // Node *expression;
     std::ostringstream os;
-    os << "ReturnStmt(";
-    if(root->expression)
-        os << exprCompile(root->expression, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    
+    CodegenResult r;
+    if(root->expression){
+        r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        os << r.code << "\n";
+        os << "ret i32 %" << r.place << "\n";
+        r.code = os.str();
+    }
+    return r;
 }
 
 exprCompile(IfStmt) {
@@ -1497,11 +1087,11 @@ exprCompile(IfStmt) {
     std::ostringstream os;
     os << "IfStmt(";
     if(root->expression)
-        os << exprCompile(root->expression, vars).code;
+        os << exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->block)
-        os << exprCompile(root->block, vars).code;
+        os << exprCompile(root->block, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->else_optional)
-        os << exprCompile(root->else_optional, vars).code;
+        os << exprCompile(root->else_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1512,9 +1102,9 @@ exprCompile(WhileStmt) {
     std::ostringstream os;
     os << "WhileStmt(";
     if(root->expression)
-        os << exprCompile(root->expression, vars).code;
+        os << exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->block)
-        os << exprCompile(root->block, vars).code;
+        os << exprCompile(root->block, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1522,7 +1112,7 @@ exprCompile(WhileStmt) {
 exprCompile(RefOptional) {
     // bool is_ref;
     std::ostringstream os;
-    os << "RefOptional(" << (root->is_ref ? "true" : "false") << ")";
+    os << (root->is_ref ? "true" : "false");
     return {os.str(), ""};
 }
 
@@ -1530,12 +1120,12 @@ exprCompile(StmtList) {
     // Node *first_stmt;
     // Node *rest_stmts;
     std::ostringstream os;
-    os << "StmtList(";
+
     if(root->first_stmt)
-        os << exprCompile(root->first_stmt, vars).code;
+        os << exprCompile(root->first_stmt, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->rest_stmts)
-        os << exprCompile(root->rest_stmts, vars).code;
-    os << ")";
+        os << exprCompile(root->rest_stmts, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+
     return {os.str(), ""};
 }
 
@@ -1543,33 +1133,92 @@ exprCompile(CallStmt) {
     // string_t identifier;
     // Node *call_param_list;
     std::ostringstream os;
-    os << "CallStmt(" << root->identifier;
-    if(root->call_param_list)
-        os << exprCompile(root->call_param_list, vars).code;
-    os << ")";
+
+    // auto it = methodTable.find(root->identifier);
+
+    // if(it = methodTable.end()){
+    //     // FIX: IMPLEMENTAR ERRORES NO HAY METODO CON ESE NONBRE
+    // }
+    // call void @minimum(i32* %array, i32 10, i32* %pos, i32* %min)
+
+    // "call i32 @Metodo2()"
+    CodegenResult r; 
+
+    if(root->call_param_list){
+        r = exprCompile(root->call_param_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+ 
+    }
+
+    // methodTable[actualmethodName].Type
+
+    auto it = methodTable.find(root->identifier);
+
+    if(it == methodTable.end()){
+        // FIX: IMPLEMENTAR ERRORES NO HAY METODO CON ESE NONBRE
+    }
+
+    os << r.code;
+    os << "call "<< it->second.Type << "@" << root->identifier <<"(";
+    // os << TIPO;
+
+    os << r.place;
+    os << ")" << "\n";
+   
     return {os.str(), ""};
 }
 
 exprCompile(PrintStmt) {
     // Node *print_param;
     std::ostringstream os;
-    os << "PrintStmt(";
-    if(root->print_param)
-        os << exprCompile(root->print_param, vars).code;
-    os << ")";
+    if(root->print_param){
+ 
+        // os << exprCompile(root->print_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        CodegenResult r = exprCompile(root->print_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        os << r.code << "\n";
+    }
     return {os.str(), ""};
 }
+
+// call i32(i8*, ...) @printf(i8* @.fmt, i32 %minVal)
 
 exprCompile(PrintParam) {
     // Node *expression;
     // string_t string_literal;
     std::ostringstream os;
-    os << "PrintParam(";
-    if(root->expression)
-        os << exprCompile(root->expression, vars).code;
-    os << root->string_literal
-       << ")";
-    return {os.str(), ""};
+
+    CodegenResult r;
+
+    if(root->expression){ //es expresion
+        CodegenResult r1 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        os << r1.code << "\n";
+        os << "call i32(i8*, ...) @printf(i8* @.fmt, i32 %"<< r1.place <<")";
+
+
+
+    }else{ //Es un literal
+
+        auto it = textsTable.find(root->string_literal);
+
+        if(it == textsTable.end()){
+
+            std::string tagt = newFmts();
+
+            textsTable.insert({root->string_literal, tagt});
+
+
+            os << "call i32(i8*, ...) @printf(i8* "<< tagt <<")";
+
+            // "call i32(i8*, ...) @printf(i8* @.fmt)"
+        }else{
+            // it.second
+            //FIX: FALTA IMPLEMENTAR
+        }
+
+   
+    }
+
+    r.code = os.str();
+    return r;
 
 
 
@@ -1598,11 +1247,12 @@ exprCompile(ReadStmt) {
 exprCompile(ArrayAccess) {
     // Node *expression;
     std::ostringstream os;
-    os << "ArrayAccess(";
-    if(root->expression)
-        os << exprCompile(root->expression, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    
+    CodegenResult r;
+    if(root->expression){
+        r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    }
+    return r;
 }
 
 exprCompile(ElseOptional) {
@@ -1610,7 +1260,7 @@ exprCompile(ElseOptional) {
     std::ostringstream os;
     os << "ElseOptional(";
     if(root->block)
-        os << exprCompile(root->block, vars).code;
+        os << exprCompile(root->block, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1620,7 +1270,7 @@ exprCompile(Block) {
     std::ostringstream os;
     os << "Block(";
     if(root->stmt_list)
-        os << exprCompile(root->stmt_list, vars).code;
+        os << exprCompile(root->stmt_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1629,26 +1279,50 @@ exprCompile(CallParamList) {
     // Node *expression;
     // Node *call_param_rest;
     std::ostringstream os;
-    os << "CallParamList(";
-    if(root->expression)
-        os << exprCompile(root->expression, vars).code;
-    if(root->call_param_rest)
-        os << exprCompile(root->call_param_rest, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    CodegenResult r;
+    // os << "CallParamList(";
+    r.place = "";
+    r.code = "";
+    if(root->expression){
+        CodegenResult r1 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        r.code += r1.code;
+        r.place += "%" + r1.place;
+    }
+     
+    if(root->call_param_rest){
+       
+        CodegenResult r2 = exprCompile(root->call_param_rest, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        r.code += r2.code;
+        r.place += r2.place;
+    }
+        // os << ")";
+
+   
+
+
+    return r;
 }
 
 exprCompile(CallParamRest) {
     // Node *expression;
     // Node *call_param_rest;
     std::ostringstream os;
-    os << "CallParamRest(";
-    if(root->expression)
-        os << exprCompile(root->expression, vars).code;
-    if(root->call_param_rest)
-        os << exprCompile(root->call_param_rest, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    CodegenResult r;
+    // os << "CallParamRest(";
+    r.place += ", ";
+    if(root->expression){
+        CodegenResult r1 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        r.code += r1.code;
+        r.place += "%" + r1.place;
+    }
+    if(root->call_param_rest){
+        CodegenResult r2 = exprCompile(root->call_param_rest, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        r.code += r2.code;
+        r.place += r2.place;
+    }
+      
+    // os << ")";
+    return r;
 }
 
 exprCompile(EqualBoolean) {
@@ -1657,9 +1331,9 @@ exprCompile(EqualBoolean) {
     std::ostringstream os;
     os << "EqualBoolean(";
     if(root->left)
-        os << exprCompile(root->left, vars).code;
+        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->right)
-        os << exprCompile(root->right, vars).code;
+        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1670,9 +1344,9 @@ exprCompile(NEqualBoolean) {
     std::ostringstream os;
     os << "NEqualBoolean(";
     if(root->left)
-        os << exprCompile(root->left, vars).code;
+        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->right)
-        os << exprCompile(root->right, vars).code;
+        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1683,9 +1357,9 @@ exprCompile(Less_ThanBoolean) {
     std::ostringstream os;
     os << "Less_ThanBoolean(";
     if(root->left)
-        os << exprCompile(root->left, vars).code;
+        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->right)
-        os << exprCompile(root->right, vars).code;
+        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1696,9 +1370,9 @@ exprCompile(Greater_ThanBoolean) {
     std::ostringstream os;
     os << "Greater_ThanBoolean(";
     if(root->left)
-        os << exprCompile(root->left, vars).code;
+        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->right)
-        os << exprCompile(root->right, vars).code;
+        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1709,9 +1383,9 @@ exprCompile(LessEqualBoolean) {
     std::ostringstream os;
     os << "LessEqualBoolean(";
     if(root->left)
-        os << exprCompile(root->left, vars).code;
+        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->right)
-        os << exprCompile(root->right, vars).code;
+        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1722,9 +1396,9 @@ exprCompile(GreaterEqualBoolean) {
     std::ostringstream os;
     os << "GreaterEqualBoolean(";
     if(root->left)
-        os << exprCompile(root->left, vars).code;
+        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->right)
-        os << exprCompile(root->right, vars).code;
+        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1735,9 +1409,9 @@ exprCompile(OrBoolean) {
     std::ostringstream os;
     os << "OrBoolean(";
     if(root->left)
-        os << exprCompile(root->left, vars).code;
+        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->right)
-        os << exprCompile(root->right, vars).code;
+        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1748,9 +1422,9 @@ exprCompile(AndBoolean) {
     std::ostringstream os;
     os << "AndBoolean(";
     if(root->left)
-        os << exprCompile(root->left, vars).code;
+        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     if(root->right)
-        os << exprCompile(root->right, vars).code;
+        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1760,7 +1434,7 @@ exprCompile(UnaryNotBoolean) {
     std::ostringstream os;
     os << "UnaryNotBoolean(";
     if(root->expr)
-        os << exprCompile(root->expr, vars).code;
+        os << exprCompile(root->expr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1769,65 +1443,98 @@ exprCompile(SumExpr) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "SumExpr(";
-    if(root->left)
-        os << exprCompile(root->left, vars).code;
-    if(root->right)
-        os << exprCompile(root->right, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r;
+    r.place = newVariable();
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+
+    os << "%" << r.place << " = add i32 %" << r1.place <<", %"<< r2.place;
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(SubExpr) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "SubExpr(";
-    if(root->left)
-        os << exprCompile(root->left, vars).code;
-    if(root->right)
-        os << exprCompile(root->right, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r;
+    r.place = newVariable();
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+
+
+    os << "%" << r.place << " = sub i32 %" << r1.place <<", %"<< r2.place << "\n";
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(MulExpr) {
     // Node *left;
     // Node *right;
-    std::ostringstream os;
-    os << "MulExpr(";
-    if(root->left)
-        os << exprCompile(root->left, vars).code;
-    if(root->right)
-        os << exprCompile(root->right, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    
+     std::ostringstream os;
+    
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r;
+    r.place = newVariable();
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+
+
+    os << "%" << r.place << " = mul i32 %" << r1.place <<", %"<< r2.place << "\n";
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(DivExpr) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "DivExpr(";
-    if(root->left)
-        os << exprCompile(root->left, vars).code;
-    if(root->right)
-        os << exprCompile(root->right, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r;
+    r.place = newVariable();
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+
+
+    os << "%" << r.place << " = div i32 %" << r1.place <<", %"<< r2.place << "\n";
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(ModExpr) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "ModExpr(";
-    if(root->left)
-        os << exprCompile(root->left, vars).code;
-    if(root->right)
-        os << exprCompile(root->right, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r;
+    r.place = newVariable();
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+    os << "%" << r.place << " = mod i32 %" << r1.place <<", %"<< r2.place << "\n";
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(UnaryAddExpr) {
@@ -1835,7 +1542,7 @@ exprCompile(UnaryAddExpr) {
     std::ostringstream os;
     os << "UnaryAddExpr(";
     if(root->expr)
-        os << exprCompile(root->expr, vars).code;
+        os << exprCompile(root->expr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1845,7 +1552,7 @@ exprCompile(UnarySubExpr) {
     std::ostringstream os;
     os << "UnarySubExpr(";
     if(root->expr)
-        os << exprCompile(root->expr, vars).code;
+        os << exprCompile(root->expr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
     os << ")";
     return {os.str(), ""};
 }
@@ -1853,24 +1560,97 @@ exprCompile(UnarySubExpr) {
 exprCompile(Number) {
     // int value;
     std::ostringstream os;
-    os << "Number(" << root->value << ")";
-    return {os.str(), ""};
+    // os << "Number(" << root->value << ")";
+
+    CodegenResult r;
+
+    r.place = newVariable();
+    // r.code = std::to_string(root->value);
+    os << "%" << r.place << " = add i32 " << root->value << ", 0" << "\n";
+    // r.place = std::to_string(root->value);
+    // r.code = "%" + r.place + " = i32 " + std::to_string(root->value);
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(Identifier) {
     // string_t name;
     std::ostringstream os;
-    os << "Identifier(" << root->name << ")";
-    return {os.str(), ""};
+    CodegenResult r; 
+    r.place = newVariable();
+
+    auto it = vars.find(root->name);
+
+    if (it == vars.end()) { 
+        // La variable no existe en la tabla de símbolos
+    
+        throw std::runtime_error("Error: Variable '" + root->name + "' not declared.");
+    } else if (!it->second.methodIdentifier.empty() && it->second.methodIdentifier != actualmethodName) {
+        // Existe pero no pertenece al método actual ni es global
+        throw std::runtime_error("Error: Variable '" + root->name + "' is not accessible in the current scope.");
+    } else {
+        // Existe y es alcanzable
+        
+        if (it->second.value.has_value()) {
+          
+            if( it->second.methodIdentifier.empty()){//es global
+                os << "%" << r.place << " = load i32, i32* @" << root->name << ", align 4";
+            }else{
+                os << "%" << r.place << " = load i32, i32* %" << root->name << ", align 4";
+            }
+           
+        } else {
+            // FIX: ERROR TEMPORALY DISABLED
+            throw std::runtime_error("Error: Variable '" + root->name + "' has no value.");
+        }
+
+
+    }
+
+    // os << "%" << r.place << " = load i32, i32* %" << root->name << ", align 4";
+    // vars.insert({ r.place , variables{"", std::nullopt, nullptr}});
+    
+    r.code = os.str();
+    r.place =  r.place;
+    return r;
 }
 
 exprCompile(ArrayVariable) {
     // string_t name;
-    // Node *indexExpr;
+    // Node *indexExpr;    array access es el expr que me retorna el indice
+    // x[3]
+
+    // %node ArrayAccess Node = {
+    //     Node *expression;
+    // }
+
+//     ; Escribir un valor en el índice 2
+// %idx = getelementptr [10 x i32], [10 x i32]* %array, i32 0, i32 2
+// store i32 5, i32* %idx, align 4       ; Guardar el valor 5 en la posición 2
+
+// ; Leer el valor en el índice 2
+// %val = load i32, i32* %idx, align 4   ; Cargar el valor almacenado en %idx
+
     std::ostringstream os;
-    os << "ArrayVariable(" << root->name;
-    if(root->indexExpr)
-        os << exprCompile(root->indexExpr, vars).code;
-    os << ")";
-    return {os.str(), ""};
+    CodegenResult r;
+
+    auto it = arrayvarTable.find( root->name);
+    if (it == arrayvarTable.end()){
+        throw std::runtime_error("Error: Array '" + root->name + "' not declared.");
+    }else{
+
+    os<< ";ArrayVariable -----------" << "\n"; //COMMENT
+     // Indice de Arreglo
+     CodegenResult r1 = exprCompile(root->indexExpr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+     os << r1.code << "\n";
+     r.place = newVariable();
+     os << "%"<< r.place <<" = getelementptr ["<< it->second.values.size()<<" x i32], ["<< it->second.values.size()<<" x i32]* %"<< root->name <<", i32 0, i32 %"<< r1.place << "\n";
+     std::string index = r.place; 
+     r.place = newVariable();
+     os << "%" << r.place << " = load i32, i32* %" << index << ", align 4";
+     os<< "\n;FIN - ArrayVariable --------" << "\n"; //COMMENT
+     r.code = os.str();
+    }
+
+    return r;
 }

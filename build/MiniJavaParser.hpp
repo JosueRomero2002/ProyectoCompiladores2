@@ -384,6 +384,7 @@ namespace Expr {
     union union_type
     {
       // program
+      // varmethod_decl_list
       // variable_decl_list
       // variable_decl_Body
       // variable_decl
@@ -590,44 +591,45 @@ namespace Expr {
         S_YYACCEPT = 49,                         // $accept
         S_input = 50,                            // input
         S_program = 51,                          // program
-        S_variable_decl_list = 52,               // variable_decl_list
-        S_variable_decl_Body = 53,               // variable_decl_Body
-        S_variable_decl = 54,                    // variable_decl
-        S_array_optional = 55,                   // array_optional
-        S_ident_list = 56,                       // ident_list
-        S_type = 57,                             // type
-        S_method_decl_list = 58,                 // method_decl_list
-        S_method_decl = 59,                      // method_decl
-        S_method_body = 60,                      // method_body
-        S_method_type = 61,                      // method_type
-        S_opt_param_decl_list = 62,              // opt_param_decl_list
-        S_param_list = 63,                       // param_list
-        S_param_decl = 64,                       // param_decl
-        S_ref_optional = 65,                     // ref_optional
-        S_stmt_list = 66,                        // stmt_list
-        S_array_access = 67,                     // array_access
-        S_array_access_opt = 68,                 // array_access_opt
-        S_assign_stmt = 69,                      // assign_stmt
-        S_call_stmt = 70,                        // call_stmt
-        S_stmt = 71,                             // stmt
-        S_return_stmt = 72,                      // return_stmt
-        S_if_stmt = 73,                          // if_stmt
-        S_else_optional = 74,                    // else_optional
-        S_block = 75,                            // block
-        S_while_stmt = 76,                       // while_stmt
-        S_call_param_list = 77,                  // call_param_list
-        S_call_param_rest = 78,                  // call_param_rest
-        S_print_stmt = 79,                       // print_stmt
-        S_print_param = 80,                      // print_param
-        S_read_stmt = 81,                        // read_stmt
-        S_expression = 82,                       // expression
-        S_boolean_expression = 83,               // boolean_expression
-        S_boolean_term = 84,                     // boolean_term
-        S_boolean_factor = 85,                   // boolean_factor
-        S_arithmetic_expression = 86,            // arithmetic_expression
-        S_relational_expression = 87,            // relational_expression
-        S_term = 88,                             // term
-        S_factor = 89                            // factor
+        S_varmethod_decl_list = 52,              // varmethod_decl_list
+        S_variable_decl_list = 53,               // variable_decl_list
+        S_variable_decl_Body = 54,               // variable_decl_Body
+        S_variable_decl = 55,                    // variable_decl
+        S_array_optional = 56,                   // array_optional
+        S_ident_list = 57,                       // ident_list
+        S_type = 58,                             // type
+        S_method_decl_list = 59,                 // method_decl_list
+        S_method_decl = 60,                      // method_decl
+        S_method_body = 61,                      // method_body
+        S_method_type = 62,                      // method_type
+        S_opt_param_decl_list = 63,              // opt_param_decl_list
+        S_param_list = 64,                       // param_list
+        S_param_decl = 65,                       // param_decl
+        S_ref_optional = 66,                     // ref_optional
+        S_stmt_list = 67,                        // stmt_list
+        S_array_access = 68,                     // array_access
+        S_array_access_opt = 69,                 // array_access_opt
+        S_assign_stmt = 70,                      // assign_stmt
+        S_call_stmt = 71,                        // call_stmt
+        S_stmt = 72,                             // stmt
+        S_return_stmt = 73,                      // return_stmt
+        S_if_stmt = 74,                          // if_stmt
+        S_else_optional = 75,                    // else_optional
+        S_block = 76,                            // block
+        S_while_stmt = 77,                       // while_stmt
+        S_call_param_list = 78,                  // call_param_list
+        S_call_param_rest = 79,                  // call_param_rest
+        S_print_stmt = 80,                       // print_stmt
+        S_print_param = 81,                      // print_param
+        S_read_stmt = 82,                        // read_stmt
+        S_expression = 83,                       // expression
+        S_boolean_expression = 84,               // boolean_expression
+        S_boolean_term = 85,                     // boolean_term
+        S_boolean_factor = 86,                   // boolean_factor
+        S_arithmetic_expression = 87,            // arithmetic_expression
+        S_relational_expression = 88,            // relational_expression
+        S_term = 89,                             // term
+        S_factor = 90                            // factor
       };
     };
 
@@ -663,6 +665,7 @@ namespace Expr {
         switch (this->kind ())
     {
       case symbol_kind::S_program: // program
+      case symbol_kind::S_varmethod_decl_list: // varmethod_decl_list
       case symbol_kind::S_variable_decl_list: // variable_decl_list
       case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
@@ -796,6 +799,7 @@ namespace Expr {
 switch (yykind)
     {
       case symbol_kind::S_program: // program
+      case symbol_kind::S_varmethod_decl_list: // varmethod_decl_list
       case symbol_kind::S_variable_decl_list: // variable_decl_list
       case symbol_kind::S_variable_decl_Body: // variable_decl_Body
       case symbol_kind::S_variable_decl: // variable_decl
@@ -1788,7 +1792,7 @@ switch (yykind)
     /// \param yyvalue   the value to check
     static bool yy_table_value_is_error_ (int yyvalue) YY_NOEXCEPT;
 
-    static const signed char yypact_ninf_;
+    static const short yypact_ninf_;
     static const signed char yytable_ninf_;
 
     /// Convert a scanner token kind \a t to a symbol kind.
@@ -1806,7 +1810,7 @@ switch (yykind)
     // Tables.
     // YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
     // STATE-NUM.
-    static const signed char yypact_[];
+    static const short yypact_[];
 
     // YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
     // Performed when YYTABLE does not specify something else to do.  Zero
@@ -1814,7 +1818,7 @@ switch (yykind)
     static const signed char yydefact_[];
 
     // YYPGOTO[NTERM-NUM].
-    static const signed char yypgoto_[];
+    static const short yypgoto_[];
 
     // YYDEFGOTO[NTERM-NUM].
     static const unsigned char yydefgoto_[];
@@ -1824,7 +1828,7 @@ switch (yykind)
     // number is the opposite.  If YYTABLE_NINF, syntax error.
     static const short yytable_[];
 
-    static const unsigned char yycheck_[];
+    static const short yycheck_[];
 
     // YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
     // state STATE-NUM.
@@ -2066,8 +2070,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 152,     ///< Last index in yytable_.
-      yynnts_ = 41,  ///< Number of nonterminal symbols.
+      yylast_ = 166,     ///< Last index in yytable_.
+      yynnts_ = 42,  ///< Number of nonterminal symbols.
       yyfinal_ = 5 ///< Termination state number.
     };
 
@@ -2081,7 +2085,7 @@ switch (yykind)
 
 #line 10 "MiniJavaParser.y"
 } // Expr
-#line 2085 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
+#line 2089 "/mnt/c/Users/josue/OneDrive/Documentos/VCode Proyectos/ProyectoCompiladores2/build/MiniJavaParser.hpp"
 
 
 

@@ -21,19 +21,27 @@ int main(int argc, char *argv[])
         std::cerr << "Error: Bad Arguments" << std::endl;
         return 1;
     }
+    
+  
+    
+    
+    
+    std::unordered_map<std::string , variables > vars;
+    vars.insert({"a", variables{"", 1, nullptr}});
 
-    std::unordered_map<std::string, int> vars;
-    vars.insert({{"a", 1}});
 
-    std::unordered_map<std::string, Ast::Node *> Method_Table;
-
+    // std::unordered_map<std::string, Ast::Node *> Method_Table;
+    std::unordered_map<std::string, methodVariable> Method_Table;
+    
     std::unordered_map<
         std::string,
-        std::shared_ptr<std::vector<std::optional<int>>> // Mantener consistencia
+        arrayVariables // Mantener consistencia
         >
         Array_Table;
 
-    std::vector<int> args;
+    std::unordered_map<std::string, std::string> Texts_Table;
+
+    std::vector<std::string> args;
 
     Ast::Node *root;
     MiniJavaLexer lexer(in);
@@ -45,7 +53,7 @@ int main(int argc, char *argv[])
 
         // std::cout << "Eval: " << eval(root, vars, Method_Table, args, Array_Table) << std::endl;
         // std::cout << "Print: " << root->toString() << std::endl;
-        CodegenResult r = exprCompile(root, vars);
+        CodegenResult r = exprCompile(root, vars, Method_Table, args, Array_Table, "", Texts_Table);
         std::cout << r.code << std::endl;
 
     }

@@ -68,7 +68,7 @@ void yyerror(const char* msg) {
 %type <Ast::Node *> expression array_access_opt arithmetic_expression
 
 
-%type <Ast::Node *> method_body variable_decl_Body
+%type <Ast::Node *> method_body variable_decl_Body varmethod_decl_list
 %type <Ast::Node *> boolean_term boolean_expression boolean_factor relational_expression
 
 
@@ -90,27 +90,59 @@ input: program { root = $1; std::cout << "[Parser] - Parseo exitoso" << std::end
 
 
 program:
-      KW_CLASS IDENTIFIER OPEN_CURLY variable_decl_list method_decl_list CLOSE_CURLY {
+      KW_CLASS IDENTIFIER OPEN_CURLY varmethod_decl_list method_decl_list CLOSE_CURLY {
              std::cout << "[Parser] - Programa creado con declaraciones separadas" << std::endl;
              $$ = new Ast::Program($2, $4, $5);
       }
+      
 ;
 
-variable_decl_list:
+
+varmethod_decl_list: 
       KW_INT IDENTIFIER method_body method_decl_list { //Es Metodo entonces se detiene
 
-        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+        std::cout << "[Parser] - MethodDeclList "<< std::endl;
 
-         $$ = new Ast::MethodDeclList(    new Ast::MethodDecl(new Ast::MethodType("INT"), $2, $3) , $4);
+         $$ =  new Ast::VarMethodDeclList(new Ast::MethodDeclList(new Ast::MethodDecl(new Ast::MethodType("INT"), $2, $3) , $4), nullptr);
       }
       |
       KW_INT IDENTIFIER method_body { //Es Metodo entonces se detiene
 
-        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+        std::cout << "[Parser] - MethodDeclList "<< std::endl;
 
-         $$ = new Ast::MethodDeclList(  new Ast::MethodDecl(new Ast::MethodType("INT"), $2, $3) , nullptr);     
+         $$ = new Ast::VarMethodDeclList(new Ast::MethodDeclList(new Ast::MethodDecl(new Ast::MethodType("INT"), $2, $3) , nullptr), nullptr);     
       }
       |
+
+
+      variable_decl variable_decl_list varmethod_decl_list{ 
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+
+        $$ = new Ast::VarMethodDeclList(new Ast::VariableDeclList($1, $2),  $3);
+      
+      }
+      | variable_decl varmethod_decl_list{ 
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+        $$ = new Ast::VarMethodDeclList( new Ast::VariableDeclList($1, nullptr), $2);
+      }
+      |
+      variable_decl variable_decl_list { 
+        std::cout << "[Parser] - variable_decl_list "<< std::endl;
+
+        $$ = new Ast::VarMethodDeclList(new Ast::VariableDeclList($1, $2),  nullptr);
+      
+      }
+
+      | variable_decl {
+        $$ = new Ast::VarMethodDeclList(new Ast::VariableDeclList($1, nullptr),  nullptr);
+      }
+
+
+      | %empty {}
+;
+
+variable_decl_list:
+ 
       
       variable_decl variable_decl_list { 
         std::cout << "[Parser] - variable_decl_list "<< std::endl;
@@ -134,9 +166,9 @@ variable_decl_Body:
 
 variable_decl:
       
-       KW_INT  OPEN_BRACKET INT_CONST CLOSE_BRACKET  IDENTIFIER variable_decl_Body {
+       KW_INT IDENTIFIER OPEN_BRACKET INT_CONST CLOSE_BRACKET variable_decl_Body {
             std::cout << "[Parser] - variable_decl -ARRAY" << std::endl;
-            $$ = new Ast::VariableDecl(new Ast::Type("INT", new Ast::ArrayOptional($3)), $5, $6); std::cout << "[Parser] - variable_decl" << std::endl;
+            $$ = new Ast::VariableDecl(new Ast::Type("INT", new Ast::ArrayOptional($4)), $2, $6); std::cout << "[Parser] - variable_decl" << std::endl;
       }
       |  KW_INT IDENTIFIER variable_decl_Body {
             std::cout << "[Parser] - variable_decl -NORMAL" << std::endl;

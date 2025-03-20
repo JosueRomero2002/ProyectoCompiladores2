@@ -574,7 +574,7 @@ factor:
           $$ = new Ast::Identifier($1); std::cout<< "[Parser] - factor" << std::endl; 
       }
       | IDENTIFIER OPEN_PAR call_param_list CLOSE_PAR { 
-            $$ = new Ast::CallStmt($1, $3); std::cout<< "[Parser] - factor" << std::endl; 
+            $$ = new Ast::FunctionCall($1, $3); std::cout<< "[Parser] - factor" << std::endl; 
         }
       | IDENTIFIER array_access { 
 

@@ -15,7 +15,7 @@ class FactorialCalculator {
     }
 
     int main() {
-
+        int n;
         int resultado;
         n = 5;
 

@@ -43,6 +43,8 @@ int main(int argc, char *argv[])
 
     std::vector<std::string> args;
 
+    int paramPos;
+
     Ast::Node *root;
     MiniJavaLexer lexer(in);
     Expr::Parser parser(lexer, root);
@@ -53,7 +55,7 @@ int main(int argc, char *argv[])
 
         // std::cout << "Eval: " << eval(root, vars, Method_Table, args, Array_Table) << std::endl;
         // std::cout << "Print: " << root->toString() << std::endl;
-        CodegenResult r = exprCompile(root, vars, Method_Table, args, Array_Table, "", Texts_Table);
+        CodegenResult r = exprCompile(root, vars, Method_Table, args, Array_Table, "", Texts_Table, paramPos);
         std::cout << r.code << std::endl;
 
     }

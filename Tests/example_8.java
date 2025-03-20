@@ -27,7 +27,7 @@ class Sorter {
     }
 
     int main() {
-        int[5] arr;
+        int arr[5];
         arr[0] = 64;
         arr[1] = 34;
         arr[2] = 25;

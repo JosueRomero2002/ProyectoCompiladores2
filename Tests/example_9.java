@@ -13,7 +13,7 @@ class ArrayMaxFinder {
     }
 
     int main() {
-        int[5] arr;
+        int arr[5];
         int maxim;
         arr[0] = 64;
         arr[1] = 34;

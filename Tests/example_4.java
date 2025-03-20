@@ -4,7 +4,7 @@ class RefExample {
     }
 
     void applyIncrements() {
-        int[5] values;
+        int values[5];
         int base;
         int i;
         int fa2;

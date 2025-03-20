@@ -1,18 +1,13 @@
 class FactorialCalculator {
-    int matrix[9];
-
-    int metodo(int n, int awiwi, int x){
-        
+    int b;
+    void AA(){
+        print(b);
     }
-   
 
     int main(){
-        
+        b = 1;
 
-        metodo(1, 2, 3);
-
-        
-        return 0;
+       AA();
     }
 
     

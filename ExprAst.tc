@@ -17,6 +17,7 @@
         std::optional<int>  value;
         variables* ref = nullptr;
         bool isArgument = false;
+        bool isRef = false;
     };
     
     using symbol_table = std::unordered_map<std::string, variables>;
@@ -29,6 +30,7 @@
         std::vector<std::optional<int>> values;
         variables* ref = nullptr;
         bool isArgument = false;
+       
     };
 
     using ArrayVariables_Table = std::unordered_map<
@@ -57,7 +59,12 @@
     struct CodegenResult{
         std::string code;
         std::string place;
+        std::vector<Ast::Node*> args;
     };
+
+    
+    
+
 %}
 
 
@@ -89,6 +96,7 @@
 
 
 
+    
 
 
 %}
@@ -230,6 +238,9 @@
     Node *call_param_list;
 }
 
+
+
+
 %node CallParamList Node = {
     Node *expression;
     Node *call_param_rest;
@@ -300,7 +311,10 @@
 }
 
 
-
+%node FunctionCall Stmt = {
+    string_t identifier;
+    Node *call_param_list;
+}
 
 
 
@@ -645,9 +659,16 @@ toString(ArrayVariable){
     os << "ArrayVariable(" << name << ", " << indexExpr->toString() << ")";
     return os.str();
 }
+toString(FunctionCall) {
+    std::ostringstream os;
+    os << "FunctionCall(" << identifier << ", ";
+    if (call_param_list) os << call_param_list->toString();
+    os << ")";
+    return os.str();
+}
 
 
-%operation CodegenResult exprCompile(Node* root, symbol_table& vars, Method_Table& methodTable, arguments& args, ArrayVariables_Table& arrayvarTable, string_t actualmethodName, Texts_Table& textsTable) = {CodegenResult{} }
+%operation CodegenResult exprCompile(Node* root, symbol_table& vars, Method_Table& methodTable, arguments& args, ArrayVariables_Table& arrayvarTable, string_t actualmethodName, Texts_Table& textsTable, int paramPos) = {CodegenResult{} }
 
 
 
@@ -662,7 +683,7 @@ exprCompile(Program) {
     // os << "define i32 @main() {\n";
        
     if(root->varmethod_decls) {
-         CodegenResult r2 = exprCompile(root->varmethod_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+         CodegenResult r2 = exprCompile(root->varmethod_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
            os << r2.code;
     }
 
@@ -670,7 +691,7 @@ exprCompile(Program) {
    
 
     if(root->method_decls) {
-        CodegenResult r2 = exprCompile(root->method_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        CodegenResult r2 = exprCompile(root->method_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
         os << r2.code;
     }
  
@@ -702,7 +723,7 @@ exprCompile(VarMethodDeclList){
         for (const auto& [var, variable] : vars) {
             if (variable.methodIdentifier == actualmethodName) {
                 if(variable.methodIdentifier.empty()){ // son globales
-                    os << "    @" << var << " = global i32, align 4\n";
+                    os << "    @" << var << " = global i32 zeroinitializer\n";
                     // @x = global i32 0 
                 }else{
                     os << "    %" << var << " = alloca i32, align 4\n";
@@ -728,9 +749,9 @@ exprCompile(VarMethodDeclList){
     }
     // os << "ITERACION " << "\n";
 
-    os << exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    os << exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     if(root->rest_decls){
-    os << exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+    os << exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     }
 
     return {os.str(), ""};
@@ -743,11 +764,11 @@ exprCompile(VariableDeclList) {
     std::ostringstream os;
 
     if (root->first_decl) {
-        CodegenResult r = exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        CodegenResult r = exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
         os << r.code;
     }
     if (root->rest_decls) {
-        CodegenResult r = exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        CodegenResult r = exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
         os << r.code;
     }
 
@@ -763,15 +784,15 @@ exprCompile(VariableDecl) {
     Ast::Type* arrayAccessNode = dynamic_cast<Ast::Type*>(root->type);
     if (arrayAccessNode && arrayAccessNode->array_optional) {
        
-        CodegenResult r = exprCompile( arrayAccessNode->array_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-        arrayvarTable[root->identifier] = {actualmethodName, std::vector<std::optional<int>> (std::stoi(r.code), std::nullopt), nullptr}; 
+        CodegenResult r = exprCompile( arrayAccessNode->array_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+        arrayvarTable[root->identifier + actualmethodName] = {actualmethodName, std::vector<std::optional<int>> (std::stoi(r.code), std::nullopt), nullptr}; 
     
     } else {
-        vars[root->identifier] = {actualmethodName, std::nullopt, nullptr}; 
+        vars[root->identifier + actualmethodName] = {actualmethodName, std::nullopt, nullptr}; 
 
     }
     if (root->variableDecl_Body) {
-        exprCompile(root->variableDecl_Body, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        exprCompile(root->variableDecl_Body, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
     }
 
  
@@ -784,7 +805,7 @@ exprCompile(VariableDecl_Body) {
     // Node *ident_list;
     std::ostringstream os;
     if(root->ident_list) {
-        os << exprCompile(root->ident_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->ident_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     }
     return {os.str(), ""};
 }
@@ -793,9 +814,9 @@ exprCompile(IdentList) {
     // string_t identifier;
     // Node *IdentListParam;
     std::ostringstream os;
-    vars[root->identifier] ={"", std::nullopt, nullptr}; 
+    vars[root->identifier + actualmethodName] ={actualmethodName, std::nullopt, nullptr}; 
 
-    if(root->IdentListParam) exprCompile(root->IdentListParam, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    if(root->IdentListParam) exprCompile(root->IdentListParam, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
     os << "";
     return {os.str(), ""};
 }
@@ -810,8 +831,8 @@ exprCompile(Type) {
     r.place = "";
     // os << root->type_name;
     if(root->array_optional){
-        // os << exprCompile(root->array_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-        r.place = "";
+        // os << exprCompile(root->array_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
+        r.place = "arr";
     }
     if(root->type_name == "INT"){
        r.code = " i32";
@@ -835,49 +856,84 @@ exprCompile(MethodDeclList) {
     std::ostringstream os;
  
     if(root->first_decl)
-        os << exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     if(root->rest_decls)
-        os << exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
   
     return {os.str(), ""};
 }
-
 exprCompile(MethodDecl) {
-    // Node *method_type;
-    // string_t identifier;
-    // Node *MethodDecl_Body;
     std::ostringstream os;
 
+ 
 
-    CodegenResult r = exprCompile(root->method_type, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-    // os << "define "
-    os << "define ";
-     os  << r.code;
-    //    << root->identifier
+    // Obtener el tipo del método
+    CodegenResult r = exprCompile(root->method_type, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    
+    os << "define " << r.code;
     os << "@" << root->identifier;
-     os  << exprCompile(root->MethodDecl_Body, vars, methodTable, args, arrayvarTable, root->identifier, textsTable).code;
-    //    << ")";
 
-    auto it = methodTable.find( root->identifier);
-    if (it == methodTable.end() && root->identifier != "main"){
-        // FIX: POSIBLE ERROR CON MAIn
-        throw std::runtime_error("Error: Method '" + root->identifier + "' not declared.");
-    }else{
-        if(root->identifier != "main"){
-        it->second.Type = r.code;
+    // Corrección: Verificar el dynamic_cast
+    auto *methodBody = dynamic_cast<MethodDecl_Body*>(root->MethodDecl_Body);
+    if (!methodBody) {
+        throw std::runtime_error("Invalid method body structure");
     }
-    }
+
+    // Extraer parámetros del método
+    std::vector<std::string> paramTypes;
+    // Node *paramNode = methodBody->opt_param_decl_list;
+    // while (paramNode) {
+    //     // Verificar tipo antes de acceder
+    //     auto *paramDeclList = dynamic_cast<OptParamDeclList*>(paramNode);
+    //     if (!paramDeclList) break;
+
+    //     auto *paramDecl = dynamic_cast<ParamDecl*>(paramDeclList->first_param);
+    //     if (paramDecl) { // Solo procesar si el cast es válido
+    //         CodegenResult paramResult = exprCompile(paramDecl, vars, methodTable, args, arrayvarTable, root->identifier, textsTable, paramPos);
+    //         paramTypes.push_back(paramResult.code);
+    //     }
+
+    //     paramNode = paramDeclList->rest_params;
+    // }
+
    
-    if(r.code == "i32 "){
-       
-    }else{
-        os << "ret void" << "\n";
+    // Buscar el método en la tabla
+    auto it = methodTable.find(root->identifier);
+    if (it == methodTable.end()) {
+        // Insertar el nuevo método en la tabla
+        methodVariable newMethod;
+        newMethod.methodName = root->identifier;
+        newMethod.Type = r.code; // Tipo de retorno
+        newMethod.params = paramTypes;
+
+        methodTable[root->identifier] = newMethod;
+    } else {
+        // Si ya existe y no es main, actualizamos el tipo de retorno
+        if (root->identifier != "main") {
+            it->second.Type = r.code;
+        }
     }
 
-    os << "}" << "\n\n";
-       
+     // Compilar el cuerpo del método
+     os << exprCompile(root->MethodDecl_Body, vars, methodTable, args, arrayvarTable, root->identifier, textsTable, paramPos).code;
+
+
+     
+    if (r.code == "i32 ") {
+        os << "ret i32 0\n"; //
+    }else{
+        os << "ret void\n";
+    }
+
+
+
+    os << "}\n\n";
+
     return {os.str(), ""};
 }
+
+
+
 
 exprCompile(MethodDecl_Body) {
     // Node *opt_param_decl_list;
@@ -886,16 +942,16 @@ exprCompile(MethodDecl_Body) {
     std::ostringstream os;
     os << "(";
     if(root->opt_param_decl_list){
-         os << exprCompile(root->opt_param_decl_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+         os << exprCompile(root->opt_param_decl_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     }
     os << ")";
     os << "{" << "\n";
     if(root->variable_decls){
-        os << exprCompile(root->variable_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->variable_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
         for (const auto& [var, variable] : vars) {
             if (variable.methodIdentifier == actualmethodName && !variable.isArgument) {
                 if(variable.methodIdentifier.empty()){ // son globales
-                    os << "    @" << var << " = global i32, align 4\n";
+                    os << "    @" << var << " = global i32 zeroinitializer\n";
                     // @x = global i32 0 
                 }else{
                     os << "    %" << var << " = alloca i32, align 4\n";
@@ -918,7 +974,7 @@ exprCompile(MethodDecl_Body) {
         }
     }
     if(root->stmt_list)
-        os << exprCompile(root->stmt_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->stmt_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     // os << ")";
 
     return {os.str(), ""};
@@ -944,10 +1000,10 @@ exprCompile(OptParamDeclList) {
     std::ostringstream os;
     // os << "OptParamDeclList(";
     if(root->first_param){
-        os << exprCompile(root->first_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->first_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     }
     if(root->rest_params){
-        os << exprCompile(root->rest_params, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->rest_params, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     }
         // os << ")";
     return {os.str(), ""};
@@ -960,33 +1016,42 @@ exprCompile(ParamDecl) {
     std::ostringstream os;
 
     
-    CodegenResult r2 = exprCompile(root->type, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r2 = exprCompile(root->type, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
     CodegenResult r1;
     r1.code == "";
-    
+    os << "i32";
     if(root->ref_optional){
-    r1 = exprCompile(root->ref_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-  
+    r1 = exprCompile(root->ref_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+   
     if((r1.code == "true")){
         os <<  "* ";
     }
-    }else{
+    }else if (  r2.place != "") {
+        os <<  "* ";
+    }
+    else{
         os <<  " ";
     }
-    os << root->identifier;
+    os << "%";
+    os << root->identifier << actualmethodName;
 
     // Desconocemos el tamano
     if (  r2.place != "") {
-       
+    
+       std::cout << "ARRAY CREADO" << std::endl;
         // FIX: DESCONOCEMOS EL TAMANHO DEL ARREGLO
-        arrayvarTable[root->identifier] = {actualmethodName, std::vector<std::optional<int>> (1, std::nullopt), nullptr, true}; 
+        // FIX: POSIBLE SOLUCION MARCAR COMO YA TIENEN VALOR LOS PARAMS
+        arrayvarTable[root->identifier + actualmethodName] = {actualmethodName, std::vector<std::optional<int>> (1, 1), nullptr, true}; 
         methodTable[actualmethodName].params.push_back("ARRAY");
     } else {
-        vars[root->identifier] = {actualmethodName, std::nullopt, nullptr, true}; 
+       
         if((r1.code == "true")){
             methodTable[actualmethodName].params.push_back("REF");
+            vars[root->identifier+ actualmethodName] = {actualmethodName, 1, nullptr, true, true}; 
+            std::cout << "REF CREADO" << std::endl;
         }else{
             methodTable[actualmethodName].params.push_back("VAR");
+            vars[root->identifier+ actualmethodName] = {actualmethodName, 1, nullptr, true, false}; 
         }
         
     }
@@ -1004,10 +1069,10 @@ exprCompile(ParamList) {
     // os << "ParamList(";
     os << ", ";
     if(root->first_param)
-        os << exprCompile(root->first_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->first_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
    
     if(root->rest_params)
-        os << exprCompile(root->rest_params, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->rest_params, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     // os << ")";
     return {os.str(), ""};
 }
@@ -1021,25 +1086,43 @@ exprCompile(AssignStmt) {
     std::ostringstream os;
     // os << "AssignStmt(" << root->identifier;
         if(root->array_access){
-           
-            auto it = arrayvarTable.find( root->identifier);
+            auto it_global = arrayvarTable.find( root->identifier);
+
+            if (it_global != arrayvarTable.end()){
+                CodegenResult r;
+                //Valor a Ingresar
+                CodegenResult r2 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+                os << r2.code << "\n";
+
+                // Indice de Arreglo
+                CodegenResult r1 = exprCompile(root->array_access, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+                os << r1.code << "\n";
+                r.place = newVariable();
+
+                os << "%"<< r.place <<" = getelementptr ["<< it_global->second.values.size()<<" x i32], ["<< it_global->second.values.size()<<" x i32]* @"<< root->identifier <<", i32 0, i32 %"<< r1.place << "\n";
+                os << "store i32 %"<< r2.place << ", i32* %"<< r.place << ", align 4" << "\n";
+
+            }else{
+            auto it = arrayvarTable.find( root->identifier + actualmethodName);
                 if (it == arrayvarTable.end()){
-                    throw std::runtime_error("Error: Array '" + root->identifier + "' not declared.");
+                    throw std::runtime_error("Error (AS): Array '" + root->identifier +actualmethodName + "' not declared.");
                 }else{
                     CodegenResult r;
                     //Valor a Ingresar
-                    CodegenResult r2 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+                    CodegenResult r2 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
                     os << r2.code << "\n";
 
                     // Indice de Arreglo
-                    CodegenResult r1 = exprCompile(root->array_access, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+                    CodegenResult r1 = exprCompile(root->array_access, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
                     os << r1.code << "\n";
                     r.place = newVariable();
 
-                    os << "%"<< r.place <<" = getelementptr ["<< it->second.values.size()<<" x i32], ["<< it->second.values.size()<<" x i32]* %"<< root->identifier <<", i32 0, i32 %"<< r1.place << "\n";
+                    os << "%"<< r.place <<" = getelementptr ["<< it->second.values.size()<<" x i32], ["<< it->second.values.size()<<" x i32]* %"<< root->identifier<<actualmethodName <<", i32 0, i32 %"<< r1.place << "\n";
                     os << "store i32 %"<< r2.place << ", i32* %"<< r.place << ", align 4" << "\n";
 
                 }
+
+            }
                
 
             // ; Obtener dirección de la posición 2 del array global
@@ -1047,19 +1130,22 @@ exprCompile(AssignStmt) {
 
             // ; Almacenar el valor 42 en la posición 2
             // store i32 42, i32* %idx
-        }
+        }else{
+            if(root->expression){
+                CodegenResult r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+                os << r.code << "\n";
     
-    
-        if(root->expression){
-            CodegenResult r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-            os << r.code << "\n";
+                auto it = vars.find( root->identifier + actualmethodName);
+                if (it != vars.end()) it->second.value = 1; //Solucion Posible para determinar que tiene un valor
+                os << "store " << "i32 %" << r.place << ", i32* %" << root->identifier<<actualmethodName << "\n";
+               
+                
+            }
 
-            auto it = vars.find( root->identifier);
-            if (it != vars.end()) it->second.value = 1; //Solucion Posible para determinar que tiene un valor
-            os << "store " << "i32 %" << r.place << ", i32* %" << root->identifier << "\n";
-           
-            
         }
+    
+    
+  
   
     
         // os << ")";
@@ -1072,9 +1158,9 @@ exprCompile(ReturnStmt) {
     
     CodegenResult r;
     if(root->expression){
-        r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
         os << r.code << "\n";
-        os << "ret i32 %" << r.place << "\n";
+        os << "ret i32 %" << r.place << "" << "\n";
         r.code = os.str();
     }
     return r;
@@ -1085,29 +1171,94 @@ exprCompile(IfStmt) {
     // Node *block;
     // Node *else_optional;
     std::ostringstream os;
-    os << "IfStmt(";
-    if(root->expression)
-        os << exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->block)
-        os << exprCompile(root->block, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->else_optional)
-        os << exprCompile(root->else_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
+    // os << "IfStmt(";
+    CodegenResult r;
+    CodegenResult rBool = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    // os << "br "<< rBool.place << ""
+    
+    std::string ifPart_label = newLabel();
+    std::string endif_label = newLabel();
+
+    // CodegenResult rTrueBlock
+    CodegenResult rTrue;
+    if(root->block){
+        rTrue = exprCompile(root->block, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    }
+
+    os << rBool.code << "\n";
+    r.place = newVariable();
+    os << "%" << r.place << " = icmp ne i32 %" << rBool.place << ", 0\n";
+    // %t4 = icmp ne i32 %t2, 0 
+    
+    if(root->else_optional){
+
+        std::string elsePart_label = newLabel();
+        os << "br i1 %" <<  r.place << ", label %" << ifPart_label <<", label %"<< elsePart_label << "\n";
+        os << ifPart_label << ":" << "\n";
+       
+        os << rTrue.code << "\n";
+        os << "br label %" << endif_label << "\n";
+        os << elsePart_label << ":" << "\n";
+        os << exprCompile(root->else_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
+        
+        os << "br label %" << endif_label << "\n";
+    }else{
+        os << "br i1 %" <<  r.place  << ", label %" <<  ifPart_label <<", label %"<< endif_label << "\n";
+        os << ifPart_label << ":" << "\n";
+       
+        os << rTrue.code << "\n";
+
+        os << "br label %" << endif_label << "\n";
+    }
+
+    os << endif_label << ":" << "\n";
+
+
+
+
+        // os << ")";
     return {os.str(), ""};
 }
 
 exprCompile(WhileStmt) {
     // Node *expression;
     // Node *block;
-    std::ostringstream os;
-    os << "WhileStmt(";
-    if(root->expression)
-        os << exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->block)
-        os << exprCompile(root->block, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
-}
+
+        std::ostringstream os;
+        CodegenResult r;
+    
+       
+        std::string cond_label = newLabel();  
+        std::string body_label = newLabel();  
+        std::string exit_label = newLabel(); 
+    
+     
+        os << "br label %" << cond_label << "\n";
+    
+        
+        os << cond_label << ":\n";
+        
+        CodegenResult cond_result = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+        os << cond_result.code << "\n";
+    
+    
+        std::string bool_var = newVariable();
+        os << "%" << bool_var << " = icmp ne i32 %" << cond_result.place << ", 0\n";
+     
+        os << "br i1 %" << bool_var << ", label %" << body_label << ", label %" << exit_label << "\n";
+   
+        os << body_label << ":\n";
+     
+        CodegenResult body_result = exprCompile(root->block, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+        os << body_result.code << "\n";
+
+        os << "br label %" << cond_label << "\n";
+    
+     
+        os << exit_label << ":\n";
+    
+        return { os.str(), "" };
+    }
 
 exprCompile(RefOptional) {
     // bool is_ref;
@@ -1122,58 +1273,190 @@ exprCompile(StmtList) {
     std::ostringstream os;
 
     if(root->first_stmt)
-        os << exprCompile(root->first_stmt, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->first_stmt, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     if(root->rest_stmts)
-        os << exprCompile(root->rest_stmts, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
+        os << exprCompile(root->rest_stmts, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
 
     return {os.str(), ""};
 }
 
 exprCompile(CallStmt) {
-    // string_t identifier;
-    // Node *call_param_list;
     std::ostringstream os;
-
-    // auto it = methodTable.find(root->identifier);
-
-    // if(it = methodTable.end()){
-    //     // FIX: IMPLEMENTAR ERRORES NO HAY METODO CON ESE NONBRE
-    // }
-    // call void @minimum(i32* %array, i32 10, i32* %pos, i32* %min)
-
-    // "call i32 @Metodo2()"
-    CodegenResult r; 
-
-    if(root->call_param_list){
-        r = exprCompile(root->call_param_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
- 
-    }
-
-    // methodTable[actualmethodName].Type
 
     auto it = methodTable.find(root->identifier);
 
     if(it == methodTable.end()){
         // FIX: IMPLEMENTAR ERRORES NO HAY METODO CON ESE NONBRE
+        throw std::runtime_error("Error: Method '" + root->identifier + "' not declared.");
     }
 
-    os << r.code;
-    os << "call "<< it->second.Type << "@" << root->identifier <<"(";
+    std::string methodType = it->second.Type;
+
+
+    CodegenResult r; 
+    CodegenResult r1; 
+
+    arguments argsMethod = it->second.params; 
+    std::cout << "Method: " << root->identifier << " Arguments" << std::endl;
+    std::cout << "args: " << argsMethod.size() << std::endl;
+    for (int i = 0; i < argsMethod.size(); i++) {
+        std::cout << "args: " << argsMethod[i] << std::endl;
+    }
+
+    args = argsMethod;
+    if(root->call_param_list){
+        r1 = exprCompile(root->call_param_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, 0);
+ 
+    }
+
+    std::cout << "Function Call: " << root->identifier << " Params" << std::endl;
+    std::cout << "args: " << args.size() << std::endl;
+    std::cout << "args: " << paramPos << std::endl;
+    for (int i = 0; i < args.size(); i++) {
+        std::cout << "args: " << args[i] << std::endl;
+    }
+
+  
+    r.place = newVariable();
+    os << r1.code << "\n";
+   os <<"call "<< it->second.Type << "@" << root->identifier <<"(";
     // os << TIPO;
 
-    os << r.place;
+    os << r1.place;
     os << ")" << "\n";
+
+    r.code = os.str();
    
-    return {os.str(), ""};
+    
+   
+    return r;
 }
+
+
+exprCompile(CallParamList) {
+    CodegenResult r;
+    // std::vector<std::string> localargs;
+    if (root->expression) {
+        CodegenResult r1 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+        r.code = r1.code + "\n";
+        // Inferir tipo directamente aquí
+        std::string argType = "VAR"; // Valor por defecto
+        std::string llvmType = "i32 %";
+        
+        // Caso 1: Es un identificador
+        if (auto* ident = dynamic_cast<Identifier*>(root->expression)) {
+            // Buscar en tablas de símbolos
+            if (arrayvarTable.find(ident->name + actualmethodName) != arrayvarTable.end()) {
+                argType = "ARRAY";
+                llvmType = "i32* %";
+            }
+            else if (vars.find(ident->name + actualmethodName) != vars.end()) {
+                // FIX DESHABILITADO TEMPORALMENTE
+                // if(vars[ident->name].isRef ){
+                if(args[paramPos] == "REF"){
+                    argType = "REF";
+                    llvmType = "i32* %";
+                    r1.place = ident->name+ actualmethodName;
+                }else{
+                    argType = "VAR";
+                    llvmType = "i32 %";
+                    std::cout << "32B: " << ident->name << std::endl;
+                }
+                
+            
+            }
+            else {
+                throw std::runtime_error("Variable no declarada: " + ident->name);
+            }
+        }
+        // Caso 2: Acceso a array (arr[5])
+        else if (dynamic_cast<ArrayVariable*>(root->expression)) {
+            argType = "VAR"; // Tratamos elementos de array como valores
+            std::string llvmType = "i32 %";
+        }
+
+        // Registrar tipo en args
+          r.place += llvmType + r1.place;
+        // args.push_back(argType);
+        paramPos+=1;
+
+        // Procesar parámetros restantes
+        if (root->call_param_rest) {
+            CodegenResult r2 = exprCompile(root->call_param_rest, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+            r.code += r2.code;
+            r.place += (r.place.empty() ? "" : ", ") + r2.place;
+        }
+    }
+
+  
+    return r;
+}
+
+exprCompile(CallParamRest) {
+    CodegenResult r;
+
+    if (root->expression) {
+        CodegenResult r1 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+        r.code = r1.code;
+       
+
+        // Misma lógica de inferencia que en CallParamList
+        std::string argType = "VAR";
+        std::string llvmType = "i32 %";
+        
+        if (auto* ident = dynamic_cast<Identifier*>(root->expression)) {
+            if (arrayvarTable.find(ident->name + actualmethodName) != arrayvarTable.end()) {
+                argType = "ARRAY";
+                llvmType = "i32* %";
+            }
+            else if (vars.find(ident->name+ actualmethodName) != vars.end()) {
+                // FIX DESHABILITADO TEMPORALMENTE
+                // argType = vars[ident->name].isRef ? "REF" : "VAR";
+                // if(vars[ident->name].isRef ){
+                if(args[paramPos] == "REF"){
+                    argType = "REF";
+                    llvmType = "i32* %";
+                    r1.place = ident->name+ actualmethodName;
+                }else{
+                    argType = "VAR";
+                    llvmType = "i32 %";
+                }
+            
+            }
+            else {
+                throw std::runtime_error("Variable no declarada: " + ident->name);
+            }
+        }
+        else if (dynamic_cast<ArrayVariable*>(root->expression)) {
+            argType = "VAR";
+            llvmType = "i32 %";
+        }
+
+        
+        r.place += llvmType + r1.place;
+    
+        // args.push_back(argType);
+        paramPos+=1;
+
+
+        if (root->call_param_rest) {
+            CodegenResult r2 = exprCompile(root->call_param_rest, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+            r.code += r2.code;
+            r.place += (r.place.empty() ? "" : ", ") + r2.place;
+        }
+    }
+
+    return r;
+}
+
 
 exprCompile(PrintStmt) {
     // Node *print_param;
     std::ostringstream os;
     if(root->print_param){
  
-        // os << exprCompile(root->print_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-        CodegenResult r = exprCompile(root->print_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        // os << exprCompile(root->print_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
+        CodegenResult r = exprCompile(root->print_param, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
         os << r.code << "\n";
     }
     return {os.str(), ""};
@@ -1189,7 +1472,7 @@ exprCompile(PrintParam) {
     CodegenResult r;
 
     if(root->expression){ //es expresion
-        CodegenResult r1 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        CodegenResult r1 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
         os << r1.code << "\n";
         os << "call i32(i8*, ...) @printf(i8* @.fmt, i32 %"<< r1.place <<")";
 
@@ -1239,18 +1522,43 @@ exprCompile(PrintParam) {
 
 exprCompile(ReadStmt) {
     // string_t identifier;
-    std::ostringstream os;
-    os << "ReadStmt(" << root->identifier << ")";
-    return {os.str(), ""};
-}
 
+        std::ostringstream os;
+        std::string varName = root->identifier + actualmethodName;
+    
+
+        auto varIt = vars.find(varName+ actualmethodName);
+        if (varIt == vars.end()) {
+            if (arrayvarTable.find(varName + actualmethodName) != arrayvarTable.end()) {
+                throw std::runtime_error("Error: Cannot read into array variable '" + varName + "'.");
+            } else {
+                throw std::runtime_error("Error: Variable '" + varName + "' not declared.");
+            }
+        }
+    
+      
+        std::string varPtr;
+        if (varIt->second.methodIdentifier.empty()) {
+            varPtr = "@" + varName; 
+        } else {
+            varPtr = "%" + varName;  
+        }
+    
+  
+        std::string resultVar = newVariable();
+        os << "%" << resultVar << " = call i32 (i8*, ...) @printf("
+           << "i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.printf, i32 0, i32 0), "
+           << "i32* " << varPtr << ")\n";
+    
+        return { os.str(), "" };
+    }
 exprCompile(ArrayAccess) {
     // Node *expression;
     std::ostringstream os;
     
     CodegenResult r;
     if(root->expression){
-        r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+        r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
     }
     return r;
 }
@@ -1258,185 +1566,205 @@ exprCompile(ArrayAccess) {
 exprCompile(ElseOptional) {
     // Node *block;
     std::ostringstream os;
-    os << "ElseOptional(";
-    if(root->block)
-        os << exprCompile(root->block, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+    // os << "ElseOptional(";
+    CodegenResult r = exprCompile(root->block, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    // os << ")";
+    return r;
 }
 
 exprCompile(Block) {
     // Node *stmt_list;
     std::ostringstream os;
-    os << "Block(";
+    // os << "Block(";
     if(root->stmt_list)
-        os << exprCompile(root->stmt_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
+        os << exprCompile(root->stmt_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
+    // os << ")";
     return {os.str(), ""};
 }
 
-exprCompile(CallParamList) {
-    // Node *expression;
-    // Node *call_param_rest;
-    std::ostringstream os;
-    CodegenResult r;
-    // os << "CallParamList(";
-    r.place = "";
-    r.code = "";
-    if(root->expression){
-        CodegenResult r1 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-        r.code += r1.code;
-        r.place += "%" + r1.place;
-    }
-     
-    if(root->call_param_rest){
-       
-        CodegenResult r2 = exprCompile(root->call_param_rest, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-        r.code += r2.code;
-        r.place += r2.place;
-    }
-        // os << ")";
-
-   
-
-
-    return r;
-}
-
-exprCompile(CallParamRest) {
-    // Node *expression;
-    // Node *call_param_rest;
-    std::ostringstream os;
-    CodegenResult r;
-    // os << "CallParamRest(";
-    r.place += ", ";
-    if(root->expression){
-        CodegenResult r1 = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-        r.code += r1.code;
-        r.place += "%" + r1.place;
-    }
-    if(root->call_param_rest){
-        CodegenResult r2 = exprCompile(root->call_param_rest, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-        r.code += r2.code;
-        r.place += r2.place;
-    }
-      
-    // os << ")";
-    return r;
-}
 
 exprCompile(EqualBoolean) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "EqualBoolean(";
-    if(root->left)
-        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->right)
-        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+
+    CodegenResult r;
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+    r.place = newVariable();
+
+    os << "%" << r.place << "_1 = icmp eq i32 %" << r1.place << ", %" << r2.place << "\n";
+    os << "%" << r.place << " = zext i1 %" << r.place << "_1 to i32"<< "\n";
+
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(NEqualBoolean) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "NEqualBoolean(";
-    if(root->left)
-        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->right)
-        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+
+    CodegenResult r;
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+    r.place = newVariable();
+
+    os << "%" << r.place << "_1 = icmp ne i32 %" << r1.place << ", %" << r2.place << "\n";
+    os << "%" << r.place << " = zext i1 %" << r.place << "_1 to i32"<< "\n";
+
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(Less_ThanBoolean) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "Less_ThanBoolean(";
-    if(root->left)
-        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->right)
-        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+
+    CodegenResult r;
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+    r.place = newVariable();
+
+    os << "%" << r.place << "_1 = icmp slt i32 %" << r1.place << ", %" << r2.place << "\n";
+    os << "%" << r.place << " = zext i1 %" << r.place << "_1 to i32"<< "\n";
+
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(Greater_ThanBoolean) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "Greater_ThanBoolean(";
-    if(root->left)
-        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->right)
-        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+
+    CodegenResult r;
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+    r.place = newVariable();
+
+    os << "%" << r.place << "_1 = icmp sgt i32 %" << r1.place << ", %" << r2.place << "\n";
+    os << "%" << r.place << " = zext i1 %" << r.place << "_1 to i32"<< "\n";
+
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(LessEqualBoolean) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "LessEqualBoolean(";
-    if(root->left)
-        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->right)
-        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+
+    CodegenResult r;
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+    r.place = newVariable();
+
+    os << "%" << r.place << "_1 = icmp sle i32 %" << r1.place << ", %" << r2.place << "\n";
+    os << "%" << r.place << " = zext i1 %" << r.place << "_1 to i32"<< "\n";
+
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(GreaterEqualBoolean) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "GreaterEqualBoolean(";
-    if(root->left)
-        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->right)
-        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
-}
 
+    CodegenResult r;
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+    r.place = newVariable();
+
+    os << "%" << r.place << "_1 = icmp sge i32 %" << r1.place << ", %" << r2.place << "\n";
+    os << "%" << r.place << " = zext i1 %" << r.place << "_1 to i32"<< "\n";
+
+    r.code = os.str();
+    return r;
+}
 exprCompile(OrBoolean) {
-    // Node *left;
+     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "OrBoolean(";
-    if(root->left)
-        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->right)
-        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+    CodegenResult r;
+
+    // Compilar subexpresiones izquierda y derecha
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+   
+    r.place = newVariable();
+    os << "%" << r.place << " = or i32 %" << r1.place << ", %" << r2.place << "\n";
+
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(AndBoolean) {
     // Node *left;
     // Node *right;
     std::ostringstream os;
-    os << "AndBoolean(";
-    if(root->left)
-        os << exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    if(root->right)
-        os << exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+    CodegenResult r;
+
+
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    
+    os << r1.code << "\n";
+    os << r2.code << "\n";
+
+   
+    r.place = newVariable();
+    os << "%" << r.place << " = and i32 %" << r1.place << ", %" << r2.place << "\n";
+
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(UnaryNotBoolean) {
     // Node *expr;
     std::ostringstream os;
-    os << "UnaryNotBoolean(";
-    if(root->expr)
-        os << exprCompile(root->expr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+    CodegenResult r;
+
+
+    CodegenResult r1 = exprCompile(root->expr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    os << r1.code << "\n";
+
+  
+    r.place = newVariable();
+    os << "%" << r.place << " = xor i32 %" << r1.place << ", 1\n";
+
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(SumExpr) {
@@ -1444,8 +1772,8 @@ exprCompile(SumExpr) {
     // Node *right;
     std::ostringstream os;
     
-    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
     CodegenResult r;
     r.place = newVariable();
 
@@ -1463,8 +1791,8 @@ exprCompile(SubExpr) {
     // Node *right;
     std::ostringstream os;
     
-    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
     CodegenResult r;
     r.place = newVariable();
 
@@ -1484,8 +1812,8 @@ exprCompile(MulExpr) {
     
      std::ostringstream os;
     
-    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
     CodegenResult r;
     r.place = newVariable();
 
@@ -1504,8 +1832,8 @@ exprCompile(DivExpr) {
     // Node *right;
     std::ostringstream os;
     
-    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
     CodegenResult r;
     r.place = newVariable();
 
@@ -1524,37 +1852,50 @@ exprCompile(ModExpr) {
     // Node *right;
     std::ostringstream os;
     
-    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
-    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+    CodegenResult r1 = exprCompile(root->left, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    CodegenResult r2 = exprCompile(root->right, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
     CodegenResult r;
     r.place = newVariable();
 
     os << r1.code << "\n";
     os << r2.code << "\n";
 
-    os << "%" << r.place << " = mod i32 %" << r1.place <<", %"<< r2.place << "\n";
+    os << "%" << r.place << " = srem i32 %" << r1.place <<", %"<< r2.place << "\n";
     r.code = os.str();
     return r;
 }
 
 exprCompile(UnaryAddExpr) {
-    // Node *expr;
+        // Node *expr;
     std::ostringstream os;
-    os << "UnaryAddExpr(";
-    if(root->expr)
-        os << exprCompile(root->expr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+    CodegenResult r;
+
+
+    CodegenResult exprResult = exprCompile(root->expr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    
+    os << exprResult.code;
+    r.place = exprResult.place;
+
+    r.code = os.str();
+    return r;
 }
 
 exprCompile(UnarySubExpr) {
     // Node *expr;
-    std::ostringstream os;
-    os << "UnarySubExpr(";
-    if(root->expr)
-        os << exprCompile(root->expr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable).code;
-    os << ")";
-    return {os.str(), ""};
+
+        std::ostringstream os;
+        CodegenResult r;
+    
+      
+        CodegenResult exprResult = exprCompile(root->expr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+        os << exprResult.code << "\n";
+    
+
+        r.place = newVariable();
+        os << "%" << r.place << " = sub i32 0, %" << exprResult.place << "\n";
+    
+        r.code = os.str();
+        return r;
 }
 
 exprCompile(Number) {
@@ -1579,29 +1920,72 @@ exprCompile(Identifier) {
     CodegenResult r; 
     r.place = newVariable();
 
-    auto it = vars.find(root->name);
+    auto it = vars.find(root->name + actualmethodName);
+    // auto it_global = vars.find(root->name);
+    auto itarray = arrayvarTable.find(root->name + actualmethodName);
+    // auto itarray_global = arrayvarTable.find(root->name + actualmethodName);
+
+    if (itarray != arrayvarTable.end()) { 
+        if(itarray->second.isArgument){
+
+        r.place = root->name + actualmethodName;
+        return r;
+        }else{
+            r.place = root->name + actualmethodName;
+            return r;
+        }
+
+   
+    }
+
 
     if (it == vars.end()) { 
         // La variable no existe en la tabla de símbolos
-    
-        throw std::runtime_error("Error: Variable '" + root->name + "' not declared.");
+    //FIX: VOLVER A ASIGNAR LOS EXCEPTIONS
+         throw std::runtime_error("Error: Variable (ID)'" + root->name + "' not declared.");
+    }
+
+    if (it->second.isArgument) {
+        // Es un argumento del método actual, se debe acceder de manera distinta
+        if(it->second.isRef){
+            os << "%" << r.place << " = load i32, i32* %" << root->name << actualmethodName << ", align 4";
+        }else{
+            // os << "%" << r.place << " = add i32 %" << root->name << ", 0";
+            r.place = root->name + actualmethodName;
+        }
+        r.code = os.str();
+        
+        return r;
+    } 
+
+    if (it == vars.end()) { 
+        // La variable no existe en la tabla de símbolos
+    //FIX: VOLVER A ASIGNAR LOS EXCEPTIONS
+        // throw std::runtime_error("Error: Variable (ID)'" + root->name + "' not declared.");
     } else if (!it->second.methodIdentifier.empty() && it->second.methodIdentifier != actualmethodName) {
         // Existe pero no pertenece al método actual ni es global
-        throw std::runtime_error("Error: Variable '" + root->name + "' is not accessible in the current scope.");
+        // throw std::runtime_error("Error: Variable '" + root->name + "' is not accessible in the current scope.");
     } else {
         // Existe y es alcanzable
         
         if (it->second.value.has_value()) {
-          
+            //FIX HACE OTRO QUE CONSIDERE LOS REFS
+            // if( it->second.methodIdentifier.empty()){//es global
+            //     os << "%" << r.place << " = load i32, i32* @" << root->name << ", align 4";
+            // }else{
+            //     os << "%" << r.place << " = load i32, i32* %" << root->name << ", align 4";
+            // }
+
             if( it->second.methodIdentifier.empty()){//es global
-                os << "%" << r.place << " = load i32, i32* @" << root->name << ", align 4";
+                
+                os << "%" << r.place << " = load i32, i32* @" << root->name << actualmethodName << ", align 4";
             }else{
-                os << "%" << r.place << " = load i32, i32* %" << root->name << ", align 4";
+                os << "%" << r.place << " = load i32, i32* %" << root->name << actualmethodName << ", align 4";
             }
            
         } else {
             // FIX: ERROR TEMPORALY DISABLED
-            throw std::runtime_error("Error: Variable '" + root->name + "' has no value.");
+            throw std::runtime_error("Error: Variable '" + root->name+ actualmethodName + "' has no value.");
         }
 
 
@@ -1634,23 +2018,96 @@ exprCompile(ArrayVariable) {
     std::ostringstream os;
     CodegenResult r;
 
-    auto it = arrayvarTable.find( root->name);
+    auto it = arrayvarTable.find( root->name+ actualmethodName);
+    auto it_global = arrayvarTable.find( root->name);
+
+    if(it_global != arrayvarTable.end()){
+        os<< ";ArrayVariable -----------" << "\n"; //COMMENT
+        // Indice de Arreglo
+        CodegenResult r1 = exprCompile(root->indexExpr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+        os << r1.code << "\n";
+        r.place = newVariable();
+        os << "%"<< r.place <<" = getelementptr ["<< it_global->second.values.size()<<" x i32], ["<< it_global->second.values.size()<<" x i32]* @"<< root->name <<", i32 0, i32 %"<< r1.place << "\n";
+        std::string index = r.place ; 
+        r.place = newVariable();
+        os << "%" << r.place << " = load i32, i32* %" << index << ", align 4";
+        os<< "\n;FIN - ArrayVariable --------" << "\n"; //COMMENT
+        r.code = os.str();
+    }else{
     if (it == arrayvarTable.end()){
-        throw std::runtime_error("Error: Array '" + root->name + "' not declared.");
+        throw std::runtime_error("Error: Array '" + root->name+ actualmethodName + "' not declared.");
     }else{
 
     os<< ";ArrayVariable -----------" << "\n"; //COMMENT
      // Indice de Arreglo
-     CodegenResult r1 = exprCompile(root->indexExpr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable);
+     CodegenResult r1 = exprCompile(root->indexExpr, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
      os << r1.code << "\n";
      r.place = newVariable();
-     os << "%"<< r.place <<" = getelementptr ["<< it->second.values.size()<<" x i32], ["<< it->second.values.size()<<" x i32]* %"<< root->name <<", i32 0, i32 %"<< r1.place << "\n";
-     std::string index = r.place; 
+     os << "%"<< r.place <<" = getelementptr ["<< it->second.values.size()<<" x i32], ["<< it->second.values.size()<<" x i32]* %"<< root->name << actualmethodName<<", i32 0, i32 %"<< r1.place << "\n";
+     std::string index = r.place ; 
      r.place = newVariable();
      os << "%" << r.place << " = load i32, i32* %" << index << ", align 4";
      os<< "\n;FIN - ArrayVariable --------" << "\n"; //COMMENT
      r.code = os.str();
     }
+    }
+    return r;
+}
 
+
+
+exprCompile(FunctionCall) {
+    // string_t identifier;
+    // Node *call_param_list;
+    std::ostringstream os;
+
+    auto it = methodTable.find(root->identifier);
+
+    if(it == methodTable.end()){
+        // FIX: IMPLEMENTAR ERRORES NO HAY METODO CON ESE NONBRE
+        throw std::runtime_error("Error: Method '" + root->identifier + actualmethodName+ "' not declared.");
+    }
+
+    std::string methodType = it->second.Type;
+
+
+    CodegenResult r; 
+    CodegenResult r1; 
+
+    arguments argsMethod = it->second.params; 
+    std::cout << "Method: " << root->identifier << " Arguments" << std::endl;
+    std::cout << "args: " << argsMethod.size() << std::endl;
+    for (int i = 0; i < argsMethod.size(); i++) {
+        std::cout << "args: " << argsMethod[i] << std::endl;
+    }
+
+    args = argsMethod;
+    if(root->call_param_list){
+        r1 = exprCompile(root->call_param_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, 0);
+ 
+    }
+
+    std::cout << "Function Call: " << root->identifier << " Params" << std::endl;
+    std::cout << "args: " << args.size() << std::endl;
+    std::cout << "args: " << paramPos << std::endl;
+    for (int i = 0; i < args.size(); i++) {
+        std::cout << "args: " << args[i] << std::endl;
+    }
+
+
+
+  
+    r.place = newVariable();
+    os << r1.code << "\n";
+    os << "%"<< r.place  <<" = call "<< it->second.Type << "@" << root->identifier <<"(";
+    // os << TIPO;
+
+    os << r1.place;
+    os << ")" << "\n";
+
+    r.code = os.str();
+   
+    
+   
     return r;
 }

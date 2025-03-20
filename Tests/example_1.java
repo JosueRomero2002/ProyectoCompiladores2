@@ -1,6 +1,6 @@
 class MatrixOperations {
 
-    int[9] matrix;
+    int matrix[9];
 
     int getSum() {
         int total;

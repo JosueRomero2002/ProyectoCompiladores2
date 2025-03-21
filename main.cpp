@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     
     
     std::unordered_map<std::string , variables > vars;
-    vars.insert({"a", variables{"", 1, nullptr}});
+    // vars.insert({"a", variables{"", 1, nullptr}});
 
 
     // std::unordered_map<std::string, Ast::Node *> Method_Table;

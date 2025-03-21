@@ -684,7 +684,11 @@ exprCompile(Program) {
        
     if(root->varmethod_decls) {
          CodegenResult r2 = exprCompile(root->varmethod_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
-           os << r2.code;
+           os << r2.code << "\n";
+        //    os << r2.place;
+           std::cout << "SIII HAY METODOS" << std::endl;
+    }else{
+        std::cout << "NO HAY METODOS" << std::endl;
     }
 
         
@@ -711,11 +715,15 @@ exprCompile(VarMethodDeclList){
     // Node *first_decl;   variables 
     // Node *rest_decls;   metodos
     std::ostringstream os;
-
+    std::string NoMethod;
+    CodegenResult r;
     // Variables
     Ast::MethodDeclList* Method_DLIST = dynamic_cast<Ast::MethodDeclList*>(root->first_decl);
-
-    if(Method_DLIST){
+    Ast::MethodDeclList* Method_DLIST_2 = dynamic_cast<Ast::MethodDeclList*>(root->rest_decls);
+  // os << "ITERACION " << "\n";
+  CodegenResult r1 =exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+    if(Method_DLIST ){
+        std::cout << "ES METOODO ------------ antes de declarar variables" << std::endl;
         // os << "ES METOODO";
         // os << "ret i32 0\n";
         // os << "}\n\n";
@@ -746,15 +754,52 @@ exprCompile(VarMethodDeclList){
             }
         }
 
-    }
-    // os << "ITERACION " << "\n";
+    }else{
+        std::cout << "ES METOODO ------------ antes de declarar variables" << std::endl;
+        NoMethod="";
+        for (const auto& [var, variable] : vars) {
+            if (variable.methodIdentifier == actualmethodName) {
+                if(variable.methodIdentifier.empty()){ // son globales
+                    NoMethod  +="    @" +  var + " = global i32 zeroinitializer\n";
+                    // @x = global i32 0 
+                }else{
+                    NoMethod  += "    %" +  var +  " = alloca i32, align 4\n";
+                }
+               
+            }
+        }
 
-    os << exprCompile(root->first_decl, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
+        for (const auto& [arrVarIdent, arrayVariable] : arrayvarTable) {
+            if (arrayVariable.methodIdentifier == actualmethodName) {
+                if(arrayVariable.methodIdentifier.empty()){ // son globales
+                    NoMethod += "    @" + arrVarIdent +  " = global ["+ std::to_string(arrayVariable.values.size()) +" x i32] zeroinitializer\n";
+                 
+                    // @global_array = global [10 x i32] zeroinitializer
+                }else{
+                    NoMethod  += "    %" + arrVarIdent +  " = alloca i32, align 4\n";
+                       // %array = alloca [10 x i32], align 4 
+                }
+               
+            }
+        }
+
+        
+    }
+  
+    os << r1.code;
+   
+   
+  
+   
     if(root->rest_decls){
     os << exprCompile(root->rest_decls, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos).code;
     }
 
-    return {os.str(), ""};
+
+   r.place = NoMethod;
+   r.code = os.str();
+
+    return r;
 }
 
 
@@ -786,9 +831,11 @@ exprCompile(VariableDecl) {
        
         CodegenResult r = exprCompile( arrayAccessNode->array_optional, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
         arrayvarTable[root->identifier + actualmethodName] = {actualmethodName, std::vector<std::optional<int>> (std::stoi(r.code), std::nullopt), nullptr}; 
-    
+        std::cout << "ARRAY CREADO" << root->identifier + actualmethodName << std::endl;
     } else {
-        vars[root->identifier + actualmethodName] = {actualmethodName, std::nullopt, nullptr}; 
+        vars[root->identifier + actualmethodName] = {actualmethodName, std::nullopt, nullptr};
+        
+        std::cout << "VARIABLE CREADA" << root->identifier + actualmethodName << std::endl;
 
     }
     if (root->variableDecl_Body) {
@@ -1131,7 +1178,22 @@ exprCompile(AssignStmt) {
             // ; Almacenar el valor 42 en la posición 2
             // store i32 42, i32* %idx
         }else{
+          
+
             if(root->expression){
+                auto it_global = vars.find( root->identifier);
+
+                if (it_global != vars.end()){
+                    CodegenResult r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
+                    os << r.code << "\n";
+        
+                    // auto it = vars.find( root->identifier + actualmethodName);
+                    if (it_global != vars.end()) it_global->second.value = 1; //Solucion Posible para determinar que tiene un valor
+                    os << "store " << "i32 %" << r.place << ", i32* @" << root->identifier << "\n";
+                   
+                }else{
+
+
                 CodegenResult r = exprCompile(root->expression, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
                 os << r.code << "\n";
     
@@ -1140,12 +1202,13 @@ exprCompile(AssignStmt) {
                 os << "store " << "i32 %" << r.place << ", i32* %" << root->identifier<<actualmethodName << "\n";
                
                 
+                 }
             }
 
-        }
     
     
-  
+    
+    }
   
     
         // os << ")";
@@ -1302,16 +1365,16 @@ exprCompile(CallStmt) {
     for (int i = 0; i < argsMethod.size(); i++) {
         std::cout << "args: " << argsMethod[i] << std::endl;
     }
-
+    paramPos=0;
     args = argsMethod;
     if(root->call_param_list){
-        r1 = exprCompile(root->call_param_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, 0);
+        r1 = exprCompile(root->call_param_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
  
     }
 
-    std::cout << "Function Call: " << root->identifier << " Params" << std::endl;
+    std::cout << "CallStmt: " << root->identifier << " Params" << std::endl;
     std::cout << "args: " << args.size() << std::endl;
-    std::cout << "args: " << paramPos << std::endl;
+    std::cout << "args paramPos: " << paramPos << std::endl;
     for (int i = 0; i < args.size(); i++) {
         std::cout << "args: " << args[i] << std::endl;
     }
@@ -1319,7 +1382,7 @@ exprCompile(CallStmt) {
   
     r.place = newVariable();
     os << r1.code << "\n";
-   os <<"call "<< it->second.Type << "@" << root->identifier <<"(";
+    os <<"call "<< it->second.Type << "@" << root->identifier <<"(";
     // os << TIPO;
 
     os << r1.place;
@@ -1378,7 +1441,7 @@ exprCompile(CallParamList) {
         // Registrar tipo en args
           r.place += llvmType + r1.place;
         // args.push_back(argType);
-        paramPos+=1;
+      
 
         // Procesar parámetros restantes
         if (root->call_param_rest) {
@@ -1436,7 +1499,7 @@ exprCompile(CallParamRest) {
         r.place += llvmType + r1.place;
     
         // args.push_back(argType);
-        paramPos+=1;
+        paramPos=4;
 
 
         if (root->call_param_rest) {
@@ -1921,7 +1984,7 @@ exprCompile(Identifier) {
     r.place = newVariable();
 
     auto it = vars.find(root->name + actualmethodName);
-    // auto it_global = vars.find(root->name);
+    auto it_global = vars.find(root->name);
     auto itarray = arrayvarTable.find(root->name + actualmethodName);
     // auto itarray_global = arrayvarTable.find(root->name + actualmethodName);
 
@@ -1938,6 +2001,29 @@ exprCompile(Identifier) {
    
     }
 
+   
+    if ( it_global != vars.end() ){
+        if (it_global->second.value.has_value()) {
+            //FIX HACE OTRO QUE CONSIDERE LOS REFS
+            // if( it->second.methodIdentifier.empty()){//es global
+            //     os << "%" << r.place << " = load i32, i32* @" << root->name << ", align 4";
+            // }else{
+            //     os << "%" << r.place << " = load i32, i32* %" << root->name << ", align 4";
+            // }
+
+            if( it_global->second.methodIdentifier.empty()){//es global
+                
+                os << "%" << r.place << " = load i32, i32* @" << root->name  << ", align 4";
+            }else{
+                os << "%" << r.place << " = load i32, i32* %" << root->name  << ", align 4";
+            }
+           
+        } else {
+            // FIX: ERROR TEMPORALY DISABLED
+            throw std::runtime_error("Error: Variable '" + root->name+ actualmethodName + "' has no value.");
+        }
+
+    }else{
 
     if (it == vars.end()) { 
         // La variable no existe en la tabla de símbolos
@@ -1990,7 +2076,7 @@ exprCompile(Identifier) {
 
 
     }
-
+}
     // os << "%" << r.place << " = load i32, i32* %" << root->name << ", align 4";
     // vars.insert({ r.place , variables{"", std::nullopt, nullptr}});
     
@@ -2082,14 +2168,15 @@ exprCompile(FunctionCall) {
     }
 
     args = argsMethod;
+    paramPos=0;
     if(root->call_param_list){
-        r1 = exprCompile(root->call_param_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, 0);
+        r1 = exprCompile(root->call_param_list, vars, methodTable, args, arrayvarTable, actualmethodName, textsTable, paramPos);
  
     }
 
     std::cout << "Function Call: " << root->identifier << " Params" << std::endl;
     std::cout << "args: " << args.size() << std::endl;
-    std::cout << "args: " << paramPos << std::endl;
+    std::cout << "args paramPos: " << paramPos << std::endl;
     for (int i = 0; i < args.size(); i++) {
         std::cout << "args: " << args[i] << std::endl;
     }
